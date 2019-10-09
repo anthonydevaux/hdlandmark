@@ -24,14 +24,14 @@ predY_newdata <- function(predRE, newdata){
 
   newdata <- newdata[which(!rownames(newdata)%in%na_subject),]
 
+  newdata <- newdata[which(newdata[,subject]%in%intersect(newdata[,subject], colnames(b))),]
+
   predY <- matrix(NA, nrow = length(unique(newdata[,subject])), ncol = 1,
                   dimnames = list(unique(newdata[,subject]), "predY"))
 
   predY_row <- 1
 
   for (ind_subject in unique(newdata[,subject])){
-
-    browser()
 
     ind <- which(newdata[,subject]==ind_subject)
 

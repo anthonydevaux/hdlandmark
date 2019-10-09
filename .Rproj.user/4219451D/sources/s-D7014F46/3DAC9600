@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "3DAC9600",
-    "lastKnownWriteTime" : 1570610367,
-    "last_content_update" : 1570610367307,
+    "lastKnownWriteTime" : 1570613813,
+    "last_content_update" : 1570613813942,
     "path" : "~/hdlandmark/R/predY_newdata.R",
     "project_path" : "R/predY_newdata.R",
     "properties" : {
-        "cursorPosition" : "21,0",
-        "scrollLine" : "5",
+        "cursorPosition" : "11,34",
+        "scrollLine" : "0",
         "tempName" : "Untitled1"
     },
     "read_only" : false,

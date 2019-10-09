@@ -2,14 +2,24 @@ derivY_newdata <- function(predRE, newdata, derivForm){
 
   subject <- predRE$formul$subject
 
+  na_subject <- NULL
+
   beta_deriv <- predRE$beta[derivForm$indFixed, , drop = FALSE]
   b_deriv <- t(predRE$b_i[,derivForm$indRandom])
 
   X_deriv_formula <- derivForm$fixed
   X_deriv <- model.matrix(X_deriv_formula, newdata)
 
+  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(X_deriv)))
+
   Z_deriv_formula <- derivForm$random
   Z_deriv <- model.matrix(Z_deriv_formula, newdata)
+
+  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(Z_deriv)))
+
+  newdata <- newdata[which(!rownames(newdata)%in%na_subject),]
+
+  newdata <- newdata[which(newdata[,subject]%in%intersect(newdata[,subject], colnames(b_deriv))),]
 
   Y_deriv <- matrix(NA, nrow = length(unique(newdata[,subject])), ncol = 1,
                     dimnames = list(unique(newdata[,subject]), "Y_deriv"))

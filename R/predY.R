@@ -1,13 +1,12 @@
-#' Title
+#' Function to predict longitudinal outcome
 #'
-#' @param predRE
-#' @param data
+#' @param predRE A list object from \code{predRE} function
+#' @param data A dataframe where each row containing some predictive variables for a specific subject
 #'
 #' @return
-#' @export
 #'
 #' @examples
-
+#'
 predY <- function(predRE, data){
 
   formul <- predRE$formul

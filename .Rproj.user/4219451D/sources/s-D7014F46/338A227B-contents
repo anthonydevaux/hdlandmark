@@ -1,4 +1,14 @@
-predRE_newdata <- function(model, newdata){
+#' Predict random effects data using hlme output
+#'
+#' @param model A \code{hlme} object
+#' @param data
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+predRE <- function(model, data){
 
   formul <- model$call
 
@@ -39,35 +49,35 @@ predRE_newdata <- function(model, newdata){
   # random design matrix
 
   Z_formula <- as.formula(formul$random)
-  Z <- model.matrix(Z_formula, newdata)
+  Z <- model.matrix(Z_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(Z)))
+  na_subject <- c(na_subject, setdiff(rownames(data), rownames(Z)))
 
   # à automatiser en fonction des variables du model
   # fixed design matrix
 
   X_formula <- as.formula(as.character(formul$fixed)[-2])
-  X <- model.matrix(X_formula, newdata)
+  X <- model.matrix(X_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(X)))
+  na_subject <- c(na_subject, setdiff(rownames(data), rownames(X)))
 
   # outcome
   Y_formula <- as.formula(paste(as.character(formul$fixed)[1], "-1+", as.character(formul$fixed)[2]))
-  Y <- model.matrix(Y_formula, newdata)
+  Y <- model.matrix(Y_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(Y)))
+  na_subject <- c(na_subject, setdiff(rownames(data), rownames(Y)))
 
-  newdata <- newdata[which(!rownames(newdata)%in%na_subject),]
+  data <- data[which(!rownames(data)%in%na_subject),]
 
-  predRE <- matrix(NA, nrow = length(unique(newdata[,subject])), ncol = num_random_effect,
-                   dimnames = list(unique(newdata[,subject]), colnames(Z)))
+  predRE <- matrix(NA, nrow = length(unique(data[,subject])), ncol = num_random_effect,
+                   dimnames = list(unique(data[,subject]), colnames(Z)))
   predRE_row <- 1
 
-  for (ind_subject in unique(newdata[,subject])){
+  for (ind_subject in unique(data[,subject])){
 
-    ind <- which(newdata[,subject]==ind_subject)
+    ind <- which(data[,subject]==ind_subject)
 
-    tot_subject <- nrow(newdata[ind,])
+    tot_subject <- nrow(data[ind,])
 
     Z_i <- matrix(Z[ind,], nrow = tot_subject)
     V_i <- Z_i%*%B%*%t(Z_i) + se^2*diag(tot_subject)

@@ -1,3 +1,17 @@
+#' Function to compute several summaries of longitudinal outcomes
+#'
+#' @param lmm_objects A list containing many \code{hlme} output as longitudinal outcome
+#' @param data A dataframe containing longitudinal data
+#' @param tLM An integer indicating the landmark time
+#' @param subject A character indicating the subject variable
+#' @param time A character indicating the time-dependent variable
+#' @param derivForm_objects A list containing many derivation form as longitudinal outcome
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
 landmark <- function(lmm_objects, data, tLM, subject, time, derivForm_objects){
 
   data_landmark <- data[which(data[,time]<tLM),]
@@ -18,17 +32,16 @@ landmark <- function(lmm_objects, data, tLM, subject, time, derivForm_objects){
   marker_ind <- 1
 
   for (lmm_object in lmm_objects){
-    browser()
 
     marker_name <- as.character(lmm_object$call$fixed)[2]
 
-    predRE <- predRE_newdata(lmm_object, data_landmark)
+    pred_RE <- predRE(lmm_object, data_landmark)
 
-    predY <- predY_newdata(predRE, data_surv)
-    data_surv[which(data_surv[,subject]%in%rownames(predY)),marker_name] <- predY
+    pred_Y <- predY(pred_RE, data_surv)
+    data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),marker_name] <- predY
 
-    derivY <- derivY_newdata(predRE, data_surv, derivForm_objects[[marker_ind]])
-    data_surv[which(data_surv[,subject]%in%rownames(derivY)),ncol(data_surv) + 1] <- derivY
+    deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
+    data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
     colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 
     marker_ind <- marker_ind + 1

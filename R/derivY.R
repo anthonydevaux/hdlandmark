@@ -1,13 +1,13 @@
-#' Title
+#' Function to predict the slope of longitudinal outcome
 #'
-#' @param predRE
-#' @param data
-#' @param derivForm
+#' @param predRE A list object from \code{predRE} function
+#' @param data A dataframe where each row containing some predictive variables for a specific subject
+#' @param derivForm A list containing the derivation form
 #'
 #' @return
-#' @export
 #'
 #' @examples
+#'
 derivY <- function(predRE, data, derivForm){
 
   subject <- predRE$formul$subject

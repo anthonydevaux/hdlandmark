@@ -56,5 +56,5 @@ predY <- function(predRE, data){
 
   }
 
-  return(predY)
+  return(Y_pred)
 }

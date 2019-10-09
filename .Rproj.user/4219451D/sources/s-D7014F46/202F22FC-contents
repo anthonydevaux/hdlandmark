@@ -3,6 +3,4 @@
 
 
 
-landmark(lmm_objects = list(lmm_serBilir, lmm_serChol), 
-                 data = pbc2_landmark, tLM = 4, subject = "id", time = "year", 
-                 derivForm_objects = list(derivForm_serBilir, derivForm_serChol))
+

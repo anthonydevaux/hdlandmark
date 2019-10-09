@@ -1,0 +1,104 @@
+"0","library(joineRML)
+"
+"2","Le chargement a nécessité le package : nlme
+"
+"2","Le chargement a nécessité le package : survival
+"
+"2","Registered S3 method overwritten by 'dplyr':
+  method           from
+  print.rowwise_df     
+"
+"0","library(dplyr)"
+"2","
+Attachement du package : ‘dplyr’
+
+"
+"2","The following object is masked from ‘package:nlme’:
+
+    collapse
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(epiR)"
+"2","Package epiR 1.0-4 is loaded
+"
+"2","Type help(epi.about) for summary information
+"
+"2","
+
+"
+"0","library(epiDisplay)"
+"2","Le chargement a nécessité le package : foreign
+"
+"2","Le chargement a nécessité le package : MASS
+"
+"2","
+Attachement du package : ‘MASS’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    select
+
+"
+"2","Le chargement a nécessité le package : nnet
+"
+"0","library(lcmm)"
+"2","
+Attachement du package : ‘lcmm’
+
+"
+"2","The following objects are masked from ‘package:nlme’:
+
+    fixef, ranef
+
+"
+"0","library(lattice)"
+"2","
+Attachement du package : ‘lattice’
+
+"
+"2","The following object is masked from ‘package:epiDisplay’:
+
+    dotplot
+
+"
+"0","library(nlme)"
+"0","library(ggplot2)"
+"2","
+Attachement du package : ‘ggplot2’
+
+"
+"2","The following object is masked from ‘package:epiDisplay’:
+
+    alpha
+
+"
+"0","library(lme4)"
+"2","Le chargement a nécessité le package : Matrix
+"
+"2","
+Attachement du package : ‘lme4’
+
+"
+"2","The following objects are masked from ‘package:lcmm’:
+
+    fixef, ranef
+
+"
+"2","The following object is masked from ‘package:nlme’:
+
+    lmList
+
+"
+"0","library(mfp)"
+"0","data(""pbc2"")"

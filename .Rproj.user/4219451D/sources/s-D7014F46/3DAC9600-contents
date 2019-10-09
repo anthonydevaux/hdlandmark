@@ -7,14 +7,22 @@ predY_newdata <- function(predRE, newdata){
 
   subject <- predRE$formul$subject
 
+  na_subject <- NULL
+
   num_fixed_effect <- length(beta)
   num_random_effect <- nrow(b)
 
   X_formula <- as.formula(as.character(formul$fixed)[-2])
   X <- model.matrix(X_formula, newdata)
 
+  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(X)))
+
   Z_formula <- as.formula(formul$random)
   Z <- model.matrix(Z_formula, newdata)
+
+  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(Z)))
+
+  newdata <- newdata[which(!rownames(newdata)%in%na_subject),]
 
   predY <- matrix(NA, nrow = length(unique(newdata[,subject])), ncol = 1,
                   dimnames = list(unique(newdata[,subject]), "predY"))
@@ -22,6 +30,8 @@ predY_newdata <- function(predRE, newdata){
   predY_row <- 1
 
   for (ind_subject in unique(newdata[,subject])){
+
+    browser()
 
     ind <- which(newdata[,subject]==ind_subject)
 

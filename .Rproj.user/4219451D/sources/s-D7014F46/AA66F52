@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570604703361.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "AA66F52",
+    "lastKnownWriteTime" : 1570548545,
+    "last_content_update" : 1570608108398,
+    "path" : "C:/Users/ad12/Seafile/These/Analyses/pbc2/pbc2_analysis.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "327,0",
+        "last_setup_crc32" : "D7014F461bbcd41a",
+        "scrollLine" : "313"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

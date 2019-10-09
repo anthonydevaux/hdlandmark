@@ -4,6 +4,8 @@ predRE_newdata <- function(model, newdata){
 
   subject <- formul$subject
 
+  na_subject <- NULL
+
   num_fixed_effect <- length(model$Xnames)
   num_random_effect <- ncol(model$predRE) - 1
 
@@ -39,15 +41,23 @@ predRE_newdata <- function(model, newdata){
   Z_formula <- as.formula(formul$random)
   Z <- model.matrix(Z_formula, newdata)
 
+  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(Z)))
+
   # à automatiser en fonction des variables du model
   # fixed design matrix
 
   X_formula <- as.formula(as.character(formul$fixed)[-2])
   X <- model.matrix(X_formula, newdata)
 
+  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(X)))
+
   # outcome
   Y_formula <- as.formula(paste(as.character(formul$fixed)[1], "-1+", as.character(formul$fixed)[2]))
   Y <- model.matrix(Y_formula, newdata)
+
+  na_subject <- c(na_subject, setdiff(rownames(newdata), rownames(Y)))
+
+  newdata <- newdata[which(!rownames(newdata)%in%na_subject),]
 
   predRE <- matrix(NA, nrow = length(unique(newdata[,subject])), ncol = num_random_effect,
                    dimnames = list(unique(newdata[,subject]), colnames(Z)))

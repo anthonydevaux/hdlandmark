@@ -1,0 +1,14 @@
+"0","lmm_serBilir <- hlme(fixed = serBilir2~year+sex+
+                       year*sex,
+                    random = ~1+year,
+                    subject = 'id',
+                    data = pbc2_landmark)
+"
+"1","Be patient, hlme is running ... 
+"
+"1","The program took"
+"1"," "
+"1","0.14"
+"1"," "
+"1","seconds 
+"

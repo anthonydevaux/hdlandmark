@@ -1,0 +1,7 @@
+# Rstudio user dependent created files
+
+.Rproj
+.user
+.Rproj.user/*
+*.Rproj
+.Rhistory

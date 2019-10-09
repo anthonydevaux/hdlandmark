@@ -3,7 +3,8 @@
 #' @param model A \code{hlme} object
 #' @param data A dataframe containing longitudinal data
 #'
-#' @return
+#' @return A list containing the random effect for each subject, the fixed coefficients
+#' from \code{hlme} and the formula used to compute the \code{hlme} mixed model
 #'
 #' @examples
 #'

@@ -1,9 +1,9 @@
-#' Function to predict longitudinal outcome
+#' Function to predict the value of longitudinal outcome for a specific time
 #'
 #' @param predRE A list object from \code{predRE} function
 #' @param data A dataframe where each row containing some predictive variables for a specific subject
 #'
-#' @return
+#' @return A matrix containing the prediction value of the longitudinal outcome for each subject
 #'
 #' @examples
 #'

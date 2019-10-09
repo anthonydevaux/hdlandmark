@@ -1,13 +1,13 @@
 #' Function to compute several summaries of longitudinal outcomes
 #'
-#' @param lmm_objects A list containing many \code{hlme} output as longitudinal outcome
+#' @param lmm_objects A list containing as many \code{hlme} output as longitudinal outcome
 #' @param data A dataframe containing longitudinal data
 #' @param tLM An integer indicating the landmark time
 #' @param subject A character indicating the subject variable
 #' @param time A character indicating the time-dependent variable
-#' @param derivForm_objects A list containing many derivation form as longitudinal outcome
+#' @param derivForm_objects A list containing as many derivation form as longitudinal outcome
 #'
-#' @return
+#' @return The original dataframe including the summaries compute from longitudinal outcomes
 #' @export
 #'
 #' @examples

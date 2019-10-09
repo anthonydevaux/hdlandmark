@@ -4,7 +4,7 @@
 #' @param data A dataframe where each row containing some predictive variables for a specific subject
 #' @param derivForm A list containing the derivation form
 #'
-#' @return
+#' @return A matrix containing the prediction slope of the longitudinal outcome for each subject
 #'
 #' @examples
 #'

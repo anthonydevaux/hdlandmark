@@ -38,7 +38,7 @@ derivY <- function(predRE, data, derivForm){
 
   for (ind_subject in unique(data[,subject])){
 
-    ind <- which(data[,subject]==ind_subject)
+    ind <- rownames(data[which(data[, subject] == ind_subject),])
 
     b_i_deriv <- b_deriv[,ind]
     X_i_deriv <- X_deriv[ind,]

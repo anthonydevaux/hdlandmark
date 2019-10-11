@@ -10,6 +10,8 @@
 #'
 predRE <- function(model, data){
 
+  browser()
+
   formul <- model$call
 
   subject <- formul$subject
@@ -75,7 +77,7 @@ predRE <- function(model, data){
 
   for (ind_subject in unique(data[,subject])){
 
-    ind <- which(data[,subject]==ind_subject)
+    ind <- rownames(data[which(data[, subject] == ind_subject),])
 
     tot_subject <- nrow(data[ind,])
 

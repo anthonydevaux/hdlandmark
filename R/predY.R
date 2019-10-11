@@ -42,7 +42,7 @@ predY <- function(predRE, data){
 
   for (ind_subject in unique(data[,subject])){
 
-    ind <- which(data[,subject]==ind_subject)
+    ind <- rownames(data[which(data[, subject] == ind_subject),])
 
     b_i <- b[,ind]
     X_i <- X[ind,]

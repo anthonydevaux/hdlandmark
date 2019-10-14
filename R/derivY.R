@@ -12,24 +12,24 @@ derivY <- function(predRE, data, derivForm){
 
   subject <- predRE$formul$subject
 
-  na_subject <- NULL
+  id_subject <- unique(data[,subject])
 
   beta_deriv <- predRE$beta[derivForm$indFixed, , drop = FALSE]
-  b_deriv <- t(predRE$b_i[,derivForm$indRandom])
+  b_deriv <- predRE$b_i[,derivForm$indRandom, drop = FALSE]
 
   X_deriv_formula <- derivForm$fixed
   X_deriv <- model.matrix(X_deriv_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(data), rownames(X_deriv)))
+  id_subject <- intersect(id_subject, data[rownames(X_deriv),subject])
 
   Z_deriv_formula <- derivForm$random
   Z_deriv <- model.matrix(Z_deriv_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(data), rownames(Z_deriv)))
+  id_subject <- intersect(id_subject, data[rownames(Z_deriv),subject])
 
-  data <- data[which(!rownames(data)%in%na_subject),]
+  id_subject <- intersect(id_subject, rownames(b_deriv))
 
-  data <- data[which(data[,subject]%in%intersect(data[,subject], colnames(b_deriv))),]
+  data <- data[which(data[,subject]%in%id_subject),]
 
   Y_deriv <- matrix(NA, nrow = length(unique(data[,subject])), ncol = 1,
                     dimnames = list(unique(data[,subject]), "Y_deriv"))
@@ -40,7 +40,7 @@ derivY <- function(predRE, data, derivForm){
 
     ind <- rownames(data[which(data[, subject] == ind_subject),])
 
-    b_i_deriv <- b_deriv[,ind]
+    b_i_deriv <- b_deriv[which(rownames(b_deriv)==ind_subject), ]
     X_i_deriv <- X_deriv[ind,]
     Z_i_deriv <- Z_deriv[ind,]
 

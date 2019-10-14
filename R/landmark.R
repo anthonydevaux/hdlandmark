@@ -37,6 +37,8 @@ landmark <- function(lmm_objects, data, tLM, subject, time, derivForm_objects){
 
     pred_RE <- predRE(lmm_object, data_landmark)
 
+    data_surv[, marker_name] <- NA
+
     pred_Y <- predY(pred_RE, data_surv)
     data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),marker_name] <- pred_Y
 

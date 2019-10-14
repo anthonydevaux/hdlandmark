@@ -10,13 +10,11 @@
 #'
 predRE <- function(model, data){
 
-  browser()
-
   formul <- model$call
 
   subject <- formul$subject
 
-  na_subject <- NULL
+  row_subject <- rownames(data)
 
   num_fixed_effect <- length(model$Xnames)
   num_random_effect <- ncol(model$predRE) - 1
@@ -53,7 +51,7 @@ predRE <- function(model, data){
   Z_formula <- as.formula(formul$random)
   Z <- model.matrix(Z_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(data), rownames(Z)))
+  row_subject <- intersect(row_subject, rownames(Z))
 
   # à automatiser en fonction des variables du model
   # fixed design matrix
@@ -61,15 +59,15 @@ predRE <- function(model, data){
   X_formula <- as.formula(as.character(formul$fixed)[-2])
   X <- model.matrix(X_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(data), rownames(X)))
+  row_subject <- intersect(row_subject, rownames(X))
 
   # outcome
   Y_formula <- as.formula(paste(as.character(formul$fixed)[1], "-1+", as.character(formul$fixed)[2]))
   Y <- model.matrix(Y_formula, data)
 
-  na_subject <- c(na_subject, setdiff(rownames(data), rownames(Y)))
+  row_subject <- intersect(row_subject, rownames(Y))
 
-  data <- data[which(!rownames(data)%in%na_subject),]
+  data <- data[row_subject,]
 
   predRE <- matrix(NA, nrow = length(unique(data[,subject])), ncol = num_random_effect,
                    dimnames = list(unique(data[,subject]), colnames(Z)))
@@ -79,10 +77,10 @@ predRE <- function(model, data){
 
     ind <- rownames(data[which(data[, subject] == ind_subject),])
 
-    tot_subject <- nrow(data[ind,])
+    Lsubject <- nrow(data[ind,])
 
-    Z_i <- matrix(Z[ind,], nrow = tot_subject)
-    V_i <- Z_i%*%B%*%t(Z_i) + se^2*diag(tot_subject)
+    Z_i <- matrix(Z[ind,], nrow = Lsubject)
+    V_i <- Z_i%*%B%*%t(Z_i) + se^2*diag(Lsubject)
     Y_i <- Y[ind,]
     X_i <- X[ind,]
     b_i <- B%*%t(Z_i)%*%solve(V_i)%*%(Y_i-X_i%*%beta)

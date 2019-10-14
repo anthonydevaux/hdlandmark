@@ -2,7 +2,6 @@
 
 .Rproj
 .user
-.Rproj.user/*
+.Rproj.user/
 *.Rproj
 .Rhistory
-.Rproj.user*

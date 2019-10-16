@@ -7,7 +7,7 @@
 #'
 #' @examples
 #'
-predY <- function(predRE, data){
+predY <- function(predRE, data, time, tLM){
 
   formul <- predRE$formul
 
@@ -18,8 +18,7 @@ predY <- function(predRE, data){
 
   id_subject <- unique(data[,subject])
 
-  num_fixed_effect <- length(beta)
-  num_random_effect <- nrow(b)
+  data[,time] <- tLM
 
   X_formula <- as.formula(as.character(formul$fixed)[-2])
   X <- model.matrix(X_formula, data)

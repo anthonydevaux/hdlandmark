@@ -53,7 +53,6 @@ predRE <- function(model, data){
 
   row_subject <- intersect(row_subject, rownames(Z))
 
-  # à automatiser en fonction des variables du model
   # fixed design matrix
 
   X_formula <- as.formula(as.character(formul$fixed)[-2])

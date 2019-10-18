@@ -11,16 +11,18 @@
 #'
 #' @examples
 #'
-cumulY <- function(predRE, data, time, tLM, HW){
+cumulY <- function(predRE, data, time, marker_name, tLM, HW){
 
   subject <- predRE$formul$subject
 
-  Y_cumul <- matrix(NA, nrow = length(unique(data[,subject])), ncol = 1,
-                    dimnames = list(unique(data[,subject]), "Y_cumul"))
+  ind_subjects <- unique(data[!is.na(data[,marker_name]),subject])
+
+  Y_cumul <- matrix(NA, nrow = length(ind_subjects), ncol = 1,
+                    dimnames = list(ind_subjects, "Y_cumul"))
 
   Y_cumul_row <- 1
 
-  for (ind_subject in unique(data[,subject])){
+  for (ind_subject in ind_subjects){
 
     newdata_id <- data[data$id==ind_subject,]
 

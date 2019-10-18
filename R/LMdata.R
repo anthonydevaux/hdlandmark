@@ -65,7 +65,7 @@ LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW 
     colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 
     # cumulative value at landmark time
-    cumul_Y <- cumulY(pred_RE, data_surv, time, tLM, HW)
+    cumul_Y <- cumulY(pred_RE, data_surv, time, marker_name, tLM, HW)
     data_surv[which(data_surv[,subject]%in%rownames(cumul_Y)),ncol(data_surv) + 1] <- cumul_Y
     colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
 

@@ -4,7 +4,8 @@
 \alias{LMdata}
 \title{Function to compute several summaries of longitudinal outcomes}
 \usage{
-LMdata(lmm_objects, data, tLM, subject, time, derivForm_objects)
+LMdata(lmm_objects, data, tLM, subject, time, derivForm_objects,
+  HW = tLM)
 }
 \arguments{
 \item{lmm_objects}{A list containing as many \code{hlme} output as longitudinal outcome}
@@ -18,6 +19,9 @@ LMdata(lmm_objects, data, tLM, subject, time, derivForm_objects)
 \item{time}{A character indicating the time-dependent variable}
 
 \item{derivForm_objects}{A list containing as many derivation form as longitudinal outcome}
+
+\item{HW}{An integer meaning the range of history window for computing the cumulative values.
+Default is \code{HW = tLM} resulting of the entire history.}
 }
 \value{
 The original dataframe including the summaries compute from longitudinal outcomes

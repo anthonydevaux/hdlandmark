@@ -6,6 +6,8 @@
 #' @param subject A character indicating the subject variable
 #' @param time A character indicating the time-dependent variable
 #' @param derivForm_objects A list containing as many derivation form as longitudinal outcome
+#' @param HW An integer meaning the range of history window for computing the cumulative values.
+#' Default is \code{HW = tLM} resulting of the entire history.
 #'
 #' @return The original dataframe including the summaries compute from longitudinal outcomes
 #' @export
@@ -14,7 +16,7 @@
 #'
 #' @examples
 #'
-landmark <- function(lmm_objects, data, tLM, subject, time, derivForm_objects){
+LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW = tLM){
 
   data_landmark <- data[which(data[,time]<tLM),]
 
@@ -35,6 +37,7 @@ landmark <- function(lmm_objects, data, tLM, subject, time, derivForm_objects){
 
     marker_name <- as.character(lmm_object$call$fixed)[2]
 
+    # random effects
     pred_RE <- predRE(lmm_object, data_landmark)
     data_surv[which(data_surv[,subject]%in%rownames(pred_RE$b_i)),
               (ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- pred_RE$b_i
@@ -52,14 +55,19 @@ landmark <- function(lmm_objects, data, tLM, subject, time, derivForm_objects){
 
     data_surv[, marker_name] <- NA
 
+    # prediction at landmark time
     pred_Y <- predY(pred_RE, data_surv, time, tLM)
     data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),marker_name] <- pred_Y
 
+    # slope at landmark time
     deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
     data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
     colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 
-    #cumul_Y <- cumulY(pred_RE, data_surv, time, tLM)
+    # cumulative value at landmark time
+    cumul_Y <- cumulY(pred_RE, data_surv, time, tLM, HW)
+    data_surv[which(data_surv[,subject]%in%rownames(cumul_Y)),ncol(data_surv) + 1] <- cumul_Y
+    colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
 
     marker_ind <- marker_ind + 1
 

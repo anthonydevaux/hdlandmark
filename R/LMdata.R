@@ -8,6 +8,7 @@
 #' @param derivForm_objects A list containing as many derivation form as longitudinal outcome
 #' @param HW An integer meaning the range of history window for computing the cumulative values.
 #' Default is \code{HW = tLM} resulting of the entire history.
+#' @param threshold A list containing a numeric threshold
 #'
 #' @return The original dataframe including the summaries compute from longitudinal outcomes
 #' @export
@@ -16,7 +17,8 @@
 #'
 #' @examples
 #'
-LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW = tLM){
+LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW = tLM,
+                   threshold = NULL){
 
   data_landmark <- data[which(data[,time]<tLM),]
 
@@ -37,7 +39,10 @@ LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW 
 
     marker_name <- as.character(lmm_object$call$fixed)[2]
 
+    cat(paste0("Marker : ",marker_name), "\n")
+
     # random effects
+    cat("random effect...")
     pred_RE <- predRE(lmm_object, data_landmark)
     data_surv[which(data_surv[,subject]%in%rownames(pred_RE$b_i)),
               (ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- pred_RE$b_i
@@ -56,24 +61,42 @@ LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW 
     data_surv[, marker_name] <- NA
 
     # prediction at landmark time
+    cat("prediction...")
     pred_Y <- predY(pred_RE, data_surv, time, tLM)
     data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),marker_name] <- pred_Y
 
     # slope at landmark time
+    cat("slope...")
     deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
     data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
     colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 
     # cumulative value at landmark time
+    cat("cumulative...")
     cumul_Y <- cumulY(pred_RE, data_surv, time, marker_name, tLM, HW)
     data_surv[which(data_surv[,subject]%in%rownames(cumul_Y)),ncol(data_surv) + 1] <- cumul_Y
     colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
 
+    # threshold cumulative value at landmark time
+    if (!is.null(threshold[[marker_name]])){
+
+      cat("threshold...")
+      threshold_value <- threshold[[marker_name]]
+
+      threshold_Y <- thresholdY(pred_RE, data_surv, time, marker_name, tLM, threshold = threshold_value)
+      data_surv[which(data_surv[,subject]%in%rownames(threshold_Y)),ncol(data_surv) + 1] <- threshold_Y
+      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "threshold", threshold_value, sep = "_")
+
+    }
+
     marker_ind <- marker_ind + 1
+    cat("\n")
 
   }
 
   data_surv[,time] <- tLM
+
+  cat("DONE!!!", "\n")
 
   return(data_surv)
 }

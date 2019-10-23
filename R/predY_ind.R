@@ -7,12 +7,30 @@
 #'
 #' @examples
 #'
-predY_ind <- function(predRE, data, time, tLM){
+predY_ind <- function(predRE, data, time, tLM, threshold = NULL){
 
   pred_Y <- c()
 
-  for (i in 1:length(tLM)){
-    pred_Y <- c(pred_Y, predY(predRE, data, time, tLM[i]))
+  if (is.null(threshold)){
+
+    for (i in 1:length(tLM)){
+
+      predY_value <- predY(predRE, data, time, tLM[i])
+
+      pred_Y <- c(pred_Y, predY_value)
+
+    }
+
+  }else{
+
+    for (i in 1:length(tLM)){
+
+      predY_value <- max(0, predY(predRE, data, time, tLM[i]) - threshold)
+
+      pred_Y <- c(pred_Y, predY_value)
+
+    }
+
   }
 
   return(pred_Y)

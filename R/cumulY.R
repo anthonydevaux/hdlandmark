@@ -50,10 +50,3 @@ cumulY <- function(predRE, data, time, marker_name, tLM, HW){
   return(Y_cumul)
 
 }
-
-
-# test <- function(tLM){
-#   sapply(tLM, function(predRE, data, time){
-#     predY(predRE, data, time)
-#   })
-# }

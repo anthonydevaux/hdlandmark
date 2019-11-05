@@ -4,7 +4,7 @@
 \alias{thresholdY}
 \title{Title}
 \usage{
-thresholdY()
+thresholdY(predRE, data, time, marker_name, tLM, threshold = NULL)
 }
 \description{
 Title

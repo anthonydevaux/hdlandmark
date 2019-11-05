@@ -4,7 +4,7 @@
 \alias{predY_ind}
 \title{Function to predict the value of longitudinal outcome for a specific time}
 \usage{
-predY_ind(predRE, data, time, tLM)
+predY_ind(predRE, data, time, tLM, threshold = NULL)
 }
 \arguments{
 \item{predRE}{A list object from \code{predRE} function}

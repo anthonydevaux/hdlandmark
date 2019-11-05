@@ -44,6 +44,44 @@ LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW 
     # random effects
     cat("random effect...")
     pred_RE <- predRE(lmm_object, data_landmark)
+
+    if (nrow(pred_RE$b_i)==0){
+      marker_ind <- marker_ind + 1
+
+      # RE
+      data_surv[,(ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- NA
+      b_i_var <- colnames(pred_RE$b_i)
+      b_i_var_issue <- str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+
+      if (any(b_i_var_issue)){
+        b_i_var[b_i_var_issue] <-
+          regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
+      }
+
+      colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
+        paste(marker_name, "RE", b_i_var, sep = "_")
+
+      # pred
+      data_surv[,ncol(data_surv) + 1] <- NA
+      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
+
+      # slope
+      data_surv[,ncol(data_surv) + 1] <- NA
+      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
+
+      # cumul
+      data_surv[,ncol(data_surv) + 1] <- NA
+      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
+
+      # threshold
+      if (!is.null(threshold[[marker_name]])){
+        data_surv[,ncol(data_surv) + 1] <- NA
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "threshold", threshold_value, sep = "_")
+      }
+
+      next(paste("Unable to compute random effects for marker",marker_name))
+    }
+
     data_surv[which(data_surv[,subject]%in%rownames(pred_RE$b_i)),
               (ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- pred_RE$b_i
 
@@ -58,12 +96,11 @@ LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW 
     colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
       paste(marker_name, "RE", b_i_var, sep = "_")
 
-    data_surv[, marker_name] <- NA
-
     # prediction at landmark time
     cat("prediction...")
     pred_Y <- predY(pred_RE, data_surv, time, tLM)
-    data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),marker_name] <- pred_Y
+    data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),ncol(data_surv) + 1] <- pred_Y
+    colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
 
     # slope at landmark time
     cat("slope...")

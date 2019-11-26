@@ -51,7 +51,7 @@ LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW 
       # RE
       data_surv[,(ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- NA
       b_i_var <- colnames(pred_RE$b_i)
-      b_i_var_issue <- str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+      b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
 
       if (any(b_i_var_issue)){
         b_i_var[b_i_var_issue] <-
@@ -86,7 +86,7 @@ LMdata <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW 
               (ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- pred_RE$b_i
 
     b_i_var <- colnames(pred_RE$b_i)
-    b_i_var_issue <- str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+    b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
 
     if (any(b_i_var_issue)){
       b_i_var[b_i_var_issue] <-

@@ -12,12 +12,12 @@
 #'
 #' @examples
 #'
-LMsurv <- function(method = c("LM-cox","LM-rsf","cox"), models,
+LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-cox-lasso"), models,
                    newdata, time, subject,
                    tHor){
 
-  if (!all(method%in%c("LM-cox","LM-rsf","cox"))){
-    stop("Only options available for method are 'LM-cox', 'LM-rsf' and 'cox'")
+  if (!all(method%in%c("LM-cox","LM-rsf","cox","LM-cox-lasso"))){
+    stop("Only options available for method are 'LM-cox', 'LM-rsf', 'LM-cox-lasso' and 'cox'")
   }
 
   nb_method <- length(method)
@@ -35,7 +35,7 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox"), models,
     newdata.LMcox <- subset(newdata, select = -c(serBilir2,serChol2,albumin,alkaline2,
                                                  SGOT2,platelets2,prothrombin2))
 
-    res_survfit <- survfit(models[["LM-cox"]], newdata.LMcox)
+    res_survfit <- survival::survfit(models[["LM-cox"]], newdata.LMcox)
     id_time <- sum(res_survfit$time <= tHor)
 
     if (n > 1){
@@ -58,7 +58,7 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox"), models,
     newdata.cox <- subset(newdata, select = c(drug,age,sex,serBilir2,serChol2,
                                               albumin,alkaline2,SGOT2,platelets2,prothrombin2))
 
-    res_survfit <- survfit(models[["cox"]], newdata.cox)
+    res_survfit <- survival::survfit(models[["cox"]], newdata.cox)
     id_time <- sum(res_survfit$time <= tHor)
 
     if (n > 1){
@@ -83,7 +83,7 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox"), models,
 
       if (n > 1){
 
-        res_survfit <- predict.rfsrc(models[["LM-rsf"]], newdata.LMrsf)
+        res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf"]], newdata.LMrsf)
         id_time <- sum(res_survfit$time.interest <= tHor)
         formula.xvar <- as.formula(as.character(model_obj$`LM-rsf`$call$formula)[c(1,3)])
         id_no_na <- rownames(model.frame(formula.xvar,
@@ -98,7 +98,7 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox"), models,
 
         }else{
 
-          res_survfit <- predict.rfsrc(models[["LM-rsf"]], newdata.LMrsf)
+          res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf"]], newdata.LMrsf)
           id_time <- sum(res_survfit$time.interest <= tHor)
           pred_surv[1,"LM-rsf"] <- res_survfit$survival[id_time]
 
@@ -107,6 +107,33 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox"), models,
       }
 
   }
+
+
+  if (any(method == "LM-cox-lasso")){
+    if (is.null(models[["LM-cox-lasso"]])){
+      stop("No model found in models for method = LM-cox-lasso", "\n")
+    }
+
+    newdata.LMcoxLasso <- na.omit(subset(newdata, select = -c(id,year,serBilir2,serChol2,albumin,alkaline2,
+                                                 SGOT2,platelets2,prothrombin2)))
+
+    pred.LMcoxLasso <- predict(models[["LM-cox-lasso"]], data = newdata.LMcoxLasso)
+
+    res.surv.pred <- survival(pred.LMcoxLasso, time = tHor)
+
+    if (n > 1){
+
+      pred_surv[intersect(names(res.surv.pred),rownames(pred_surv)),"LM-cox-lasso"] <-
+        res.surv.pred
+
+    }else{
+
+      pred_surv[1,"LM-cox-lasso"] <- res.surv.pred
+
+    }
+
+  }
+
 
   return(pred_surv)
 }

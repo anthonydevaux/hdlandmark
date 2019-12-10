@@ -2,34 +2,15 @@
 % Please edit documentation in R/LMdata.R
 \name{LMdata}
 \alias{LMdata}
-\title{Function to compute several summaries of longitudinal outcomes}
+\title{Title}
 \usage{
-LMdata(lmm_objects, data, tLM, subject, time, derivForm_objects,
-  HW = tLM, threshold = NULL)
+LMdata(data, time, time_event, event, tHor)
 }
 \arguments{
-\item{lmm_objects}{A list containing as many \code{hlme} output as longitudinal outcome}
-
-\item{data}{A dataframe containing longitudinal data}
-
-\item{tLM}{An integer indicating the landmark time}
-
-\item{subject}{A character indicating the subject variable}
-
-\item{time}{A character indicating the time-dependent variable}
-
-\item{derivForm_objects}{A list containing as many derivation form as longitudinal outcome}
-
-\item{HW}{An integer meaning the range of history window for computing the cumulative values.
-Default is \code{HW = tLM} resulting of the entire history.}
-
-\item{threshold}{A list containing a numeric threshold}
-}
-\value{
-The original dataframe including the summaries compute from longitudinal outcomes
+\item{tHor}{}
 }
 \description{
-Function to compute several summaries of longitudinal outcomes
+Title
 }
 \examples{
 

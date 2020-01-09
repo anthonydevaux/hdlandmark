@@ -4,8 +4,8 @@
 \alias{LMsurv}
 \title{Title}
 \usage{
-LMsurv(method = c("LM-cox", "LM-rsf", "cox", "LM-cox-lasso"), models,
-  newdata, time, subject, tHor)
+LMsurv(method = c("LM-cox", "LM-rsf", "cox", "LM-coxnet", "LM-splsDR"),
+  models, newdata, time, subject, tHor)
 }
 \arguments{
 \item{tHor}{}

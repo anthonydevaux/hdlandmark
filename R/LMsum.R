@@ -18,7 +18,9 @@
 #' @examples
 #'
 LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW = tLM,
-                   threshold = NULL){
+                  threshold = NULL){
+
+  browser()
 
   data_landmark <- data[which(data[,time]<tLM),]
 
@@ -37,92 +39,167 @@ LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW =
 
   for (lmm_object in lmm_objects){
 
-    marker_name <- as.character(lmm_object$call$fixed)[2]
+    if (class(lmm_object)=="hlme"){
+
+      marker_name <- as.character(lmm_object$call$fixed)[2]
+
+    }else if (class(lmm_object)=="glmerMod"){
+
+      marker_name <- as.character(formula(lmm_object))[2]
+
+    }
 
     cat(paste0("Marker : ",marker_name), "\n")
 
     # random effects
     cat("random effect...")
-    pred_RE <- predRE(lmm_object, data_landmark)
 
-    if (nrow(pred_RE$b_i)==0){
-      marker_ind <- marker_ind + 1
+    # marqueur continu
+    if (class(data_landmark[,marker_name])=="numeric"){
 
-      # RE
-      data_surv[,(ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- NA
-      b_i_var <- colnames(pred_RE$b_i)
-      b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+      pred_RE <- predRE(lmm_object, data_landmark)
 
-      if (any(b_i_var_issue)){
-        b_i_var[b_i_var_issue] <-
-          regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
-      }
+      if (nrow(pred_RE$b_i)==0){
+        marker_ind <- marker_ind + 1
 
-      colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
-        paste(marker_name, "RE", b_i_var, sep = "_")
+        # RE
+        data_surv[,(ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- NA
+        b_i_var <- colnames(pred_RE$b_i)
+        b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
 
-      # pred
-      data_surv[,ncol(data_surv) + 1] <- NA
-      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
+        if (any(b_i_var_issue)){
+          b_i_var[b_i_var_issue] <-
+            regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
+        }
 
-      # slope
-      data_surv[,ncol(data_surv) + 1] <- NA
-      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
+        colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
+          paste(marker_name, "RE", b_i_var, sep = "_")
 
-      # cumul
-      data_surv[,ncol(data_surv) + 1] <- NA
-      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
-
-      # threshold
-      if (!is.null(threshold[[marker_name]])){
+        # pred
         data_surv[,ncol(data_surv) + 1] <- NA
-        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "threshold", threshold_value, sep = "_")
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
+
+        # slope
+        data_surv[,ncol(data_surv) + 1] <- NA
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
+
+        # cumul
+        data_surv[,ncol(data_surv) + 1] <- NA
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
+
+        # threshold
+        if (!is.null(threshold[[marker_name]])){
+          data_surv[,ncol(data_surv) + 1] <- NA
+          colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "threshold", threshold_value, sep = "_")
+        }
+
+        next(paste("Unable to compute random effects for marker", marker_name))
+
+      }else{
+
+        data_surv[which(data_surv[,subject]%in%rownames(pred_RE$b_i)),
+                  (ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- pred_RE$b_i
+
+        b_i_var <- colnames(pred_RE$b_i)
+        b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+
+        if (any(b_i_var_issue)){
+          b_i_var[b_i_var_issue] <-
+            regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
+        }
+
+        colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
+          paste(marker_name, "RE", b_i_var, sep = "_")
+
+        # prediction at landmark time
+        cat("prediction...")
+        pred_Y <- predY(pred_RE, data_surv, time, tLM)
+        data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),ncol(data_surv) + 1] <- pred_Y
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
+
+        # slope at landmark time
+        cat("slope...")
+        deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
+        data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
+
+        # cumulative value at landmark time
+        cat("cumulative...")
+        cumul_Y <- cumulY(pred_RE, data_surv, time, marker_name, tLM, HW)
+        data_surv[which(data_surv[,subject]%in%rownames(cumul_Y)),ncol(data_surv) + 1] <- cumul_Y
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
+
+        # threshold cumulative value at landmark time
+        if (!is.null(threshold[[marker_name]])){
+
+          cat("threshold...")
+          threshold_value <- threshold[[marker_name]]
+
+          threshold_Y <- thresholdY(pred_RE, data_surv, time, marker_name, tLM, threshold = threshold_value)
+          data_surv[which(data_surv[,subject]%in%rownames(threshold_Y)),ncol(data_surv) + 1] <- threshold_Y
+          colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "threshold", threshold_value, sep = "_")
+
+        }
       }
 
-      next(paste("Unable to compute random effects for marker",marker_name))
-    }
+    # marqueur binaire
+    }else if (class(data_landmark[,marker_name])=="factor"){
 
-    data_surv[which(data_surv[,subject]%in%rownames(pred_RE$b_i)),
-              (ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- pred_RE$b_i
+      pred_RE <- predRE.binary(lmm_object, data_landmark)
 
-    b_i_var <- colnames(pred_RE$b_i)
-    b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+      if (nrow(pred_RE$b_i)==0){
+        marker_ind <- marker_ind + 1
 
-    if (any(b_i_var_issue)){
-      b_i_var[b_i_var_issue] <-
-        regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
-    }
+        # RE
+        data_surv[,(ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- NA
+        b_i_var <- colnames(pred_RE$b_i)
+        b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
 
-    colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
-      paste(marker_name, "RE", b_i_var, sep = "_")
+        if (any(b_i_var_issue)){
+          b_i_var[b_i_var_issue] <-
+            regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
+        }
 
-    # prediction at landmark time
-    cat("prediction...")
-    pred_Y <- predY(pred_RE, data_surv, time, tLM)
-    data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),ncol(data_surv) + 1] <- pred_Y
-    colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
+        colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
+          paste(marker_name, "RE", b_i_var, sep = "_")
 
-    # slope at landmark time
-    cat("slope...")
-    deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
-    data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
-    colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
+        # pred
+        data_surv[,ncol(data_surv) + 1] <- NA
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
 
-    # cumulative value at landmark time
-    cat("cumulative...")
-    cumul_Y <- cumulY(pred_RE, data_surv, time, marker_name, tLM, HW)
-    data_surv[which(data_surv[,subject]%in%rownames(cumul_Y)),ncol(data_surv) + 1] <- cumul_Y
-    colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
+        # slope
+        data_surv[,ncol(data_surv) + 1] <- NA
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 
-    # threshold cumulative value at landmark time
-    if (!is.null(threshold[[marker_name]])){
+        # cumul
+        data_surv[,ncol(data_surv) + 1] <- NA
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
 
-      cat("threshold...")
-      threshold_value <- threshold[[marker_name]]
+        # threshold
+        if (!is.null(threshold[[marker_name]])){
+          data_surv[,ncol(data_surv) + 1] <- NA
+          colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "threshold", threshold_value, sep = "_")
+        }
 
-      threshold_Y <- thresholdY(pred_RE, data_surv, time, marker_name, tLM, threshold = threshold_value)
-      data_surv[which(data_surv[,subject]%in%rownames(threshold_Y)),ncol(data_surv) + 1] <- threshold_Y
-      colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "threshold", threshold_value, sep = "_")
+        next(paste("Unable to compute random effects for marker", marker_name))
+
+      }else{
+
+        data_surv[which(data_surv[,subject]%in%rownames(pred_RE$b_i)),
+                  (ncol(data_surv) + 1):(ncol(data_surv) + ncol(pred_RE$b_i))] <- pred_RE$b_i
+
+        b_i_var <- colnames(pred_RE$b_i)
+        b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+
+        if (any(b_i_var_issue)){
+          b_i_var[b_i_var_issue] <-
+            regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
+        }
+
+        colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
+          paste(marker_name, "RE", b_i_var, sep = "_")
+
+      }
 
     }
 

@@ -44,6 +44,10 @@ predRE.binary <- function(model, data){
       den <- 1+exp(X.mat%*%beta+Z.mat%*%bi)
       f1 <- prod(num/den) # f(Yi|bi)
 
+
+
+
+
       q <- nrow(B)
       f2 <- ((2*pi)^(-q/2))*(det(B)^(-1/2))*exp(-0.5*bi%*%solve(B)%*%bi) # f(bi) loi normale multivariee
 

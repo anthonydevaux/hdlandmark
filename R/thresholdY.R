@@ -7,7 +7,7 @@
 #'
 thresholdY <- function(predRE, data, time, marker_name, tLM, threshold = NULL){
 
-  subject <- predRE$formul$subject
+  subject <- predRE$group
 
   ind_subjects <- unique(data[!is.na(data[,marker_name]),subject])
 

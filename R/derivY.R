@@ -10,24 +10,43 @@
 #'
 derivY <- function(predRE, data, derivForm){
 
-  subject <- predRE$formul$subject
+  if (is.null(derivForm$fixed) | is.null(derivForm$indFixed)){
+
+    stop("Fixed or indFixed argument missing in derivForm !", "\n")
+
+  }
+
+  subject <- predRE$group
 
   id_subject <- unique(data[,subject])
 
-  beta_deriv <- predRE$beta[derivForm$indFixed, , drop = FALSE]
-  b_deriv <- predRE$b_i[,derivForm$indRandom, drop = FALSE]
+  beta_deriv <- predRE$beta[derivForm$indFixed]
 
   X_deriv_formula <- derivForm$fixed
   X_deriv <- model.matrix(X_deriv_formula, data)
 
   id_subject <- intersect(id_subject, data[rownames(X_deriv),subject])
 
-  Z_deriv_formula <- derivForm$random
-  Z_deriv <- model.matrix(Z_deriv_formula, data)
+  if (!is.null(derivForm$random) & !is.null(derivForm$indRandom)){
 
-  id_subject <- intersect(id_subject, data[rownames(Z_deriv),subject])
+    b_deriv <- predRE$b_i[,derivForm$indRandom, drop = FALSE]
 
-  id_subject <- intersect(id_subject, rownames(b_deriv))
+    Z_deriv_formula <- derivForm$random
+    Z_deriv <- model.matrix(Z_deriv_formula, data)
+
+    id_subject <- intersect(id_subject, data[rownames(Z_deriv),subject])
+
+    id_subject <- intersect(id_subject, rownames(b_deriv))
+
+    add_Z <- TRUE
+
+  }else{
+
+    b_deriv <- NULL
+    Z_deriv <- NULL
+
+    add_Z <- FALSE
+  }
 
   data <- data[which(data[,subject]%in%id_subject),]
 
@@ -44,7 +63,13 @@ derivY <- function(predRE, data, derivForm){
     X_i_deriv <- X_deriv[ind,]
     Z_i_deriv <- Z_deriv[ind,]
 
-    Y_i_deriv <- X_i_deriv%*%beta_deriv + Z_i_deriv%*%b_i_deriv
+    Y_i_deriv <- X_i_deriv%*%beta_deriv
+
+    if (add_Z){ # ajout random effects ?
+
+      Y_i_deriv <- Y_i_deriv + Z_i_deriv%*%b_i_deriv
+
+    }
 
     Y_deriv[Y_deriv_row,] <- Y_i_deriv
 

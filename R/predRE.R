@@ -6,69 +6,44 @@
 #' @return A list containing the random effect for each subject, the fixed coefficients
 #' from \code{hlme} and the formula used to compute the \code{hlme} mixed model
 #'
+#' @importFrom lme4 ranef fixef VarCorr
+#'
 #' @examples
 #'
 predRE <- function(model, data){
 
-  formul <- model$call
+  model.formula <- formula(model)
 
-  subject <- formul$subject
+  subject <- names(ranef(model))
 
   row_subject <- rownames(data)
 
-  num_fixed_effect <- length(model$Xnames)
-  num_random_effect <- ncol(model$predRE) - 1
-
-  num_param_fixed <- length(model$Xnames)
-  num_param_effect <- (num_random_effect * (num_random_effect+1))/2
-
-  # fixed regression coefficients
-  beta <- matrix(model$best[1:num_param_fixed], ncol = 1)
-  rownames(beta) <- names(model$best[1:num_param_fixed])
-  colnames(beta) <- "beta"
-
-  vcov_re <- model$best[(num_param_fixed+1):(num_param_fixed+num_param_effect)]
-
-  # variance covariance random effects
-  B <- matrix(NA, nrow = num_random_effect, ncol = num_random_effect, byrow = TRUE)
-
-  ind_var_re <- 1
-
-  for (ind_row in 1:ncol(B)){
-    for (ind_col in 1:ind_row){
-      B[ind_row, ind_col] <- vcov_re[ind_var_re]
-      ind_var_re <- ind_var_re + 1
-    }
-  }
-
-  B[upper.tri(B, diag = F)] <- B[lower.tri(B, diag = F)]
-
-  # stardard error
-  se <- model$best[length(model$best)]
+  beta <- fixef(model) # fixed effect
+  B <- as.matrix(bdiag(VarCorr(model))) # random effects matrice var-covar
+  se <- sigma(model)^2 # residual variance error
 
   # random design matrix
 
-  Z_formula <- as.formula(formul$random)
-  Z <- model.matrix(Z_formula, data)
+  Z.formula <- as.formula(paste("~", as.character(findbars(model.formula)[[1]])[2]))
+  Z <- model.matrix(Z.formula, data)
 
   row_subject <- intersect(row_subject, rownames(Z))
 
   # fixed design matrix
 
-  X_formula <- as.formula(as.character(formul$fixed)[-2])
-  X <- model.matrix(X_formula, data)
+  X.formula <- as.formula(nobars(model.formula)[-2])
+  X <- model.matrix(X.formula, data)
 
   row_subject <- intersect(row_subject, rownames(X))
 
   # outcome
-  Y_formula <- as.formula(paste(as.character(formul$fixed)[1], "-1+", as.character(formul$fixed)[2]))
-  Y <- model.matrix(Y_formula, data)
+  Y <- na.omit(data[,as.character(model.formula)[2], drop = FALSE])
 
   row_subject <- intersect(row_subject, rownames(Y))
 
   data <- data[row_subject,]
 
-  predRE <- matrix(NA, nrow = length(unique(data[,subject])), ncol = num_random_effect,
+  predRE <- matrix(NA, nrow = length(unique(data[,subject])), ncol = ncol(B),
                    dimnames = list(unique(data[,subject]), colnames(Z)))
   predRE_row <- 1
 
@@ -79,7 +54,7 @@ predRE <- function(model, data){
     Lsubject <- nrow(data[ind,])
 
     Z_i <- matrix(Z[ind,], nrow = Lsubject)
-    V_i <- Z_i%*%B%*%t(Z_i) + se^2*diag(Lsubject)
+    V_i <- Z_i%*%B%*%t(Z_i) + se*diag(Lsubject)
     Y_i <- Y[ind,]
     X_i <- X[ind,]
     b_i <- B%*%t(Z_i)%*%solve(V_i)%*%(Y_i-X_i%*%beta)
@@ -91,6 +66,7 @@ predRE <- function(model, data){
 
   return(list(b_i = predRE,
               beta = beta,
-              formul = model$call))
+              call = model.formula,
+              group = subject))
 
 }

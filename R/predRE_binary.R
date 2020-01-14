@@ -6,6 +6,8 @@
 #' @return
 #' @export
 #'
+#' @importFrom lme4 nobars findbars
+#'
 #' @examples
 predRE.binary <- function(model, data){
 
@@ -44,23 +46,32 @@ predRE.binary <- function(model, data){
       den <- 1+exp(X.mat%*%beta+Z.mat%*%bi)
       f1 <- prod(num/den) # f(Yi|bi)
 
-
-
-
-
       q <- nrow(B)
       f2 <- ((2*pi)^(-q/2))*(det(B)^(-1/2))*exp(-0.5*bi%*%solve(B)%*%bi) # f(bi) loi normale multivariee
 
       return(f1*f2)
     }
 
-    maxi.opt <- marqLevAlg(m = 2, fn = bi.function, X.mat = X.mat, beta = beta, Z.mat = Z.mat, Y = Y, B = B,
-                           minimize = FALSE)
+    # optim
 
-    bi.mat[which(rownames(bi.mat)==ind_subject),] <- maxi.opt$b
+    neg.bi.function <- function(bi, X.mat, beta, Z.mat, Y, B){-bi.function(bi, X.mat, beta, Z.mat, Y, B)}
+
+    maxi.opt <- optim(rep(0.1,ncol(B)), fn = neg.bi.function,
+                      X.mat = X.mat, beta = beta, Z.mat = Z.mat, Y = Y, B = B)
+
+    bi.mat[which(rownames(bi.mat)==ind_subject),] <- maxi.opt$par
+
+    # marquart
+
+    # maxi.opt <- marqLevAlg(m = ncol(B), fn = bi.function,
+    #                        X.mat = X.mat, beta = beta, Z.mat = Z.mat, Y = Y, B = B,
+    #                        minimize = FALSE)
+    #
+    # bi.mat[which(rownames(bi.mat)==ind_subject),] <- maxi.opt$b
   }
 
   return(list(b_i = bi.mat,
               beta = beta,
-              formul = model.formula))
+              call = model.formula,
+              group = var.group))
 }

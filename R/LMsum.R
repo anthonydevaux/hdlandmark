@@ -20,8 +20,6 @@
 LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW = tLM,
                   threshold = NULL){
 
-  browser()
-
   data_landmark <- data[which(data[,time]<tLM),]
 
   # build survival data
@@ -39,15 +37,7 @@ LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW =
 
   for (lmm_object in lmm_objects){
 
-    if (class(lmm_object)=="hlme"){
-
-      marker_name <- as.character(lmm_object$call$fixed)[2]
-
-    }else if (class(lmm_object)=="glmerMod"){
-
-      marker_name <- as.character(formula(lmm_object))[2]
-
-    }
+    marker_name <- as.character(formula(lmm_object))[2]
 
     cat(paste0("Marker : ",marker_name), "\n")
 
@@ -198,6 +188,24 @@ LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW =
 
         colnames(data_surv)[(ncol(data_surv)-ncol(pred_RE$b_i)+1):(ncol(data_surv))] <-
           paste(marker_name, "RE", b_i_var, sep = "_")
+
+        # prediction at landmark time
+        cat("prediction...")
+        pred_Y <- predY(pred_RE, data_surv, time, tLM)
+        data_surv[which(data_surv[,subject]%in%rownames(pred_Y)),ncol(data_surv) + 1] <- pred_Y
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "pred", sep = "_")
+
+        # slope at landmark time
+        cat("slope...")
+        deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
+        data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
+
+        # cumulative value at landmark time
+        cat("cumulative...")
+        cumul_Y <- cumulY(pred_RE, data_surv, time, marker_name, tLM, HW)
+        data_surv[which(data_surv[,subject]%in%rownames(cumul_Y)),ncol(data_surv) + 1] <- cumul_Y
+        colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "cumul", sep = "_")
 
       }
 

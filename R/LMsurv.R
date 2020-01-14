@@ -33,7 +33,8 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     newdata.LMcox <- subset(newdata, select = -c(serBilir2,serChol2,albumin,alkaline2,
-                                                 SGOT2,platelets2,prothrombin2))
+                                                 SGOT2,platelets2,prothrombin2,
+                                                 ascites,hepatomegaly,spiders))
 
     res_survfit <- survival::survfit(models[["LM-cox"]], newdata.LMcox)
     id_time <- sum(res_survfit$time <= tHor)
@@ -56,7 +57,8 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     newdata.cox <- subset(newdata, select = c(drug,age,sex,serBilir2,serChol2,
-                                              albumin,alkaline2,SGOT2,platelets2,prothrombin2))
+                                              albumin,alkaline2,SGOT2,platelets2,prothrombin2,
+                                              ascites,hepatomegaly,spiders))
 
     res_survfit <- survival::survfit(models[["cox"]], newdata.cox)
     id_time <- sum(res_survfit$time <= tHor)
@@ -79,7 +81,8 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     newdata.LMrsf <- subset(newdata, select = -c(serBilir2,serChol2,albumin,alkaline2,
-                                                 SGOT2,platelets2,prothrombin2))
+                                                 SGOT2,platelets2,prothrombin2,
+                                                 ascites,hepatomegaly,spiders))
 
     if (n > 1){
 
@@ -114,7 +117,8 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     newdata.LMcoxnet <- na.omit(subset(newdata, select = -c(id,year,serBilir2,serChol2,albumin,alkaline2,
-                                                            SGOT2,platelets2,prothrombin2)))
+                                                            SGOT2,platelets2,prothrombin2,
+                                                            ascites,hepatomegaly,spiders)))
 
     newdata.LMcoxnet <- as.data.frame(model.matrix( ~ .-1, newdata.LMcoxnet))
 
@@ -138,7 +142,8 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     newdata.LMsplsDR <- na.omit(subset(newdata, select = -c(id,year,serBilir2,serChol2,albumin,alkaline2,
-                                                            SGOT2,platelets2,prothrombin2)))
+                                                            SGOT2,platelets2,prothrombin2,
+                                                            ascites,hepatomegaly,spiders)))
 
     newdata.LMsplsDR <- as.data.frame(model.matrix( ~ .-1, newdata.LMsplsDR))
 

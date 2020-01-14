@@ -5,27 +5,29 @@
 #'
 #' @return A matrix containing the prediction value of the longitudinal outcome for each subject
 #'
+#' @importFrom lme4 nobars findbars
+#'
 #' @examples
 #'
 predY <- function(predRE, data, time, tLM){
 
-  formul <- predRE$formul
+  formul <- predRE$call
 
   beta <- predRE$beta
   b <- predRE$b_i
 
-  subject <- predRE$formul$subject
+  subject <- predRE$group
 
   id_subject <- unique(data[,subject])
 
   data[,time] <- tLM
 
-  X_formula <- as.formula(as.character(formul$fixed)[-2])
+  X_formula <- as.formula(nobars(formul)[-2])
   X <- model.matrix(X_formula, data)
 
   id_subject <- intersect(id_subject, data[rownames(X),subject])
 
-  Z_formula <- as.formula(formul$random)
+  Z_formula <- as.formula(paste("~", as.character(findbars(formul)[[1]])[2]))
   Z <- model.matrix(Z_formula, data)
 
   id_subject <- intersect(id_subject, data[rownames(Z),subject])
@@ -35,7 +37,7 @@ predY <- function(predRE, data, time, tLM){
   data <- data[which(data[,subject]%in%id_subject),]
 
   Y_pred <- matrix(NA, nrow = length(unique(data[,subject])), ncol = 1,
-                  dimnames = list(unique(data[,subject]), "Y_pred"))
+                   dimnames = list(unique(data[,subject]), "Y_pred"))
 
   Y_pred_row <- 1
 

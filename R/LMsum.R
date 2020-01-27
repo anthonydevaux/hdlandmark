@@ -35,9 +35,13 @@ LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW =
 
   marker_ind <- 1
 
+  marker_list <- c()
+
   for (lmm_object in lmm_objects){
 
     marker_name <- as.character(formula(lmm_object))[2]
+
+    marker_list <- c(marker_list, marker_name)
 
     cat(paste0("Marker : ",marker_name), "\n")
 
@@ -217,6 +221,8 @@ LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW =
   }
 
   data_surv[,time] <- tLM
+
+  attr(data_surv, "marker") <- marker_list
 
   cat("DONE!!!", "\n")
 

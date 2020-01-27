@@ -13,7 +13,7 @@
 #' @examples
 #'
 LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), models,
-                   newdata, time, subject,
+                   newdata, time, subject, marker_list, covar_list,
                    tHor){
 
   if (!all(method%in%c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"))){
@@ -32,9 +32,9 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
       stop("No model found in models for method = LM-cox", "\n")
     }
 
-    newdata.LMcox <- subset(newdata, select = -c(serBilir2,serChol2,albumin,alkaline2,
-                                                 SGOT2,platelets2,prothrombin2,
-                                                 ascites,hepatomegaly,spiders))
+    names.use <- names(newdata)[!(names(newdata) %in% marker_list)]
+
+    newdata.LMcox <- newdata[,names.use]
 
     res_survfit <- survival::survfit(models[["LM-cox"]], newdata.LMcox)
     id_time <- sum(res_survfit$time <= tHor)
@@ -56,9 +56,7 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
       stop("No model found in models for method = cox", "\n")
     }
 
-    newdata.cox <- subset(newdata, select = c(drug,age,sex,serBilir2,serChol2,
-                                              albumin,alkaline2,SGOT2,platelets2,prothrombin2,
-                                              ascites,hepatomegaly,spiders))
+    newdata.cox <- newdata[,c(covar_list, marker_list)]
 
     res_survfit <- survival::survfit(models[["cox"]], newdata.cox)
     id_time <- sum(res_survfit$time <= tHor)
@@ -80,9 +78,9 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
       stop("No model found in models for method = LM-rsf", "\n")
     }
 
-    newdata.LMrsf <- subset(newdata, select = -c(serBilir2,serChol2,albumin,alkaline2,
-                                                 SGOT2,platelets2,prothrombin2,
-                                                 ascites,hepatomegaly,spiders))
+    names.use <- names(newdata)[!(names(newdata) %in% marker_list)]
+
+    newdata.LMrsf <- newdata[,names.use]
 
     if (n > 1){
 
@@ -116,9 +114,9 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
       stop("No model found in models for method = LM-coxnet", "\n")
     }
 
-    newdata.LMcoxnet <- na.omit(subset(newdata, select = -c(id,year,serBilir2,serChol2,albumin,alkaline2,
-                                                            SGOT2,platelets2,prothrombin2,
-                                                            ascites,hepatomegaly,spiders)))
+    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
+
+    newdata.LMcoxnet <- na.omit(newdata[,names.use])
 
     newdata.LMcoxnet <- as.data.frame(model.matrix( ~ .-1, newdata.LMcoxnet))
 
@@ -141,9 +139,9 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
       stop("No model found in models for method = LM-splsDR", "\n")
     }
 
-    newdata.LMsplsDR <- na.omit(subset(newdata, select = -c(id,year,serBilir2,serChol2,albumin,alkaline2,
-                                                            SGOT2,platelets2,prothrombin2,
-                                                            ascites,hepatomegaly,spiders)))
+    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
+
+    newdata.LMsplsDR <- na.omit(newdata[,names.use])
 
     newdata.LMsplsDR <- as.data.frame(model.matrix( ~ .-1, newdata.LMsplsDR))
 

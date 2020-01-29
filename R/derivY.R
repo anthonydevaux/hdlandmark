@@ -5,6 +5,7 @@
 #' @param derivForm A list containing the derivation form
 #'
 #' @return A matrix containing the prediction slope of the longitudinal outcome for each subject
+#' @export
 #'
 #' @examples
 #'

@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 LMsurv(method = c("LM-cox", "LM-rsf", "cox", "LM-coxnet", "LM-splsDR"),
-  models, newdata, time, subject, tHor)
+  models, newdata, time, subject, marker_list, covar_list, tHor)
 }
 \arguments{
 \item{tHor}{}

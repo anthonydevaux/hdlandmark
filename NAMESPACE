@@ -2,9 +2,12 @@
 
 export(LMdata)
 export(LMsum)
+export(LMsum_simu)
 export(LMsurv)
 export(cumulY)
+export(derivY)
 export(predRE.binary)
+export(predY)
 export(thresholdY)
 importFrom(lme4,VarCorr)
 importFrom(lme4,findbars)

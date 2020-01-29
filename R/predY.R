@@ -4,6 +4,7 @@
 #' @param data A dataframe where each row containing some predictive variables for a specific subject
 #'
 #' @return A matrix containing the prediction value of the longitudinal outcome for each subject
+#' @export
 #'
 #' @importFrom lme4 nobars findbars
 #'
@@ -50,6 +51,12 @@ predY <- function(predRE, data, time, tLM){
     Z_i <- Z[ind,]
 
     Y_i_pred <- X_i%*%beta + Z_i%*%b_i
+
+    if (!is.null(predRE$sigmae)){
+
+      Y_i_pred <- Y_i_pred + rnorm(1,0,predRE$sigmae)
+
+    }
 
     Y_pred[Y_pred_row,] <- Y_i_pred
 

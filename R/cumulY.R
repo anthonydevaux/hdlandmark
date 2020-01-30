@@ -30,21 +30,17 @@ cumulY <- function(predRE, data, time, marker_name, tLM, HW){
 
     predRE_temp$b_i <- predRE_temp$b_i[which(rownames(predRE_temp$b_i)==ind_subject),, drop = FALSE]
 
-    predRE_temp$sigmae <- NULL # car ça fucking merde pour l'integrale
+    predRE_temp$sigmae <- NULL # pas besoin en simulation pour approximer le cumul
 
     ###########################################
 
-    F2 <- function(predRE_temp, data, time){
-      f2 <- function(t){
-        as.numeric(predY_ind(tLM = t, predRE_temp, data, time))
-      }
-      return(f2)
+    predY.fct <- function(t){
+      as.numeric(predY_ind(tLM = t, predRE_temp, data, time))
     }
 
     ##########################################
 
-    Y_cumul[Y_cumul_row,] <- integrate(F2(predRE_temp, newdata_id, time),
-                                       lower = tLM - HW, upper = tLM)$value
+    Y_cumul[Y_cumul_row,] <- integrate(predY.fct, lower = tLM - HW, upper = tLM)$value
 
     Y_cumul_row <- Y_cumul_row + 1
 

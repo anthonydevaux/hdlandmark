@@ -118,7 +118,7 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
 
     newdata.LMcoxnet <- na.omit(newdata[,names.use])
 
-    newdata.LMcoxnet <- as.data.frame(model.matrix( ~ .-1, newdata.LMcoxnet))
+    newdata.LMcoxnet <- as.data.frame(model.matrix( ~ ., newdata.LMcoxnet)[,-1])
 
     res_survfit <- survival::survfit(models[["LM-coxnet"]], newdata = newdata.LMcoxnet)
     id_time <- sum(res_survfit$time <= tHor)
@@ -143,7 +143,7 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
 
     newdata.LMsplsDR <- na.omit(newdata[,names.use])
 
-    newdata.LMsplsDR <- as.data.frame(model.matrix( ~ .-1, newdata.LMsplsDR))
+    newdata.LMsplsDR <- as.data.frame(model.matrix( ~ ., newdata.LMsplsDR)[,-1])
 
     Xnames <- rownames(models[["LM-splsDR"]]$splsDR_modplsr$loadings$X)
 

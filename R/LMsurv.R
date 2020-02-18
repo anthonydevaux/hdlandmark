@@ -17,7 +17,8 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
                    tHor){
 
   if (!all(method%in%c("LM-cox", "LM-cox-noVS", "LM-rsf", "LM-rsf-default", "LM-rsf-noVS", "cox", "cox-noVS",
-                       "LM-coxnet", "LM-splsDR"))){
+                       "LM-coxnet", "LM-coxnet-ridge", "LM-coxnet-lasso",
+                       "LM-splsDR", "LM-splsDR-ridge", "LM-splsDR-lasso"))){
     stop("Only options available for method are 'LM-cox', 'LM-rsf', 'LM-coxnet', 'LM-splsDR' and 'cox'")
   }
 
@@ -304,6 +305,60 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
   }
 
+  # LM-coxnet-ridge
+
+  if (any(method == "LM-coxnet-ridge")){
+    if (is.null(models[["LM-coxnet-ridge"]])){
+      stop("No model found in models for method = LM-coxnet-ridge", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
+
+    newdata.LMcoxnet <- na.omit(newdata[,names.use])
+
+    newdata.LMcoxnet <- as.data.frame(model.matrix( ~ ., newdata.LMcoxnet)[,-1])
+
+    res_survfit <- survival::survfit(models[["LM-coxnet-ridge"]], newdata = newdata.LMcoxnet)
+    id_time <- sum(res_survfit$time <= tHor)
+
+    if (n > 1){
+
+      pred_surv[colnames(res_survfit$surv),"LM-coxnet-ridge"] <- res_survfit$surv[id_time,]
+
+    }else{
+
+      pred_surv[1,"LM-coxnet-ridge"] <- res_survfit$surv[id_time]
+
+    }
+  }
+
+  # LM-coxnet-lasso
+
+  if (any(method == "LM-coxnet-lasso")){
+    if (is.null(models[["LM-coxnet-lasso"]])){
+      stop("No model found in models for method = LM-coxnet-lasso", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
+
+    newdata.LMcoxnet <- na.omit(newdata[,names.use])
+
+    newdata.LMcoxnet <- as.data.frame(model.matrix( ~ ., newdata.LMcoxnet)[,-1])
+
+    res_survfit <- survival::survfit(models[["LM-coxnet-lasso"]], newdata = newdata.LMcoxnet)
+    id_time <- sum(res_survfit$time <= tHor)
+
+    if (n > 1){
+
+      pred_surv[colnames(res_survfit$surv),"LM-coxnet-lasso"] <- res_survfit$surv[id_time,]
+
+    }else{
+
+      pred_surv[1,"LM-coxnet-lasso"] <- res_survfit$surv[id_time]
+
+    }
+  }
+
   # LM-splsDR
 
   if (any(method == "LM-splsDR")){
@@ -367,6 +422,189 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }else{
 
       pred_surv[1,"LM-splsDR"] <- res_survfit$surv[id_time]
+
+    }
+
+  }
+
+  # LM-splsDR-ridge
+
+  if (any(method == "LM-splsDR-ridge")){
+    if (is.null(models[["LM-splsDR-ridge"]])){
+      stop("No model found in models for method = LM-splsDR-ridge", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
+
+    newdata.LMsplsDR <- na.omit(newdata[,names.use])
+
+    newdata.LMsplsDR <- as.data.frame(model.matrix( ~ ., newdata.LMsplsDR)[,-1])
+
+    Xnames <- rownames(models[["LM-splsDR"]]$splsDR_modplsr$loadings$X)
+
+    # centre reduit la matrice des nouveaux individus à partir du mean/sd du train
+    Xh.scale <- t((t(newdata.LMsplsDR[,Xnames])-models[["LM-splsDR-ridge"]]$XplanCent[Xnames])/models[["LM-splsDR-ridge"]]$XplanScal[Xnames])
+
+    X.spls <- matrix(NA, nrow = nrow(Xh.scale), ncol = ncol(models[["LM-splsDR-ridge"]]$tt_splsDR),
+                     dimnames = list(rownames(Xh.scale), colnames(models[["LM-splsDR-ridge"]]$tt_splsDR)))
+
+    u <- models[["LM-splsDR-ridge"]]$splsDR_modplsr$loadings$X
+
+    X.spls[,1] <- Xh.scale%*%u[,1]
+
+    if (ncol(X.spls) > 1){
+
+      for (h in 2:ncol(X.spls)){
+
+        th <- Xh.scale%*%u[,h-1]
+
+        proj.num <- th%*%t(th)
+        proj.den <- as.numeric(t(th)%*%th)
+        proj <- proj.num / proj.den
+
+        Xh.scale <- Xh.scale - proj%*%Xh.scale
+
+        Xh <- Xh.scale%*%u[,h]
+
+        X.spls[,h] <- Xh
+
+      }
+
+    }
+
+    # prediction de la matrice X test dans le nouvel espace par spls
+    res_survfit <- survival::survfit(models[["LM-splsDR-ridge"]]$cox_splsDR, newdata = as.data.frame(X.spls))
+    id_time <- sum(res_survfit$time <= tHor)
+
+    if (n > 1){
+
+      pred_surv[colnames(res_survfit$surv),"LM-splsDR-ridge"] <- res_survfit$surv[id_time,]
+
+    }else{
+
+      pred_surv[1,"LM-splsDR-ridge"] <- res_survfit$surv[id_time]
+
+    }
+
+  }
+
+  # LM-splsDR-ridge
+
+  if (any(method == "LM-splsDR-ridge")){
+    if (is.null(models[["LM-splsDR-ridge"]])){
+      stop("No model found in models for method = LM-splsDR-ridge", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
+
+    newdata.LMsplsDR <- na.omit(newdata[,names.use])
+
+    newdata.LMsplsDR <- as.data.frame(model.matrix( ~ ., newdata.LMsplsDR)[,-1])
+
+    Xnames <- rownames(models[["LM-splsDR-ridge"]]$splsDR_modplsr$loadings$X)
+
+    # centre reduit la matrice des nouveaux individus à partir du mean/sd du train
+    Xh.scale <- t((t(newdata.LMsplsDR[,Xnames])-models[["LM-splsDR-ridge"]]$XplanCent[Xnames])/models[["LM-splsDR-ridge"]]$XplanScal[Xnames])
+
+    X.spls <- matrix(NA, nrow = nrow(Xh.scale), ncol = ncol(models[["LM-splsDR-ridge"]]$tt_splsDR),
+                     dimnames = list(rownames(Xh.scale), colnames(models[["LM-splsDR-ridge"]]$tt_splsDR)))
+
+    u <- models[["LM-splsDR-ridge"]]$splsDR_modplsr$loadings$X
+
+    X.spls[,1] <- Xh.scale%*%u[,1]
+
+    if (ncol(X.spls) > 1){
+
+      for (h in 2:ncol(X.spls)){
+
+        th <- Xh.scale%*%u[,h-1]
+
+        proj.num <- th%*%t(th)
+        proj.den <- as.numeric(t(th)%*%th)
+        proj <- proj.num / proj.den
+
+        Xh.scale <- Xh.scale - proj%*%Xh.scale
+
+        Xh <- Xh.scale%*%u[,h]
+
+        X.spls[,h] <- Xh
+
+      }
+
+    }
+
+    # prediction de la matrice X test dans le nouvel espace par spls
+    res_survfit <- survival::survfit(models[["LM-splsDR-ridge"]]$cox_splsDR, newdata = as.data.frame(X.spls))
+    id_time <- sum(res_survfit$time <= tHor)
+
+    if (n > 1){
+
+      pred_surv[colnames(res_survfit$surv),"LM-splsDR-ridge"] <- res_survfit$surv[id_time,]
+
+    }else{
+
+      pred_surv[1,"LM-splsDR-ridge"] <- res_survfit$surv[id_time]
+
+    }
+
+  }
+
+  # LM-splsDR-lasso
+
+  if (any(method == "LM-splsDR-lasso")){
+    if (is.null(models[["LM-splsDR-lasso"]])){
+      stop("No model found in models for method = LM-splsDR-lasso", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
+
+    newdata.LMsplsDR <- na.omit(newdata[,names.use])
+
+    newdata.LMsplsDR <- as.data.frame(model.matrix( ~ ., newdata.LMsplsDR)[,-1])
+
+    Xnames <- rownames(models[["LM-splsDR-lasso"]]$splsDR_modplsr$loadings$X)
+
+    # centre reduit la matrice des nouveaux individus à partir du mean/sd du train
+    Xh.scale <- t((t(newdata.LMsplsDR[,Xnames])-models[["LM-splsDR-lasso"]]$XplanCent[Xnames])/models[["LM-splsDR-lasso"]]$XplanScal[Xnames])
+
+    X.spls <- matrix(NA, nrow = nrow(Xh.scale), ncol = ncol(models[["LM-splsDR-lasso"]]$tt_splsDR),
+                     dimnames = list(rownames(Xh.scale), colnames(models[["LM-splsDR-lasso"]]$tt_splsDR)))
+
+    u <- models[["LM-splsDR-lasso"]]$splsDR_modplsr$loadings$X
+
+    X.spls[,1] <- Xh.scale%*%u[,1]
+
+    if (ncol(X.spls) > 1){
+
+      for (h in 2:ncol(X.spls)){
+
+        th <- Xh.scale%*%u[,h-1]
+
+        proj.num <- th%*%t(th)
+        proj.den <- as.numeric(t(th)%*%th)
+        proj <- proj.num / proj.den
+
+        Xh.scale <- Xh.scale - proj%*%Xh.scale
+
+        Xh <- Xh.scale%*%u[,h]
+
+        X.spls[,h] <- Xh
+
+      }
+
+    }
+
+    # prediction de la matrice X test dans le nouvel espace par spls
+    res_survfit <- survival::survfit(models[["LM-splsDR-lasso"]]$cox_splsDR, newdata = as.data.frame(X.spls))
+    id_time <- sum(res_survfit$time <= tHor)
+
+    if (n > 1){
+
+      pred_surv[colnames(res_survfit$surv),"LM-splsDR-lasso"] <- res_survfit$surv[id_time,]
+
+    }else{
+
+      pred_surv[1,"LM-splsDR-lasso"] <- res_survfit$surv[id_time]
 
     }
 

@@ -440,67 +440,6 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
 
     newdata.LMsplsDR <- as.data.frame(model.matrix( ~ ., newdata.LMsplsDR)[,-1])
 
-    Xnames <- rownames(models[["LM-splsDR"]]$splsDR_modplsr$loadings$X)
-
-    # centre reduit la matrice des nouveaux individus à partir du mean/sd du train
-    Xh.scale <- t((t(newdata.LMsplsDR[,Xnames])-models[["LM-splsDR-ridge"]]$XplanCent[Xnames])/models[["LM-splsDR-ridge"]]$XplanScal[Xnames])
-
-    X.spls <- matrix(NA, nrow = nrow(Xh.scale), ncol = ncol(models[["LM-splsDR-ridge"]]$tt_splsDR),
-                     dimnames = list(rownames(Xh.scale), colnames(models[["LM-splsDR-ridge"]]$tt_splsDR)))
-
-    u <- models[["LM-splsDR-ridge"]]$splsDR_modplsr$loadings$X
-
-    X.spls[,1] <- Xh.scale%*%u[,1]
-
-    if (ncol(X.spls) > 1){
-
-      for (h in 2:ncol(X.spls)){
-
-        th <- Xh.scale%*%u[,h-1]
-
-        proj.num <- th%*%t(th)
-        proj.den <- as.numeric(t(th)%*%th)
-        proj <- proj.num / proj.den
-
-        Xh.scale <- Xh.scale - proj%*%Xh.scale
-
-        Xh <- Xh.scale%*%u[,h]
-
-        X.spls[,h] <- Xh
-
-      }
-
-    }
-
-    # prediction de la matrice X test dans le nouvel espace par spls
-    res_survfit <- survival::survfit(models[["LM-splsDR-ridge"]]$cox_splsDR, newdata = as.data.frame(X.spls))
-    id_time <- sum(res_survfit$time <= tHor)
-
-    if (n > 1){
-
-      pred_surv[colnames(res_survfit$surv),"LM-splsDR-ridge"] <- res_survfit$surv[id_time,]
-
-    }else{
-
-      pred_surv[1,"LM-splsDR-ridge"] <- res_survfit$surv[id_time]
-
-    }
-
-  }
-
-  # LM-splsDR-ridge
-
-  if (any(method == "LM-splsDR-ridge")){
-    if (is.null(models[["LM-splsDR-ridge"]])){
-      stop("No model found in models for method = LM-splsDR-ridge", "\n")
-    }
-
-    names.use <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
-
-    newdata.LMsplsDR <- na.omit(newdata[,names.use])
-
-    newdata.LMsplsDR <- as.data.frame(model.matrix( ~ ., newdata.LMsplsDR)[,-1])
-
     Xnames <- rownames(models[["LM-splsDR-ridge"]]$splsDR_modplsr$loadings$X)
 
     # centre reduit la matrice des nouveaux individus à partir du mean/sd du train

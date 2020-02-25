@@ -16,7 +16,10 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
                    newdata, time, subject, marker_list, covar_list,
                    tHor){
 
-  if (!all(method%in%c("LM-cox", "LM-cox-noVS", "LM-rsf", "LM-rsf-default", "LM-rsf-noVS", "cox", "cox-noVS",
+  if (!all(method%in%c("LM-cox", "LM-cox-noVS",
+                       "LM-rsf", "LM-rsf-default", "LM-rsf-noVS",
+                       "LM-rsf-BS", "LM-rsf-BS-default", "LM-rsf-BS-noVS",
+                       "cox", "cox-noVS",
                        "LM-coxnet", "LM-coxnet-ridge", "LM-coxnet-lasso",
                        "LM-splsDR", "LM-splsDR-ridge", "LM-splsDR-lasso"))){
     stop("Only options available for method are 'LM-cox', 'LM-rsf', 'LM-coxnet', 'LM-splsDR' and 'cox'")
@@ -270,6 +273,124 @@ LMsurv <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
   }
+
+  ##
+
+  # LM-rsf
+
+  if (any(method == "LM-rsf-BS")){
+    if (is.null(models[["LM-rsf-BS"]])){
+      stop("No model found in models for method = LM-rsf-BS", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% marker_list)]
+
+    newdata.LMrsf <- newdata[,names.use]
+
+    if (n > 1){
+
+      res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf-BS"]], newdata.LMrsf)
+      id_time <- sum(res_survfit$time.interest <= tHor)
+      formula.xvar <- as.formula(as.character(models[["LM-rsf-BS"]]$call$formula)[c(1,3)])
+      id_no_na <- rownames(model.frame(formula.xvar,
+                                       newdata.LMrsf[,models[["LM-rsf-BS"]]$xvar.names])) # id without NA
+      pred_surv[id_no_na,"LM-rsf-BS"] <- res_survfit$survival[,id_time]
+
+    }else{
+
+      if (any(is.na(newdata.LMrsf[,models[["LM-rsf-BS"]]$xvar.names]))){
+
+        pred_surv[1,"LM-rsf-BS"] <- NA
+
+      }else{
+
+        res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf-BS"]], newdata.LMrsf)
+        id_time <- sum(res_survfit$time.interest <= tHor)
+        pred_surv[1,"LM-rsf-BS"] <- res_survfit$survival[id_time]
+
+      }
+
+    }
+
+  }
+
+  # LM-rsf default
+
+  if (any(method == "LM-rsf-BS-default")){
+    if (is.null(models[["LM-rsf-BS-default"]])){
+      stop("No model found in models for method = LM-rsf-BS-default", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% marker_list)]
+
+    newdata.LMrsf <- newdata[,names.use]
+
+    if (n > 1){
+
+      res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf-BS-default"]], newdata.LMrsf)
+      id_time <- sum(res_survfit$time.interest <= tHor)
+      formula.xvar <- as.formula(as.character(models[["LM-rsf-BS-default"]]$call$formula)[c(1,3)])
+      id_no_na <- rownames(model.frame(formula.xvar,
+                                       newdata.LMrsf[,models[["LM-rsf-BS-default"]]$xvar.names])) # id without NA
+      pred_surv[id_no_na,"LM-rsf-BS-default"] <- res_survfit$survival[,id_time]
+
+    }else{
+
+      if (any(is.na(newdata.LMrsf[,models[["LM-rsf-BS-default"]]$xvar.names]))){
+
+        pred_surv[1,"LM-rsf-BS-default"] <- NA
+
+      }else{
+
+        res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf-BS"]], newdata.LMrsf)
+        id_time <- sum(res_survfit$time.interest <= tHor)
+        pred_surv[1,"LM-rsf-BS"] <- res_survfit$survival[id_time]
+
+      }
+
+    }
+
+  }
+
+  # LM-rsf sans selection de variables
+
+  if (any(method == "LM-rsf-BS-noVS")){
+    if (is.null(models[["LM-rsf-BS-noVS"]])){
+      stop("No model found in models for method = LM-rsf-BS-noVS", "\n")
+    }
+
+    names.use <- names(newdata)[!(names(newdata) %in% marker_list)]
+
+    newdata.LMrsf <- newdata[,names.use]
+
+    if (n > 1){
+
+      res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf-BS-noVS"]], newdata.LMrsf)
+      id_time <- sum(res_survfit$time.interest <= tHor)
+      formula.xvar <- as.formula(as.character(models[["LM-rsf-BS-noVS"]]$call$formula)[c(1,3)])
+      id_no_na <- rownames(model.frame(formula.xvar,
+                                       newdata.LMrsf[,models[["LM-rsf-BS-noVS"]]$xvar.names])) # id without NA
+      pred_surv[id_no_na,"LM-rsf-BS-noVS"] <- res_survfit$survival[,id_time]
+
+    }else{
+
+      if (any(is.na(newdata.LMrsf[,models[["LM-rsf-BS-noVS"]]$xvar.names]))){
+
+        pred_surv[1,"LM-rsf-BS-noVS"] <- NA
+
+      }else{
+
+        res_survfit <- randomForestSRC::predict.rfsrc(models[["LM-rsf-BS"]], newdata.LMrsf)
+        id_time <- sum(res_survfit$time.interest <= tHor)
+        pred_surv[1,"LM-rsf-BS"] <- res_survfit$survival[id_time]
+
+      }
+
+    }
+
+  }
+
+  ##
 
   # LM-coxnet
 

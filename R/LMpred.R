@@ -91,7 +91,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     pred_surv <- pred.rsf(model = models[["LM-rsf"]], method = "LM-rsf", newdata = newdata,
-                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+                          var_list = var_list_LM, tHor = tHor, pred_surv = pred_surv)
 
   }
 
@@ -103,7 +103,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     pred_surv <- pred.rsf(model = models[["LM-rsf-default"]], method = "LM-rsf-default", newdata = newdata,
-                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+                          var_list = var_list_LM, tHor = tHor, pred_surv = pred_surv)
 
   }
 
@@ -115,7 +115,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     pred_surv <- pred.rsf(model = models[["LM-rsf-noVS"]], method = "LM-rsf-noVS", newdata = newdata,
-                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+                          var_list = var_list_LM, tHor = tHor, pred_surv = pred_surv)
 
   }
 
@@ -127,7 +127,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     pred_surv <- pred.rsf(model = models[["LM-rsf-BS"]], method = "LM-rsf-BS", newdata = newdata,
-                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+                          var_list = var_list_LM, tHor = tHor, pred_surv = pred_surv)
 
   }
 
@@ -139,7 +139,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     pred_surv <- pred.rsf(model = models[["LM-rsf-BS-default"]], method = "LM-rsf-BS-default", newdata = newdata,
-                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+                          var_list = var_list_LM, tHor = tHor, pred_surv = pred_surv)
 
   }
 
@@ -151,7 +151,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     }
 
     pred_surv <- pred.rsf(model = models[["LM-rsf-BS-noVS"]], method = "LM-rsf-BS-noVS", newdata = newdata,
-                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+                          var_list = var_list_LM, tHor = tHor, pred_surv = pred_surv)
 
   }
 
@@ -171,7 +171,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     newdata.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_LM]))[,-1])
 
     pred_surv <- pred.phm(model = models[["LM-coxnet"]], method = "LM-coxnet",
-                          newdata = newdata.coxnet, var_list = var_list_LM, tHor = tHor,
+                          newdata = newdata.coxnet, var_list = NULL, tHor = tHor,
                           pred_surv = pred_surv)
 
   }
@@ -190,7 +190,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     newdata.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_LM]))[,-1])
 
     pred_surv <- pred.phm(model = models[["LM-coxnet-ridge"]], method = "LM-coxnet-ridge",
-                          newdata = newdata.coxnet, var_list = var_list_LM, tHor = tHor,
+                          newdata = newdata.coxnet, var_list = NULL, tHor = tHor,
                           pred_surv = pred_surv)
   }
 
@@ -208,7 +208,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     newdata.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_LM]))[,-1])
 
     pred_surv <- pred.phm(model = models[["LM-coxnet-lasso"]], method = "LM-coxnet-lasso",
-                          newdata = newdata.coxnet, var_list = var_list_LM, tHor = tHor,
+                          newdata = newdata.coxnet, var_list = NULL, tHor = tHor,
                           pred_surv = pred_surv)
   }
 

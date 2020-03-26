@@ -104,8 +104,6 @@ LM.MFPC <- function(data, id, time, u.time, markers, pred.data = NULL, pve = 0.9
 
     # surv data with scores
 
-    browser()
-
     data.surv <- data.frame()
 
     for (ind_subject in ids){

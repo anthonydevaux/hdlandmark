@@ -13,7 +13,7 @@
 #' @examples
 #'
 LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), models,
-                   newdata, time, subject, marker_list, covar_list,
+                   newdata, time, subject, marker_list = NULL, covar_list = NULL,
                    tHor){
 
   if (!all(method%in%c("LM-cox", "LM-cox-noVS",
@@ -21,7 +21,12 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
                        "LM-rsf-BS", "LM-rsf-BS-default", "LM-rsf-BS-noVS",
                        "cox", "cox-noVS",
                        "LM-coxnet", "LM-coxnet-ridge", "LM-coxnet-lasso",
-                       "LM-splsDR", "LM-splsDR-ridge", "LM-splsDR-lasso"))){
+                       "LM-splsDR", "LM-splsDR-ridge", "LM-splsDR-lasso",
+                       "MFPC-LM-cox", "MFPC-LM-cox-noVS",
+                       "MFPC-LM-rsf", "MFPC-LM-rsf-default", "MFPC-LM-rsf-noVS",
+                       "MFPC-LM-rsf-BS", "MFPC-LM-rsf-BS-default", "MFPC-LM-rsf-BS-noVS",
+                       "MFPC-LM-coxnet", "MFPC-LM-coxnet-ridge", "MFPC-LM-coxnet-lasso",
+                       "MFPC-LM-splsDR", "MFPC-LM-splsDR-ridge", "MFPC-LM-splsDR-lasso"))){
     stop("Only options available for method are 'LM-cox', 'LM-rsf', 'LM-coxnet', 'LM-splsDR' and 'cox'")
   }
 
@@ -34,6 +39,11 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
 
   var_list_noLM <- c(covar_list, marker_list)
   var_list_LM <- names(newdata)[!(names(newdata) %in% marker_list)]
+
+  ##################################################################
+  ######################
+  #### GLMM methods ####
+  ######################
 
   # Cox
 
@@ -262,6 +272,192 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
     newdata.splscox <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_LM]))[,-1])
 
     pred_surv <- pred.splscox(model = models[["LM-splsDR-lasso"]], method = "LM-splsDR-lasso",
+                              newdata = newdata.splscox, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  ##################################################################
+  ######################
+  #### MFPC methods ####
+  ######################
+
+  # MFPC-LM-cox
+
+  if (any(method == "MFPC-LM-cox")){
+    if (is.null(models[["MFPC-LM-cox"]])){
+      stop("No model found in models for method = MFPC-LM-cox", "\n")
+    }
+
+    pred_surv <- pred.phm(model = models[["MFPC-LM-cox"]], method = "MFPC-LM-cox", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-cox-noVS
+
+  if (any(method == "MFPC-LM-cox-noVS")){
+    if (is.null(models[["MFPC-LM-cox-noVS"]])){
+      stop("No model found in models for method = LM-cox-noVS", "\n")
+    }
+
+    pred_surv <- pred.phm(model = models[["MFPC-LM-cox-noVS"]], method = "MFPC-LM-cox-noVS", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-rsf
+
+  if (any(method == "MFPC-LM-rsf")){
+    if (is.null(models[["MFPC-LM-rsf"]])){
+      stop("No model found in models for method = MFPC-LM-rsf", "\n")
+    }
+
+    pred_surv <- pred.rsf(model = models[["MFPC-LM-rsf"]], method = "MFPC-LM-rsf", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-rsf default
+
+  if (any(method == "MFPC-LM-rsf-default")){
+    if (is.null(models[["MFPC-LM-rsf-default"]])){
+      stop("No model found in models for method = MFPC-LM-rsf-default", "\n")
+    }
+
+    pred_surv <- pred.rsf(model = models[["MFPC-LM-rsf-default"]], method = "MFPC-LM-rsf-default", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-rsf sans selection de variables
+
+  if (any(method == "MFPC-LM-rsf-noVS")){
+    if (is.null(models[["MFPC-LM-rsf-noVS"]])){
+      stop("No model found in models for method = MFPC-LM-rsf-noVS", "\n")
+    }
+
+    pred_surv <- pred.rsf(model = models[["MFPC-LM-rsf-noVS"]], method = "MFPC-LM-rsf-noVS", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # LM-rsf - split bs.gradient
+
+  if (any(method == "MFPC-LM-rsf-BS")){
+    if (is.null(models[["MFPC-LM-rsf-BS"]])){
+      stop("No model found in models for method = MFPC-LM-rsf-BS", "\n")
+    }
+
+    pred_surv <- pred.rsf(model = models[["MFPC-LM-rsf-BS"]], method = "MFPC-LM-rsf-BS", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-rsf default - split bs.gradient
+
+  if (any(method == "MFPC-LM-rsf-BS-default")){
+    if (is.null(models[["MFPC-LM-rsf-BS-default"]])){
+      stop("No model found in models for method = MFPC-LM-rsf-BS-default", "\n")
+    }
+
+    pred_surv <- pred.rsf(model = models[["MFPC-LM-rsf-BS-default"]], method = "MFPC-LM-rsf-BS-default", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-rsf sans selection de variables - split bs.gradient
+
+  if (any(method == "MFPC-LM-rsf-BS-noVS")){
+    if (is.null(models[["MFPC-LM-rsf-BS-noVS"]])){
+      stop("No model found in models for method = MFPC-LM-rsf-BS-noVS", "\n")
+    }
+
+    pred_surv <- pred.rsf(model = models[["MFPC-LM-rsf-BS-noVS"]], method = "MFPC-LM-rsf-BS-noVS", newdata = newdata,
+                          var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-coxnet
+
+  if (any(method == "MFPC-LM-coxnet")){
+    if (is.null(models[["MFPC-LM-coxnet"]])){
+      stop("No model found in models for method = MFPC-LM-coxnet", "\n")
+    }
+
+    newdata.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_noLM]))[,-1])
+
+    pred_surv <- pred.phm(model = models[["MFPC-LM-coxnet"]], method = "MFPC-LM-coxnet",
+                          newdata = newdata.coxnet, var_list = NULL, tHor = tHor,
+                          pred_surv = pred_surv)
+
+  }
+
+  # MFPC-LM-coxnet-ridge
+
+  if (any(method == "MFPC-LM-coxnet-ridge")){
+    if (is.null(models[["MFPC-LM-coxnet-ridge"]])){
+      stop("No model found in models for method = MFPC-LM-coxnet-ridge", "\n")
+    }
+
+    newdata.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_noLM]))[,-1])
+
+    pred_surv <- pred.phm(model = models[["MFPC-LM-coxnet-ridge"]], method = "MFPC-LM-coxnet-ridge",
+                          newdata = newdata.coxnet, var_list = NULL, tHor = tHor,
+                          pred_surv = pred_surv)
+  }
+
+  # LM-coxnet-lasso
+
+  if (any(method == "MFPC-LM-coxnet-lasso")){
+    if (is.null(models[["MFPC-LM-coxnet-lasso"]])){
+      stop("No model found in models for method = MFPC-LM-coxnet-lasso", "\n")
+    }
+
+    newdata.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_noLM]))[,-1])
+
+    pred_surv <- pred.phm(model = models[["MFPC-LM-coxnet-lasso"]], method = "MFPC-LM-coxnet-lasso",
+                          newdata = newdata.coxnet, var_list = NULL, tHor = tHor,
+                          pred_surv = pred_surv)
+  }
+
+  # LM-splsDR
+
+  if (any(method == "MFPC-LM-splsDR")){
+    if (is.null(models[["MFPC-LM-splsDR"]])){
+      stop("No model found in models for method = MFPC-LM-splsDR", "\n")
+    }
+
+    newdata.splscox <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_noLM]))[,-1])
+
+    pred_surv <- pred.splscox(model = models[["MFPC-LM-splsDR"]], method = "MFPC-LM-splsDR",
+                              newdata = newdata.splscox, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # LM-splsDR-ridge
+
+  if (any(method == "MFPC-LM-splsDR-ridge")){
+    if (is.null(models[["MFPC-LM-splsDR-ridge"]])){
+      stop("No model found in models for method = MFPC-LM-splsDR-ridge", "\n")
+    }
+
+    newdata.splscox <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_noLM]))[,-1])
+
+    pred_surv <- pred.splscox(model = models[["MFPC-LM-splsDR-ridge"]], method = "MFPC-LM-splsDR-ridge",
+                              newdata = newdata.splscox, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # LM-splsDR-lasso
+
+  if (any(method == "MFPC-LM-splsDR-lasso")){
+    if (is.null(models[["MFPC-LM-splsDR-lasso"]])){
+      stop("No model found in models for method = MFPC-LM-splsDR-lasso", "\n")
+    }
+
+    newdata.splscox <- as.data.frame(model.matrix( ~ ., na.omit(newdata[,var_list_noLM]))[,-1])
+
+    pred_surv <- pred.splscox(model = models[["MFPC-LM-splsDR-lasso"]], method = "MFPC-LM-splsDR-lasso",
                               newdata = newdata.splscox, tHor = tHor, pred_surv = pred_surv)
 
   }

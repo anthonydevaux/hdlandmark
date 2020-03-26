@@ -44,8 +44,11 @@ pred.splscox <- function(model, method, newdata, tHor, pred_surv){
 
   }
 
+  X.spls.df <- as.data.frame(X.spls)
+  rownames(X.spls.df) <- rownames(newdata)
+
   pred_surv <- pred.phm(model = model$cox_splsDR, method = method,
-                        newdata = as.data.frame(X.spls), var_list = NULL,
+                        newdata = X.spls.df, var_list = NULL,
                         tHor = tHor, pred_surv = pred_surv)
 
   return(pred_surv)

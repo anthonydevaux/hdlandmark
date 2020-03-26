@@ -5,7 +5,8 @@
 \title{Title}
 \usage{
 LMpred(method = c("LM-cox", "LM-rsf", "cox", "LM-coxnet", "LM-splsDR"),
-  models, newdata, time, subject, marker_list, covar_list, tHor)
+  models, newdata, time, subject, marker_list = NULL,
+  covar_list = NULL, tHor)
 }
 \arguments{
 \item{tHor}{}

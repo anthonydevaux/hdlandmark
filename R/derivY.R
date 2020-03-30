@@ -9,7 +9,7 @@
 #'
 #' @examples
 #'
-derivY <- function(predRE, data, derivForm){
+derivY <- function(predRE, data, derivForm, time, tLM){
 
   if (is.null(derivForm$fixed) | is.null(derivForm$indFixed)){
 
@@ -20,6 +20,8 @@ derivY <- function(predRE, data, derivForm){
   subject <- predRE$group
 
   id_subject <- unique(data[,subject])
+
+  data[,time] <- tLM
 
   beta_deriv <- predRE$beta[derivForm$indFixed]
 

@@ -113,7 +113,7 @@ LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW =
 
         # slope at landmark time
         cat("slope...")
-        deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
+        deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]], time, tLM)
         data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
         colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 
@@ -201,7 +201,7 @@ LMsum <- function(lmm_objects, data, tLM, subject, time, derivForm_objects, HW =
 
         # slope at landmark time
         cat("slope...")
-        deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]])
+        deriv_Y <- derivY(pred_RE, data_surv, derivForm_objects[[marker_ind]], time, tLM)
         data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
         colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 

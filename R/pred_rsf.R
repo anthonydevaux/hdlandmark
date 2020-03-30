@@ -27,7 +27,7 @@ pred.rsf <- function(model, method, newdata, var_list, tHor, pred_surv){
     id_time <- sum(res_survfit$time.interest <= tHor)
     formula.xvar <- as.formula(as.character(model$call$formula)[c(1,3)])
     id_no_na <- rownames(model.frame(formula.xvar,
-                                     newdata[,model$xvar.names])) # id without NA
+                                     newdata[,model$xvar.names, drop = FALSE])) # id without NA
     pred_surv[id_no_na, method] <- res_survfit$survival[,id_time]
 
   }else{

@@ -122,7 +122,7 @@ LMsum_simu <- function(markers.true, data, tLM, subject, time, RE, HW = tLM,
 
       # slope at landmark time
       cat("slope...")
-      deriv_Y <- derivY(RE.marker, data_surv, marker.true$deriv)
+      deriv_Y <- derivY(RE.marker, data_surv, marker.true$deriv, time, tLM)
       data_surv[which(data_surv[,subject]%in%rownames(deriv_Y)),ncol(data_surv) + 1] <- deriv_Y
       colnames(data_surv)[ncol(data_surv)] <- paste(marker_name, "slope", sep = "_")
 

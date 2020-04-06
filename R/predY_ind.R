@@ -4,6 +4,7 @@
 #' @param data A dataframe where each row containing some predictive variables for a specific subject
 #'
 #' @return A matrix containing the prediction value of the longitudinal outcome for each subject
+#' @export
 #'
 #' @examples
 #'

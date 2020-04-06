@@ -6,6 +6,7 @@
 #' @return A list containing the random effect for each subject, the fixed coefficients
 #' from \code{hlme} and the formula used to compute the \code{hlme} mixed model
 #'
+#' @export
 #' @importFrom lme4 ranef fixef VarCorr
 #'
 #' @examples

@@ -4,7 +4,7 @@
 \alias{derivY}
 \title{Function to predict the slope of longitudinal outcome}
 \usage{
-derivY(predRE, data, derivForm)
+derivY(predRE, data, derivForm, time, tLM)
 }
 \arguments{
 \item{predRE}{A list object from \code{predRE} function}

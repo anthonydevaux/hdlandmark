@@ -38,7 +38,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
                       dimnames = list(newdata[,subject], method))
 
   var_list_noLM <- c(covar_list, marker_list)
-  var_list_LM <- names(newdata)[!(names(newdata) %in% marker_list)]
+  var_list_LM <- names(newdata)[!(names(newdata) %in% c(subject, time, marker_list))]
 
   ##################################################################
   ######################

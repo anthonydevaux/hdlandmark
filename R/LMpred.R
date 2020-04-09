@@ -16,7 +16,7 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
                    newdata, time, subject, marker_list = NULL, covar_list = NULL,
                    tHor){
 
-  if (!all(method%in%c("LM-cox", "LM-cox-noVS",
+  if (!all(method%in%c("ORACLE", "LM-cox", "LM-cox-noVS",
                        "LM-rsf", "LM-rsf-default", "LM-rsf-noVS",
                        "LM-rsf-BS", "LM-rsf-BS-default", "LM-rsf-BS-noVS",
                        "cox", "cox-noVS",
@@ -66,6 +66,18 @@ LMpred <- function(method = c("LM-cox","LM-rsf","cox","LM-coxnet","LM-splsDR"), 
 
     pred_surv <- pred.phm(model = models[["cox-noVS"]], method = "cox-noVS", newdata = newdata,
                           var_list = var_list_noLM, tHor = tHor, pred_surv = pred_surv)
+
+  }
+
+  # ORACLE
+
+  if (any(method == "ORACLE")){
+    if (is.null(models[["ORACLE"]])){
+      stop("No model found in models for method = ORACLE", "\n")
+    }
+
+    pred_surv <- pred.phm(model = models[["ORACLE"]], method = "ORACLE", newdata = newdata,
+                          var_list = var_list_LM, tHor = tHor, pred_surv = pred_surv)
 
   }
 

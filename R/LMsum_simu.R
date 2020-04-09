@@ -50,7 +50,7 @@ LMsum_simu <- function(markers.true, data, tLM, subject, time, RE, HW = tLM,
 
     RE.marker <- list(b_i = RE[[marker_ind]],
                beta = marker.true$params$beta,
-               sigmae = marker.true$params$sigmae,
+               #sigmae = marker.true$params$sigmae,
                call = marker.true$model,
                group = subject)
 

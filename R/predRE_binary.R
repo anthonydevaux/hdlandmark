@@ -6,7 +6,8 @@
 #' @return
 #' @export
 #'
-#' @importFrom lme4 nobars findbars
+#' @import lme4
+#' @importFrom Matrix bdiag
 #'
 #' @examples
 predRE.binary <- function(model, data){

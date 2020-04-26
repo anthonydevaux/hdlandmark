@@ -7,7 +7,8 @@
 #' from \code{hlme} and the formula used to compute the \code{hlme} mixed model
 #'
 #' @export
-#' @importFrom lme4 ranef fixef VarCorr
+#' @import lme4
+#' @importFrom Matrix bdiag
 #'
 #' @examples
 #'

@@ -4,11 +4,18 @@
 \alias{LMsurv.coxnet}
 \title{Title}
 \usage{
-LMsurv.coxnet(data.surv, coxnet.opt = TRUE, coxnet.lasso = !coxnet.opt,
-  coxnet.ridge = !coxnet.opt)
+LMsurv.coxnet(
+  data.surv,
+  coxnet.opt = TRUE,
+  coxnet.lasso = !coxnet.opt,
+  coxnet.ridge = !coxnet.opt
+)
 }
 \arguments{
 \item{coxnet.ridge}{}
+}
+\value{
+
 }
 \description{
 Title

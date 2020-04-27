@@ -4,12 +4,25 @@
 \alias{hdlandmark}
 \title{Title}
 \usage{
-hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
-  time.event, event, long.methods = c("combine", "both", "GLMM", "MFPC"),
-  surv.methods = c("all", "cox", "penalized-cox", "sPLS", "RSF"))
+hdlandmark(
+  data,
+  data.pred = NULL,
+  markers,
+  tLMs,
+  tHors,
+  subject,
+  time,
+  time.event,
+  event,
+  long.methods = c("combine", "both", "GLMM", "MFPC"),
+  surv.methods = c("cox", "penalized-cox", "sPLS", "rsf")
+)
 }
 \arguments{
 \item{surv.methods}{}
+}
+\value{
+
 }
 \description{
 Title

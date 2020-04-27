@@ -9,6 +9,9 @@ pred.rsf(model, method, newdata, var_list, tHor, pred_surv)
 \arguments{
 \item{pred_surv}{}
 }
+\value{
+
+}
 \description{
 Title
 }

@@ -4,11 +4,23 @@
 \alias{LM.MFPC}
 \title{Title}
 \usage{
-LM.MFPC(data, id, time, u.time, markers, pred.data = NULL, pve = 0.95,
-  nbasis = 10, plot = FALSE)
+LM.MFPC(
+  data,
+  id,
+  time,
+  u.time,
+  markers,
+  pred.data = NULL,
+  pve = 0.95,
+  nbasis = 10,
+  plot = FALSE
+)
 }
 \arguments{
 \item{plot}{}
+}
+\value{
+
 }
 \description{
 Title

@@ -12,7 +12,7 @@
 #' @importFrom survival Surv coxph
 #'
 #' @examples
-LMsurv.coxnet <- function(data.surv, coxnet.opt = TRUE, coxnet.lasso = coxnet.opt, coxnet.ridge = coxnet.opt){
+LMsurv.coxnet <- function(data.surv, coxnet.opt = TRUE, coxnet.lasso = !coxnet.opt, coxnet.ridge = !coxnet.opt){
 
   model.coxnet <- list()
 
@@ -65,8 +65,6 @@ LMsurv.coxnet <- function(data.surv, coxnet.opt = TRUE, coxnet.lasso = coxnet.op
     model.coxnet[["opt"]] <- coxnetFit.coxph
 
   }
-
-  browser()
 
   # lasso
 

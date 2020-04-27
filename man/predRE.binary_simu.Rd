@@ -9,6 +9,9 @@ predRE.binary_simu(model, data)
 \arguments{
 \item{data}{}
 }
+\value{
+
+}
 \description{
 Title
 }

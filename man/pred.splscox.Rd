@@ -9,6 +9,9 @@ pred.splscox(model, method, newdata, tHor, pred_surv)
 \arguments{
 \item{pred_surv}{}
 }
+\value{
+
+}
 \description{
 Title
 }

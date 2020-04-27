@@ -19,7 +19,7 @@
 hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        subject, time, time.event, event,
                        long.methods = c("combine", "both", "GLMM", "MFPC"),
-                       surv.methods = c("all", "cox", "penalized-cox", "sPLS", "RSF")){
+                       surv.methods = c("cox", "penalized-cox", "sPLS", "rsf")){
 
   ####### Check #######
 
@@ -124,15 +124,20 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 .hdlandmark <- function(data, data.pred, markers, tLM, tHor, subject, time, time.event, event,
                         long.methods, surv.methods){
 
-  # estimation of summaries on training data
+  # estimation of summaries on training data and test data
 
   res.LMsum <- LMsummaries(data = data, data.pred = data.pred, markers = marker, tLM = tLM,
                            subject = subject, time = time, time.event = time.event, event = event,
                            long.methods = long.methods)
 
-  # survival model
+  # survival model on training data
 
-  LMsurv(data.surv = res.LMsum$data.surv, long.methods = long.methods, surv.methods = surv.methods)
+  res.LMsurv <- LMsurv(data.surv = res.LMsum$data.surv, long.methods = long.methods, surv.methods = surv.methods)
 
+  # survival model on test data
+
+  res.LMpred <- LMpred(data.surv = res.LMsum$data.surv.pred, model.surv = res.LMsurv$model.surv,
+                       long.methods = long.methods, surv.methods = surv.methods,
+                       tHor = tHor)
 
 }

@@ -9,6 +9,9 @@ LMsurv.cox(data.surv, cox.autoVar = TRUE, cox.allVar = !cox.autoVar)
 \arguments{
 \item{cox.allVar}{}
 }
+\value{
+
+}
 \description{
 Title
 }

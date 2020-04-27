@@ -1,39 +1,41 @@
-LMsurv <- function(data.surv, subject, time.event, event, long.methods, surv.methods){
+LMsurv <- function(data.surv, time.event, event, long.methods, surv.methods){
 
   model.list <- list()
 
   for (long.method in long.methods){
 
-    for (surv.method in surv.methods){
+    model.list[[long.method]] <- list()
 
-      method.name <- paste(long.method, surv.method, sep = "-")
+    for (surv.method in surv.methods){
 
       if (surv.method=="cox"){
 
-        model.list[[method.name]] <- LMsurv.cox(data.surv[[long.method]])
+        model.list[[long.method]][[surv.method]] <- LMsurv.cox(data.surv[[long.method]])
 
       }
 
       if (surv.method=="penalized-cox"){
 
-        model.list[[method.name]] <- LMsurv.coxnet(data.surv[[long.method]])
+        model.list[[long.method]][[surv.method]] <- LMsurv.coxnet(data.surv[[long.method]])
 
       }
 
       if (surv.method=="sPLS"){
 
-        model.list[[method.name]] <- LMsurv.spls(data.surv[[long.method]])
+        model.list[[long.method]][[surv.method]] <- LMsurv.spls(data.surv[[long.method]])
 
       }
 
-      if (surv.method=="RSF"){
+      if (surv.method=="rsf"){
 
-        model.list[[method.name]] <- LMsurv.rsf(data.surv[[long.method]])
+        model.list[[long.method]][[surv.method]] <- LMsurv.rsf(data.surv[[long.method]])
 
       }
 
     }
 
   }
+
+  return(list(model.surv = model.list))
 
 }

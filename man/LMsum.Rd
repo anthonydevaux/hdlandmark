@@ -4,8 +4,16 @@
 \alias{LMsum}
 \title{Function to compute several summaries of longitudinal outcomes}
 \usage{
-LMsum(lmm_objects, data, tLM, subject, time, derivForm_objects, HW = tLM,
-  threshold = NULL)
+LMsum(
+  lmm_objects,
+  data,
+  tLM,
+  subject,
+  time,
+  derivForm_objects,
+  HW = tLM,
+  threshold = NULL
+)
 }
 \arguments{
 \item{lmm_objects}{A list containing as many \code{hlme} output as longitudinal outcome}

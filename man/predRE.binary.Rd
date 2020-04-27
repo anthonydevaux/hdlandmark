@@ -9,6 +9,9 @@ predRE.binary(model, data)
 \arguments{
 \item{data}{}
 }
+\value{
+
+}
 \description{
 Title
 }

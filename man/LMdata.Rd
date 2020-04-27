@@ -9,6 +9,9 @@ LMdata(data, time, time_event, event, tLM, tHor)
 \arguments{
 \item{tHor}{}
 }
+\value{
+
+}
 \description{
 Title
 }

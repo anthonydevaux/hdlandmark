@@ -4,8 +4,16 @@
 \alias{LMsum_simu}
 \title{Function to compute several summaries of longitudinal outcomes}
 \usage{
-LMsum_simu(markers.true, data, tLM, subject, time, RE, HW = tLM,
-  threshold = NULL)
+LMsum_simu(
+  markers.true,
+  data,
+  tLM,
+  subject,
+  time,
+  RE,
+  HW = tLM,
+  threshold = NULL
+)
 }
 \arguments{
 \item{data}{A dataframe containing longitudinal data}

@@ -10,7 +10,7 @@
 #' @importFrom survival Surv coxph
 #'
 #' @examples
-LMsurv.cox <- function(data.surv, cox.autoVar = TRUE, cox.allVar = !cox.autoVar){
+LMsurv.cox <- function(data.surv, cox.autoVar = TRUE, cox.allVar = cox.autoVar){
 
   model.cox <- list()
 

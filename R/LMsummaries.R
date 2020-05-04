@@ -1,11 +1,8 @@
 LMsummaries <- function(data, data.pred, markers, tLM,
                         subject, time, time.event, event,
-                        long.methods){
+                        long.method){
 
   ########### Survival data at landmark time ###########
-
-  data.surv.long <- list()
-  data.surv.long.pred <- list()
 
   # Training data
 
@@ -41,62 +38,58 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
   # GLMM
 
-  if (any(long.methods == "GLMM")){
+  if (long.method == "GLMM"){
 
     # estimation
 
     res.glmm <- LMsum.glmm(data, data.surv, markers, tLM, subject, time, threshold = NULL)
-    data.surv.long[["GLMM"]] <- res.glmm$data.surv[,!(names(res.glmm$data.surv) %in%
-                                                        c(time, names(markers)))]
+    data.surv.long <- res.glmm$data.surv[,!(names(res.glmm$data.surv) %in%
+                                              c(time, names(markers)))]
 
-    colnames(data.surv.long[["GLMM"]])[which(colnames(data.surv.long[["GLMM"]])==subject)] <-
-      "subject"
+    colnames(data.surv.long)[which(colnames(data.surv.long)==subject)] <- "subject"
 
-    rownames(data.surv.long[["GLMM"]]) <- data.surv.long[["GLMM"]]$subject
+    rownames(data.surv.long) <- data.surv.long$subject
 
     # prediction
 
     res.glmm.pred <- LMsum.glmm(data.pred, data.surv.pred, res.glmm$markers.model,
                                 tLM, subject, time, threshold = NULL)
-    data.surv.long.pred[["GLMM"]] <- res.glmm.pred$data.surv[,!(names(res.glmm.pred$data.surv) %in%
-                                                                  c(time, names(markers)))]
+    data.surv.long.pred <- res.glmm.pred$data.surv[,!(names(res.glmm.pred$data.surv) %in%
+                                                        c(time, names(markers)))]
 
-    colnames(data.surv.long.pred[["GLMM"]])[which(colnames(data.surv.long.pred[["GLMM"]])==subject)] <-
-      "subject"
+    colnames(data.surv.long.pred)[which(colnames(data.surv.long.pred)==subject)] <- "subject"
 
-    rownames(data.surv.long.pred[["GLMM"]]) <- data.surv.long.pred[["GLMM"]]$subject
+    rownames(data.surv.long.pred) <- data.surv.long.pred$subject
 
   }
 
   # MFPC
 
-  if (any(long.methods == "MFPC")){
+  if (long.method == "MFPC"){
 
     # estimation + prediction
 
-    res.mfpc  <- LMsum.mfpc(data, data.surv, data.pred, data.surv.pred, markers, tLM, subject, time,
-                            time.interval = 0.1, pve = 0.99, nbasis = 3)
+    res.mfpc <- LMsum.mfpc(data, data.surv, data.pred, data.surv.pred, markers, tLM, subject, time,
+                           time.interval = 0.1, pve = 0.99, nbasis = 3)
 
-    data.surv.long[["MFPC"]] <- res.mfpc$data.surv[,!(names(res.mfpc$data.surv) %in%
+    data.surv.long <- res.mfpc$data.surv[,!(names(res.mfpc$data.surv) %in%
+                                              c(time, names(markers)))]
+    data.surv.long.pred <- res.mfpc$data.surv.pred[,!(names(res.mfpc$data.surv.pred) %in%
                                                         c(time, names(markers)))]
-    data.surv.long.pred[["MFPC"]] <- res.mfpc$data.surv.pred[,!(names(res.mfpc$data.surv.pred) %in%
-                                                                  c(time, names(markers)))]
 
-    colnames(data.surv.long[["MFPC"]])[which(colnames(data.surv.long[["MFPC"]])==subject)] <-
-      "subject"
+    colnames(data.surv.long)[which(colnames(data.surv.long)==subject)] <- "subject"
 
-    rownames(data.surv.long[["MFPC"]]) <- data.surv.long[["MFPC"]]$subject
+    rownames(data.surv.long) <- data.surv.long$subject
 
-    colnames(data.surv.long.pred[["MFPC"]])[which(colnames(data.surv.long.pred[["MFPC"]])==subject)] <-
-      "subject"
+    colnames(data.surv.long.pred)[which(colnames(data.surv.long.pred)==subject)] <- "subject"
 
-    rownames(data.surv.long.pred[["MFPC"]]) <- data.surv.long.pred[["MFPC"]]$subject
+    rownames(data.surv.long.pred) <- data.surv.long.pred$subject
 
   }
 
   # combine
 
-  if (any(long.methods == "combine")){
+  if (long.method == "combine"){
 
     # estimation
 
@@ -109,12 +102,11 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
     data.surv.combine <- merge(data.surv.glmm, data.surv.mfpc, sort = FALSE)
 
-    data.surv.long[["combine"]] <- data.surv.combine[,!(names(data.surv.combine) %in% c(time, names(markers)))]
+    data.surv.long <- data.surv.combine[,!(names(data.surv.combine) %in% c(time, names(markers)))]
 
-    colnames(data.surv.long[["combine"]])[which(colnames(data.surv.long[["combine"]])==subject)] <-
-      "subject"
+    colnames(data.surv.long)[which(colnames(data.surv.long)==subject)] <- "subject"
 
-    rownames(data.surv.long[["combine"]]) <- data.surv.long[["combine"]]$subject
+    rownames(data.surv.long) <- data.surv.long$subject
 
     # prediction
 
@@ -125,13 +117,12 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
     data.surv.combine.pred <- merge(data.surv.pred.glmm, data.surv.pred.mfpc, sort = FALSE)
 
-    data.surv.long.pred[["combine"]] <- data.surv.combine.pred[,!(names(data.surv.combine.pred) %in%
-                                                                    c(time, names(markers)))]
+    data.surv.long.pred <- data.surv.combine.pred[,!(names(data.surv.combine.pred) %in%
+                                                       c(time, names(markers)))]
 
-    colnames(data.surv.long.pred[["combine"]])[which(colnames(data.surv.long.pred[["combine"]])==subject)] <-
-      "subject"
+    colnames(data.surv.long.pred)[which(colnames(data.surv.long.pred)==subject)] <- "subject"
 
-    rownames(data.surv.long.pred[["combine"]]) <- data.surv.long.pred[["combine"]]$subject
+    rownames(data.surv.long.pred) <- data.surv.long.pred$subject
 
   }
 

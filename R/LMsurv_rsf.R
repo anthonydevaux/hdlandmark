@@ -13,8 +13,7 @@
 #' @importFrom survival Surv
 #'
 #' @examples
-LMsurv.rsf <- function(data.surv, rsf.split = c("logrank", "bs.gradient"),
-                       rsf.opt = TRUE, rsf.noVS = !rsf.opt, rsf.default = !rsf.opt){
+LMsurv.rsf <- function(data.surv, rsf.split, rsf.opt, rsf.noVS, rsf.default){
 
   model.rsf <- list()
 
@@ -29,7 +28,7 @@ LMsurv.rsf <- function(data.surv, rsf.split = c("logrank", "bs.gradient"),
       nodesize.max <- 20
 
       for (nodesize in seq(1,nodesize.max,5)){
-        for (mtry in seq(1,mtry.max,5)){
+        for (mtry in seq(1,mtry.max,3)){
 
           cat(paste0("Nodesize : ", nodesize, " and mtry : ", mtry), "\n")
 

@@ -9,8 +9,20 @@
 #' @param time
 #' @param time.event
 #' @param event
-#' @param long.methods
+#' @param long.method
 #' @param surv.methods
+#' @param cox.autoVar
+#' @param cox.allVar
+#' @param coxnet.opt
+#' @param coxnet.lasso
+#' @param coxnet.ridge
+#' @param spls.opt
+#' @param spls.nosparse
+#' @param spls.maxsparse
+#' @param rsf.split
+#' @param rsf.opt
+#' @param rsf.noVS
+#' @param rsf.default
 #'
 #' @return
 #' @export
@@ -18,8 +30,13 @@
 #' @examples
 hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        subject, time, time.event, event,
-                       long.methods = c("combine", "both", "GLMM", "MFPC"),
-                       surv.methods = c("cox", "penalized-cox", "sPLS", "rsf")){
+                       long.method = c("combine", "GLMM", "MFPC"),
+                       surv.methods = c("cox", "penalized-cox", "sPLS", "rsf"),
+                       kfolds = 10, seed = 1234, parallel = FALSE, Ncpus = 1,
+                       cox.autoVar = TRUE, cox.allVar = !cox.autoVar,
+                       coxnet.opt = TRUE, coxnet.lasso = !coxnet.opt, coxnet.ridge = !coxnet.opt,
+                       spls.opt = TRUE, spls.nosparse = !spls.opt, spls.maxsparse = !spls.opt,
+                       rsf.split = c("logrank", "bs.gradient"), rsf.opt = TRUE, rsf.noVS = !rsf.opt, rsf.default = !rsf.opt){
 
   ####### Check #######
 
@@ -92,13 +109,16 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
   ##############################################
 
-  for (tLM in tLMs){ # tLM loop
+  resu <- list()
+
+  for (tLM in tLMs){ # landmark time loop
 
     data.tLM <- data[which(data[,time]<tLM&data[,time.event]>tLM),]
 
     if (!is.null(data.pred)){ # different data training and test
 
       data.pred.tLM <- data.pred[which(data.pred[,time]<tLM&data.pred[,time.event]>tLM),]
+      kfolds <- 1
 
     }else{ # same data estimation/prediction
 
@@ -106,38 +126,113 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     }
 
-    for (tHor in tHors){ # tHor loop
+    if (parallel){
 
-      res <- .hdlandmark(data = data.tLM, data.pred = data.pred.tLM, markers = markers, tLM = tLM, tHor = tHor,
-                         subject = subject, time = time, time.event = time.event, event = event,
-                         long.methods = long.methods,
-                         surv.methods = surv.methods)
+
+
+    }else{
+
+      resu[[as.character(tLM)]] <- .hdlandmark(data = data.tLM, data.pred = data.pred.tLM, markers = markers, tLM = tLM, tHors = tHors,
+                                               kfolds = kfolds, seed = seed,
+                                               subject = subject, time = time, time.event = time.event, event = event,
+                                               long.method = long.method, surv.methods = surv.methods,
+                                               cox.autoVar = cox.autoVar, cox.allVar = cox.allVar,
+                                               coxnet.opt = coxnet.opt, coxnet.lasso = coxnet.lasso, coxnet.ridge = coxnet.ridge,
+                                               spls.opt = spls.opt, spls.nosparse = spls.nosparse, spls.maxsparse = spls.maxsparse,
+                                               rsf.split = rsf.split, rsf.opt = rsf.opt, rsf.noVS = rsf.noVS, rsf.default = rsf.default)
 
     }
 
   }
 
-  return(res)
+  cat("DONE !", "\n")
+
+  return(list(tLMs = tLMs, tHors = tHors, resu = resu,
+              long.method = long.method, surv.methods = surv.methods,
+              cox.autoVar = cox.autoVar, cox.allVar = cox.allVar,
+              coxnet.opt = coxnet.opt, coxnet.lasso = coxnet.lasso,
+              coxnet.ridge = coxnet.ridge,
+              spls.opt = spls.opt, spls.nosparse = spls.nosparse,
+              spls.maxsparse = spls.maxsparse,
+              rsf.split = rsf.split, rsf.opt = rsf.opt, rsf.noVS = rsf.noVS,
+              rsf.default = rsf.default))
 
 }
 
-.hdlandmark <- function(data, data.pred, markers, tLM, tHor, subject, time, time.event, event,
-                        long.methods, surv.methods){
 
-  # estimation of summaries on training data and test data
 
-  res.LMsum <- LMsummaries(data = data, data.pred = data.pred, markers = marker, tLM = tLM,
-                           subject = subject, time = time, time.event = time.event, event = event,
-                           long.methods = long.methods)
+.hdlandmark <- function(data, data.pred, markers, tLM, tHors,
+                        kfolds, seed,
+                        subject, time, time.event, event,
+                        long.method, surv.methods,
+                        cox.autoVar, cox.allVar,
+                        coxnet.opt, coxnet.lasso, coxnet.ridge,
+                        spls.opt, spls.nosparse, spls.maxsparse,
+                        rsf.split, rsf.opt, rsf.noVS, rsf.default){
 
-  # survival model on training data
+  ids <- unique(data[,subject])
+  n <- length(ids)
+  set.seed(seed)
+  fold <- sample(rep(1:kfolds, length.out = n))
 
-  res.LMsurv <- LMsurv(data.surv = res.LMsum$data.surv, long.methods = long.methods, surv.methods = surv.methods)
+  pred.surv <- AUC <- BS <- MSEP <- list()
 
-  # survival model on test data
+  for (k in 1:kfolds){
 
-  res.LMpred <- LMpred(data.surv = res.LMsum$data.surv.pred, model.surv = res.LMsurv$model.surv,
-                       long.methods = long.methods, surv.methods = surv.methods,
-                       tHor = tHor)
+    cat(paste0("Fold : ",k,"/",kfolds),"\n")
+
+    ids.test <- ids[which(fold==k)]
+
+    if (kfolds==1){
+
+      ids.train <- ids.test
+
+    }else{
+
+      ids.train <- ids[which(fold!=k)]
+
+    }
+
+    data.k <- data[which(data[,subject]%in%ids.train),]
+    data.pred.k <- data.pred[which(data.pred[,subject]%in%ids.test),]
+
+    # estimation of summaries on training data and test data
+
+    res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = marker, tLM = tLM,
+                             subject = subject, time = time, time.event = time.event, event = event,
+                             long.method = long.method)
+
+    # survival model on training data
+
+    res.LMsurv <- LMsurv(data.surv = res.LMsum$data.surv, long.method = long.method, surv.methods = surv.methods,
+                         cox.autoVar = cox.autoVar, cox.allVar = cox.allVar,
+                         coxnet.opt = coxnet.opt, coxnet.lasso = coxnet.lasso, coxnet.ridge = coxnet.ridge,
+                         spls.opt = spls.opt, spls.nosparse = spls.nosparse, spls.maxsparse = spls.maxsparse,
+                         rsf.split = rsf.split, rsf.opt = rsf.opt, rsf.noVS = rsf.noVS, rsf.default = rsf.default)
+
+    for (tHor in tHors){ # tHor loop
+
+      # survival model on test data
+
+      pred.surv.tHor <- LMpred(data.surv = res.LMsum$data.surv.pred, model.surv = res.LMsurv$model.surv,
+                               long.method = long.method, surv.methods = surv.methods,
+                               tHor = tHor)
+
+      res.LMassess <- LMassess(pred.surv = pred.surv.tHor, data.surv = res.LMsum$data.surv.pred, tHor = tHor)
+
+      AUC[[as.character(tHor)]] <- rbind(AUC[[as.character(tHor)]], res.LMassess$AUC)
+      BS[[as.character(tHor)]] <- rbind(BS[[as.character(tHor)]], res.LMassess$BS)
+      MSEP[[as.character(tHor)]] <- rbind(MSEP[[as.character(tHor)]], res.LMassess$MSEP)
+
+      pred.surv[[as.character(tHor)]] <- rbind(pred.surv[[as.character(tHor)]], pred.surv.tHor)
+      pred.surv[[as.character(tHor)]] <- pred.surv[[as.character(tHor)]][order(as.integer(rownames(pred.surv[[as.character(tHor)]]))), ]
+
+    }
+
+  }
+
+  return(list(data.surv = res.LMsum$data.surv, data.surv.pred = res.LMsum$data.surv.pred,
+              model.surv = res.LMsurv$model.surv, pred.surv = pred.surv,
+              AUC = AUC, BS = BS, MSEP = MSEP))
 
 }

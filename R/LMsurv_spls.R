@@ -11,7 +11,7 @@
 #' @importFrom plsRcox cv.coxsplsDR coxsplsDR
 #'
 #' @examples
-LMsurv.spls <- function(data.surv, spls.opt = TRUE, spls.nosparse = !spls.opt, spls.maxsparse = !spls.opt){
+LMsurv.spls <- function(data.surv, spls.opt, spls.nosparse, spls.maxsparse){
 
   model.spls <- list()
 

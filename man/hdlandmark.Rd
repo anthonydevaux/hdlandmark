@@ -14,12 +14,28 @@ hdlandmark(
   time,
   time.event,
   event,
-  long.methods = c("combine", "both", "GLMM", "MFPC"),
-  surv.methods = c("cox", "penalized-cox", "sPLS", "rsf")
+  long.method = c("combine", "GLMM", "MFPC"),
+  surv.methods = c("cox", "penalized-cox", "sPLS", "rsf"),
+  kfolds = 10,
+  seed = 1234,
+  parallel = FALSE,
+  Ncpus = 1,
+  cox.autoVar = TRUE,
+  cox.allVar = !cox.autoVar,
+  coxnet.opt = TRUE,
+  coxnet.lasso = !coxnet.opt,
+  coxnet.ridge = !coxnet.opt,
+  spls.opt = TRUE,
+  spls.nosparse = !spls.opt,
+  spls.maxsparse = !spls.opt,
+  rsf.split = c("logrank", "bs.gradient"),
+  rsf.opt = TRUE,
+  rsf.noVS = !rsf.opt,
+  rsf.default = !rsf.opt
 )
 }
 \arguments{
-\item{surv.methods}{}
+\item{rsf.default}{}
 }
 \value{
 

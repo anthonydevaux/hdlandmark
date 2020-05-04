@@ -30,7 +30,7 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold =
     # numeric marker
     if (class(data[,marker])=="numeric"){
 
-      if (class(markers[[marker]]$model)!="merMod"){
+      if (class(markers[[marker]]$model)!="lmerMod"){
 
         markers[[marker]]$model <- lmer(markers[[marker]]$model,
                                         data = data, REML = FALSE,
@@ -45,7 +45,7 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold =
     # binary marker
     if (class(data[,marker])=="factor"){
 
-      if (class(markers[[marker]]$model)!="merMod"){
+      if (class(markers[[marker]]$model)!="glmerMod"){
 
         markers[[marker]]$model <- glmer(markers[[marker]]$model,
                                          data = data, family = "binomial",

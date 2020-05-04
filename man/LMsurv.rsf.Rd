@@ -4,13 +4,7 @@
 \alias{LMsurv.rsf}
 \title{Title}
 \usage{
-LMsurv.rsf(
-  data.surv,
-  rsf.split = c("logrank", "bs.gradient"),
-  rsf.opt = TRUE,
-  rsf.noVS = !rsf.opt,
-  rsf.default = !rsf.opt
-)
+LMsurv.rsf(data.surv, rsf.split, rsf.opt, rsf.noVS, rsf.default)
 }
 \arguments{
 \item{rsf.default}{}

@@ -2,7 +2,7 @@
 #'
 #' @param data.surv
 #' @param model.surv
-#' @param long.methods
+#' @param long.method
 #' @param surv.methods
 #' @param tHor
 #'
@@ -13,151 +13,147 @@
 #' @importFrom randomForestSRC predict.rfsrc
 #'
 #' @examples
-LMpred <- function(data.surv, model.surv, long.methods, surv.methods, tHor){
+LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
 
-  models <- unlist(lapply(model.surv, FUN = function(x) {lapply(x, FUN = function(y) length(y$model))}))
+  models <- unlist(lapply(model.surv, FUN = function(x) length(x$model)))
   models.nb <- sum(models)
-
-  pred.surv <- matrix(NA, nrow = nrow(data.surv[[1]]), ncol = models.nb,
-                      dimnames = list(data.surv[[1]]$subject,
-                                      paste0("V", 1:models.nb)))
 
   models.ind <- 1
 
-  for (long.method in long.methods){
+  pred.surv <- matrix(NA, nrow = nrow(data.surv), ncol = models.nb,
+                      dimnames = list(data.surv$subject,
+                                      paste0("V", 1:models.nb)))
 
-    for (surv.method in surv.methods){
+  for (surv.method in surv.methods){
 
-      # Cox, Penalized-cox
+    # Cox, Penalized-cox
 
-      if (any(surv.method %in% c("cox", "penalized-cox"))){
+    if (any(surv.method %in% c("cox", "penalized-cox"))){
 
-        sub.methods <- names(model.surv[[long.method]][[surv.method]]$model)
+      sub.methods <- names(model.surv[[surv.method]]$model)
 
-        for (sub.method in sub.methods){
+      for (sub.method in sub.methods){
 
-          model.current <- model.surv[[long.method]][[surv.method]]$model[[sub.method]]
+        model.current <- model.surv[[surv.method]]$model[[sub.method]]
 
-          method.name <- paste(long.method, surv.method, sub.method, sep = "-")
+        method.name <- paste(long.method, surv.method, sub.method, sep = "-")
 
-          if (surv.method == "cox"){
+        if (surv.method == "cox"){
 
-            res.survfit <- survfit(model.current, data.surv[[long.method]])
-
-          }
-
-          if (surv.method == "penalized-cox"){
-
-            data.surv.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(data.surv[[long.method]]))[,-1])
-            res.survfit <- survfit(model.current, data.surv.coxnet)
-
-          }
-
-          id.time <- sum(res.survfit$time <= tHor)
-
-          pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
-
-          colnames(pred.surv)[models.ind] <- method.name
-
-          models.ind <- models.ind + 1
+          res.survfit <- survfit(model.current, data.surv)
 
         }
+
+        if (surv.method == "penalized-cox"){
+
+          data.surv.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
+          res.survfit <- survfit(model.current, data.surv.coxnet)
+
+        }
+
+        id.time <- sum(res.survfit$time <= tHor)
+
+        pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+
+        colnames(pred.surv)[models.ind] <- method.name
+
+        models.ind <- models.ind + 1
 
       }
 
-      # sPLS
+    }
 
-      if (surv.method == "sPLS"){
+    # sPLS
 
-        sub.methods <- names(model.surv[[long.method]][[surv.method]]$model)
+    if (surv.method == "sPLS"){
 
-        for (sub.method in sub.methods){
+      sub.methods <- names(model.surv[[surv.method]]$model)
 
-          model.current <- model.surv[[long.method]][[surv.method]]$model[[sub.method]]
+      for (sub.method in sub.methods){
 
-          method.name <- paste(long.method, surv.method, sub.method, sep = "-")
+        model.current <- model.surv[[surv.method]]$model[[sub.method]]
 
-          Xnames <- rownames(model.current$splsDR_modplsr$loadings$X)
+        method.name <- paste(long.method, surv.method, sub.method, sep = "-")
 
-          data.surv.spls <- as.data.frame(model.matrix( ~ ., na.omit(data.surv[[long.method]]))[,-1])
+        Xnames <- rownames(model.current$splsDR_modplsr$loadings$X)
 
-          # centre reduit la matrice des nouveaux individus à partir du mean/sd du train
-          Xh.scale <- t((t(data.surv.spls[,Xnames])-model.current$XplanCent[Xnames])/model.current$XplanScal[Xnames])
+        data.surv.spls <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
 
-          X.spls <- matrix(NA, nrow = nrow(Xh.scale), ncol = ncol(model.current$tt_splsDR),
-                           dimnames = list(rownames(Xh.scale), colnames(model.current$tt_splsDR)))
+        # centre reduit la matrice des nouveaux individus à partir du mean/sd du train
+        Xh.scale <- t((t(data.surv.spls[,Xnames])-model.current$XplanCent[Xnames])/model.current$XplanScal[Xnames])
 
-          u <- model.current$splsDR_modplsr$loadings$X
+        X.spls <- matrix(NA, nrow = nrow(Xh.scale), ncol = ncol(model.current$tt_splsDR),
+                         dimnames = list(rownames(Xh.scale), colnames(model.current$tt_splsDR)))
 
-          X.spls[,1] <- Xh.scale%*%u[,1]
+        u <- model.current$splsDR_modplsr$loadings$X
 
-          if (ncol(X.spls) > 1){
+        X.spls[,1] <- Xh.scale%*%u[,1]
 
-            for (h in 2:ncol(X.spls)){
+        if (ncol(X.spls) > 1){
 
-              th <- Xh.scale%*%u[,h-1]
+          for (h in 2:ncol(X.spls)){
 
-              proj.num <- th%*%t(th)
-              proj.den <- as.numeric(t(th)%*%th)
-              proj <- proj.num / proj.den
+            th <- Xh.scale%*%u[,h-1]
 
-              Xh.scale <- Xh.scale - proj%*%Xh.scale
+            proj.num <- th%*%t(th)
+            proj.den <- as.numeric(t(th)%*%th)
+            proj <- proj.num / proj.den
 
-              Xh <- Xh.scale%*%u[,h]
+            Xh.scale <- Xh.scale - proj%*%Xh.scale
 
-              X.spls[,h] <- Xh
+            Xh <- Xh.scale%*%u[,h]
 
-            }
+            X.spls[,h] <- Xh
 
           }
 
-          X.spls.df <- as.data.frame(X.spls)
-          rownames(X.spls.df) <- rownames(data.surv.spls)
-
-          res.survfit <- survfit(model.current$cox_splsDR, X.spls.df)
-
-          id.time <- sum(res.survfit$time <= tHor)
-
-          pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
-
-          colnames(pred.surv)[models.ind] <- method.name
-
-          models.ind <- models.ind + 1
-
         }
+
+        X.spls.df <- as.data.frame(X.spls)
+        rownames(X.spls.df) <- rownames(data.surv.spls)
+
+        res.survfit <- survfit(model.current$cox_splsDR, X.spls.df)
+
+        id.time <- sum(res.survfit$time <= tHor)
+
+        pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+
+        colnames(pred.surv)[models.ind] <- method.name
+
+        models.ind <- models.ind + 1
 
       }
 
-      # rsf
+    }
 
-      if (surv.method == "rsf"){
+    # rsf
 
-        sub.methods <- names(model.surv[[long.method]][[surv.method]]$model)
+    if (surv.method == "rsf"){
 
-        for (sub.method in sub.methods){
+      sub.methods <- names(model.surv[[surv.method]]$model)
 
-          browser()
+      for (sub.method in sub.methods){
 
-          model.current <- model.surv[[long.method]][[surv.method]]$model[[sub.method]]
-          method.name <- paste(long.method, surv.method, sub.method, sep = "-")
+        model.current <- model.surv[[surv.method]]$model[[sub.method]]
+        method.name <- paste(long.method, surv.method, sub.method, sep = "-")
 
-          res.survfit <- predict.rfsrc(model.current, data.surv[[long.method]])
-          id.time <- sum(res.survfit$time.interest <= tHor)
-          formula.xvar <- as.formula(as.character(model.current$call$formula)[c(1,3)])
-          id.noNA <- rownames(model.frame(formula.xvar,
-                                           data.surv[[long.method]][,model.current$xvar.names, drop = FALSE])) # id without NA
-          pred.surv[id.noNA, models.ind] <- res.survfit$survival[,id.time]
+        res.survfit <- predict.rfsrc(model.current, data.surv)
+        id.time <- sum(res.survfit$time.interest <= tHor)
+        formula.xvar <- as.formula(as.character(model.current$call$formula)[c(1,3)])
+        id.noNA <- rownames(model.frame(formula.xvar,
+                                        data.surv[,model.current$xvar.names, drop = FALSE])) # id without NA
+        pred.surv[id.noNA, models.ind] <- res.survfit$survival[,id.time]
 
-          colnames(pred.surv)[models.ind] <- method.name
+        colnames(pred.surv)[models.ind] <- method.name
 
-          models.ind <- models.ind + 1
-
-        }
+        models.ind <- models.ind + 1
 
       }
 
     }
 
   }
+
+  return(pred.surv)
 
 }

@@ -4,7 +4,7 @@
 \alias{LMsurv.cox}
 \title{Title}
 \usage{
-LMsurv.cox(data.surv, cox.autoVar = TRUE, cox.allVar = !cox.autoVar)
+LMsurv.cox(data.surv, cox.autoVar, cox.allVar)
 }
 \arguments{
 \item{cox.allVar}{}

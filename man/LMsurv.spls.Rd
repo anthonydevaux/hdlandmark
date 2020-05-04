@@ -4,12 +4,7 @@
 \alias{LMsurv.spls}
 \title{Title}
 \usage{
-LMsurv.spls(
-  data.surv,
-  spls.opt = TRUE,
-  spls.nosparse = !spls.opt,
-  spls.maxsparse = !spls.opt
-)
+LMsurv.spls(data.surv, spls.opt, spls.nosparse, spls.maxsparse)
 }
 \arguments{
 \item{spls.maxsparse}{}

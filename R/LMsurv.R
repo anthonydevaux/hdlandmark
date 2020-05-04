@@ -1,41 +1,51 @@
-LMsurv <- function(data.surv, time.event, event, long.methods, surv.methods){
+LMsurv <- function(data.surv, time.event, event, long.method, surv.methods,
+                   cox.autoVar, cox.allVar,
+                   coxnet.opt, coxnet.lasso, coxnet.ridge,
+                   spls.opt, spls.nosparse, spls.maxsparse,
+                   rsf.split, rsf.opt, rsf.noVS, rsf.default){
 
-  model.list <- list()
+  model.surv <- list()
 
-  for (long.method in long.methods){
+  for (surv.method in surv.methods){
 
-    model.list[[long.method]] <- list()
+    if (surv.method=="cox"){
 
-    for (surv.method in surv.methods){
+      model.surv[[surv.method]] <- LMsurv.cox(data.surv = data.surv,
+                                              cox.autoVar = cox.autoVar,
+                                              cox.allVar = cox.allVar)
 
-      if (surv.method=="cox"){
+    }
 
-        model.list[[long.method]][[surv.method]] <- LMsurv.cox(data.surv[[long.method]])
+    if (surv.method=="penalized-cox"){
 
-      }
+      model.surv[[surv.method]] <- LMsurv.coxnet(data.surv = data.surv,
+                                                 coxnet.opt = coxnet.opt,
+                                                 coxnet.lasso = coxnet.lasso,
+                                                 coxnet.ridge = coxnet.ridge)
 
-      if (surv.method=="penalized-cox"){
+    }
 
-        model.list[[long.method]][[surv.method]] <- LMsurv.coxnet(data.surv[[long.method]])
+    if (surv.method=="sPLS"){
 
-      }
+      model.surv[[surv.method]] <- LMsurv.spls(data.surv = data.surv,
+                                               spls.opt = spls.opt,
+                                               spls.nosparse = spls.nosparse,
+                                               spls.maxsparse = spls.maxsparse)
 
-      if (surv.method=="sPLS"){
+    }
 
-        model.list[[long.method]][[surv.method]] <- LMsurv.spls(data.surv[[long.method]])
+    if (surv.method=="rsf"){
 
-      }
-
-      if (surv.method=="rsf"){
-
-        model.list[[long.method]][[surv.method]] <- LMsurv.rsf(data.surv[[long.method]])
-
-      }
+      model.surv[[surv.method]] <- LMsurv.rsf(data.surv = data.surv,
+                                              rsf.split = rsf.split,
+                                              rsf.opt = rsf.opt,
+                                              rsf.noVS = rsf.noVS,
+                                              rsf.default = rsf.default)
 
     }
 
   }
 
-  return(list(model.surv = model.list))
+  return(list(model.surv = model.surv))
 
 }

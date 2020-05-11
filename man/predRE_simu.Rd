@@ -2,21 +2,12 @@
 % Please edit documentation in R/predRE_simu.R
 \name{predRE_simu}
 \alias{predRE_simu}
-\title{Function to predict the random effects on data using hlme output}
+\title{Internal function for simulations}
 \usage{
 predRE_simu(model, data)
 }
-\arguments{
-\item{model}{A \code{hlme} object}
-
-\item{data}{A dataframe containing longitudinal data}
-}
-\value{
-A list containing the random effect for each subject, the fixed coefficients
-from \code{hlme} and the formula used to compute the \code{hlme} mixed model
-}
 \description{
-Function to predict the random effects on data using hlme output
+Internal function for simulations
 }
 \examples{
 

@@ -4,13 +4,10 @@
 \alias{LMsurv.coxnet}
 \title{Title}
 \usage{
-LMsurv.coxnet(data.surv, coxnet.opt, coxnet.lasso, coxnet.ridge)
+LMsurv.coxnet(data.surv, coxnet.submodels)
 }
 \arguments{
-\item{coxnet.ridge}{}
-}
-\value{
-
+\item{coxnet.submodels}{}
 }
 \description{
 Title

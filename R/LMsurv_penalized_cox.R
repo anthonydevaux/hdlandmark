@@ -1,9 +1,7 @@
 #' Title
 #'
 #' @param data.surv
-#' @param coxnet.opt
-#' @param coxnet.lasso
-#' @param coxnet.ridge
+#' @param coxnet.submodels
 #'
 #' @return
 #' @export
@@ -12,7 +10,7 @@
 #' @importFrom survival Surv coxph
 #'
 #' @examples
-LMsurv.coxnet <- function(data.surv, coxnet.opt, coxnet.lasso, coxnet.ridge){
+LMsurv.coxnet <- function(data.surv, coxnet.submodels){
 
   model.coxnet <- list()
 
@@ -27,7 +25,7 @@ LMsurv.coxnet <- function(data.surv, coxnet.opt, coxnet.lasso, coxnet.ridge){
 
   # elastic net tuning
 
-  if (coxnet.opt){
+  if (any(coxnet.submodels %in% c("opt"))){
 
     best.cvm <- Inf
 
@@ -68,7 +66,7 @@ LMsurv.coxnet <- function(data.surv, coxnet.opt, coxnet.lasso, coxnet.ridge){
 
   # lasso
 
-  if (coxnet.lasso){
+  if (any(coxnet.submodels %in% c("lasso"))){
 
     coxnet.fit <- cv.glmnet(data.surv.X,
                             Surv(data.surv.Y$time.event, data.surv.Y$event),
@@ -92,7 +90,7 @@ LMsurv.coxnet <- function(data.surv, coxnet.opt, coxnet.lasso, coxnet.ridge){
 
   # ridge
 
-  if (coxnet.ridge){
+  if (any(coxnet.submodels %in% c("ridge"))){
 
     coxnet.fit <- cv.glmnet(data.surv.X,
                             Surv(data.surv.Y$time.event, data.surv.Y$event),

@@ -2,27 +2,26 @@
 #'
 #' @param data.surv
 #' @param rsf.split
-#' @param rsf.opt
-#' @param rsf.noVS
-#' @param rsf.default
+#' @param rsf.submodels
 #'
 #' @return
 #' @export
 #'
-#' @import randomForestSRC
+#' @import randomForestSRC ranger
 #' @importFrom survival Surv
 #'
 #' @examples
-LMsurv.rsf <- function(data.surv, rsf.split, rsf.opt, rsf.noVS, rsf.default){
+LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
 
   model.rsf <- list()
 
   for (splitrule in rsf.split){
 
-    if (rsf.opt){ # rsf tuning
+    best.param <- NULL
+
+    if (any(rsf.submodels %in% c("opt"))){ # rsf tuning
 
       best.err <- 1
-      best.param <- NULL
 
       mtry.max <- ncol(data.surv) - 2 # (no count time.event and event variables)
       nodesize.max <- 20
@@ -52,7 +51,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.opt, rsf.noVS, rsf.default){
         }
       }
 
-      if (rsf.noVS){
+      if (any(rsf.submodels %in% c("noVS"))){
 
         model.rsf[[paste(splitrule, "noVS", sep = "-")]] <- res.rsf
 
@@ -77,7 +76,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.opt, rsf.noVS, rsf.default){
 
     }
 
-    if (rsf.default){
+    if (any(rsf.submodels %in% c("default"))){
 
       res.rsf <- rfsrc(Surv(time.event, event) ~ ., data.surv,
                        ntree = 1000,
@@ -88,6 +87,17 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.opt, rsf.noVS, rsf.default){
       model.rsf[[paste(splitrule, "default", sep = "-")]] <- res.rsf
 
     }
+
+  }
+
+  ############################################
+  ### Ranger forests
+
+  if (any(rsf.submodels %in% c("ranger"))){ # rsf tuning
+
+    res.rsf <- ranger(Surv(time.event, event)~., data = data.surv,
+                      num.trees = 1000)
+    model.rsf[["ranger"]] <- res.rsf
 
   }
 

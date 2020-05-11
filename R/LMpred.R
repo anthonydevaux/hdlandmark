@@ -11,6 +11,7 @@
 #'
 #' @importFrom survival survfit
 #' @importFrom randomForestSRC predict.rfsrc
+#' @import ranger
 #'
 #' @examples
 LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
@@ -65,7 +66,7 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
 
     # sPLS
 
-    if (surv.method == "sPLS"){
+    if (surv.method == "spls"){
 
       sub.methods <- names(model.surv[[surv.method]]$model)
 
@@ -137,15 +138,27 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
         model.current <- model.surv[[surv.method]]$model[[sub.method]]
         method.name <- paste(long.method, surv.method, sub.method, sep = "-")
 
-        res.survfit <- predict.rfsrc(model.current, data.surv)
-        id.time <- sum(res.survfit$time.interest <= tHor)
-        formula.xvar <- as.formula(as.character(model.current$call$formula)[c(1,3)])
-        id.noNA <- rownames(model.frame(formula.xvar,
-                                        data.surv[,model.current$xvar.names, drop = FALSE])) # id without NA
-        pred.surv[id.noNA, models.ind] <- res.survfit$survival[,id.time]
+        if (any(sub.method %in% c("logrank-opt","logrank-noVS","logrank-default",
+                                  "bs.gradient-opt","bs.gradient-noVS","bs.gradient-default"))){
+
+          res.survfit <- predict.rfsrc(model.current, data.surv)
+          id.time <- sum(res.survfit$time.interest <= tHor)
+          formula.xvar <- as.formula(as.character(model.current$call$formula)[c(1,3)])
+          id.noNA <- rownames(model.frame(formula.xvar,
+                                          data.surv[,model.current$xvar.names, drop = FALSE])) # id without NA
+          pred.surv[id.noNA, models.ind] <- res.survfit$survival[,id.time]
+
+        }
+
+        if (any(sub.method %in% c("ranger"))){
+
+          res.survfit <- predict(model.current, data.surv)
+          id.time <- sum(res.survfit$unique.death.times <= tHor)
+          pred.surv[, models.ind] <- res.survfit$survival[,id.time]
+
+        }
 
         colnames(pred.surv)[models.ind] <- method.name
-
         models.ind <- models.ind + 1
 
       }
@@ -154,6 +167,6 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
 
   }
 
-  return(pred.surv)
+  return(list(pred.surv = pred.surv, models.name = names(models)))
 
 }

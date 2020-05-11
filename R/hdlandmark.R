@@ -10,19 +10,15 @@
 #' @param time.event
 #' @param event
 #' @param long.method
-#' @param surv.methods
-#' @param cox.autoVar
-#' @param cox.allVar
-#' @param coxnet.opt
-#' @param coxnet.lasso
-#' @param coxnet.ridge
-#' @param spls.opt
-#' @param spls.nosparse
-#' @param spls.maxsparse
+#' @param cox.submodels
+#' @param coxnet.submodels
+#' @param spls.submodels
+#' @param rsf.submodels
 #' @param rsf.split
-#' @param rsf.opt
-#' @param rsf.noVS
-#' @param rsf.default
+#' @param kfolds
+#' @param seed
+#' @param parallel
+#' @param Ncpus
 #'
 #' @return
 #' @export
@@ -31,12 +27,10 @@
 hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        subject, time, time.event, event,
                        long.method = c("combine", "GLMM", "MFPC"),
-                       surv.methods = c("cox", "penalized-cox", "sPLS", "rsf"),
-                       kfolds = 10, seed = 1234, parallel = FALSE, Ncpus = 1,
-                       cox.autoVar = TRUE, cox.allVar = !cox.autoVar,
-                       coxnet.opt = TRUE, coxnet.lasso = !coxnet.opt, coxnet.ridge = !coxnet.opt,
-                       spls.opt = TRUE, spls.nosparse = !spls.opt, spls.maxsparse = !spls.opt,
-                       rsf.split = c("logrank", "bs.gradient"), rsf.opt = TRUE, rsf.noVS = !rsf.opt, rsf.default = !rsf.opt){
+                       cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
+                       spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
+                       rsf.split = c("logrank", "bs.gradient"),
+                       kfolds = 10, seed = 1234, parallel = FALSE, Ncpus = 1){
 
   ####### Check #######
 
@@ -46,7 +40,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   if (!class(markers)=="list"){
     stop("markers should be class of list")
   }
-  if (!all(names(marker)%in%colnames(data))){
+  if (!all(names(markers)%in%colnames(data))){
     stop("At least one marker variable is missing in data")
   }
   if (!class(tLMs)=="numeric"){
@@ -88,12 +82,34 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   if (!event%in%colnames(data)){
     stop("event variable is missing in data")
   }
+  if (length(long.method)>1){
+    stop("long.method should be length of 1")
+  }else{
+    if (!all(long.method%in%c("combine","GLMM","MFPC"))){
+      stop("Only combine, GLMM or MFPC are allowed for long.method")
+    }
+  }
+  if (!all(cox.submodels%in%c("autoVar","allVar"))){
+    stop("Only autoVar or allVar are allowed for cox.submodels")
+  }
+  if (!all(coxnet.submodels%in%c("opt","lasso","ridge"))){
+    stop("Only opt, lasso or ridge are allowed for coxnet.submodels")
+  }
+  if (!all(spls.submodels%in%c("opt","nosparse","maxsparse"))){
+    stop("Only opt, nosparse or maxsparse are allowed for spls.submodels")
+  }
+  if (!all(rsf.submodels%in%c("opt","noVS","default","ranger"))){
+    stop("Only opt, noVS, default and ranger are allowed for rsf.submodels")
+  }
+  if (!all(rsf.split%in%c("logrank","bs.gradient"))){
+    stop("Only logrank or bs.gradient are allowed for rsf.split")
+  }
 
   if (!is.null(data.pred)){
     if (!class(data.pred)%in%c("data.frame","matrix")){
       stop("data.pred should be class of data.frame or matrix")
     }
-    if (!all(names(marker)%in%colnames(data.pred))){
+    if (!all(names(markers)%in%colnames(data.pred))){
       stop("At least one marker variable is missing in data.pred")
     }
     if (!subject%in%colnames(data.pred)){
@@ -107,9 +123,29 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     }
   }
 
+  surv.methods <- NULL
+
+  if (length(cox.submodels)>0){
+    surv.methods <- c(surv.methods, "cox")
+  }
+  if (length(coxnet.submodels)>0){
+    surv.methods <- c(surv.methods, "penalized-cox")
+  }
+  if (length(spls.submodels)>0){
+    surv.methods <- c(surv.methods, "spls")
+  }
+  if (length(rsf.submodels)>0){
+    surv.methods <- c(surv.methods, "rsf")
+  }
+
+  if (length(surv.methods)==0){
+    stop("No method has been selected ! Please select at least a method of cox.submodels, coxnet.submodels,
+         spls.submodels or rsf.submodels")
+  }
+
   ##############################################
 
-  resu <- list()
+  models <- list()
 
   for (tLM in tLMs){ # landmark time loop
 
@@ -132,14 +168,13 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     }else{
 
-      resu[[as.character(tLM)]] <- .hdlandmark(data = data.tLM, data.pred = data.pred.tLM, markers = markers, tLM = tLM, tHors = tHors,
-                                               kfolds = kfolds, seed = seed,
-                                               subject = subject, time = time, time.event = time.event, event = event,
-                                               long.method = long.method, surv.methods = surv.methods,
-                                               cox.autoVar = cox.autoVar, cox.allVar = cox.allVar,
-                                               coxnet.opt = coxnet.opt, coxnet.lasso = coxnet.lasso, coxnet.ridge = coxnet.ridge,
-                                               spls.opt = spls.opt, spls.nosparse = spls.nosparse, spls.maxsparse = spls.maxsparse,
-                                               rsf.split = rsf.split, rsf.opt = rsf.opt, rsf.noVS = rsf.noVS, rsf.default = rsf.default)
+      models[[as.character(tLM)]] <- .hdlandmark(data = data.tLM, data.pred = data.pred.tLM, markers = markers, tLM = tLM, tHors = tHors,
+                                                 kfolds = kfolds, seed = seed,
+                                                 subject = subject, time = time, time.event = time.event, event = event,
+                                                 long.method = long.method, surv.methods = surv.methods,
+                                                 cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
+                                                 spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
+                                                 rsf.split = rsf.split)
 
     }
 
@@ -147,15 +182,13 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
   cat("DONE !", "\n")
 
-  return(list(tLMs = tLMs, tHors = tHors, resu = resu,
-              long.method = long.method, surv.methods = surv.methods,
-              cox.autoVar = cox.autoVar, cox.allVar = cox.allVar,
-              coxnet.opt = coxnet.opt, coxnet.lasso = coxnet.lasso,
-              coxnet.ridge = coxnet.ridge,
-              spls.opt = spls.opt, spls.nosparse = spls.nosparse,
-              spls.maxsparse = spls.maxsparse,
-              rsf.split = rsf.split, rsf.opt = rsf.opt, rsf.noVS = rsf.noVS,
-              rsf.default = rsf.default))
+  resu <- list(tLMs = tLMs, tHors = tHors, models = models,
+               long.method = long.method, surv.methods = surv.methods,
+               models.name = colnames(models[[1]]$pred.surv[[1]]), kfolds = kfolds)
+
+  class(resu) <- "hdlandmark"
+
+  return(resu)
 
 }
 
@@ -165,17 +198,16 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                         kfolds, seed,
                         subject, time, time.event, event,
                         long.method, surv.methods,
-                        cox.autoVar, cox.allVar,
-                        coxnet.opt, coxnet.lasso, coxnet.ridge,
-                        spls.opt, spls.nosparse, spls.maxsparse,
-                        rsf.split, rsf.opt, rsf.noVS, rsf.default){
+                        cox.submodels, coxnet.submodels,
+                        spls.submodels, rsf.submodels,
+                        rsf.split){
 
   ids <- unique(data[,subject])
   n <- length(ids)
   set.seed(seed)
   fold <- sample(rep(1:kfolds, length.out = n))
 
-  pred.surv <- AUC <- BS <- MSEP <- list()
+  pred.surv <- AUC <- BS <- list()
 
   for (k in 1:kfolds){
 
@@ -198,33 +230,38 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     # estimation of summaries on training data and test data
 
-    res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = marker, tLM = tLM,
+    res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                              subject = subject, time = time, time.event = time.event, event = event,
                              long.method = long.method)
 
-    # survival model on training data
-
-    res.LMsurv <- LMsurv(data.surv = res.LMsum$data.surv, long.method = long.method, surv.methods = surv.methods,
-                         cox.autoVar = cox.autoVar, cox.allVar = cox.allVar,
-                         coxnet.opt = coxnet.opt, coxnet.lasso = coxnet.lasso, coxnet.ridge = coxnet.ridge,
-                         spls.opt = spls.opt, spls.nosparse = spls.nosparse, spls.maxsparse = spls.maxsparse,
-                         rsf.split = rsf.split, rsf.opt = rsf.opt, rsf.noVS = rsf.noVS, rsf.default = rsf.default)
-
     for (tHor in tHors){ # tHor loop
 
+      # censuring to horizon time
+      data.surv <- res.LMsum$data.surv
+      data.surv[which(data.surv$time.event > tHor), "event"] <- 0
+      data.surv$time.event <- pmin(data.surv$time.event, tHor)
+
+      data.surv.pred <- res.LMsum$data.surv.pred
+      data.surv.pred[which(data.surv.pred$time.event > tHor), "event"] <- 0
+      data.surv.pred$time.event <- pmin(data.surv.pred$time.event, tHor)
+
+      # survival model on training data
+      res.LMsurv <- LMsurv(data.surv = data.surv, surv.methods = surv.methods,
+                           cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
+                           spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
+                           rsf.split = rsf.split)
+
       # survival model on test data
+      res.LMpred <- LMpred(data.surv = data.surv.pred, model.surv = res.LMsurv$model.surv,
+                           long.method = long.method, surv.methods = surv.methods,
+                           tHor = tHor)
 
-      pred.surv.tHor <- LMpred(data.surv = res.LMsum$data.surv.pred, model.surv = res.LMsurv$model.surv,
-                               long.method = long.method, surv.methods = surv.methods,
-                               tHor = tHor)
-
-      res.LMassess <- LMassess(pred.surv = pred.surv.tHor, data.surv = res.LMsum$data.surv.pred, tHor = tHor)
+      res.LMassess <- LMassess(pred.surv = res.LMpred$pred.surv, data.surv = data.surv.pred, tHor = tHor)
 
       AUC[[as.character(tHor)]] <- rbind(AUC[[as.character(tHor)]], res.LMassess$AUC)
       BS[[as.character(tHor)]] <- rbind(BS[[as.character(tHor)]], res.LMassess$BS)
-      MSEP[[as.character(tHor)]] <- rbind(MSEP[[as.character(tHor)]], res.LMassess$MSEP)
 
-      pred.surv[[as.character(tHor)]] <- rbind(pred.surv[[as.character(tHor)]], pred.surv.tHor)
+      pred.surv[[as.character(tHor)]] <- rbind(pred.surv[[as.character(tHor)]], res.LMpred$pred.surv)
       pred.surv[[as.character(tHor)]] <- pred.surv[[as.character(tHor)]][order(as.integer(rownames(pred.surv[[as.character(tHor)]]))), ]
 
     }
@@ -233,6 +270,6 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
   return(list(data.surv = res.LMsum$data.surv, data.surv.pred = res.LMsum$data.surv.pred,
               model.surv = res.LMsurv$model.surv, pred.surv = pred.surv,
-              AUC = AUC, BS = BS, MSEP = MSEP))
+              AUC = AUC, BS = BS))
 
 }

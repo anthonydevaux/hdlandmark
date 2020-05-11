@@ -14,14 +14,14 @@
 #' @importFrom prodlim Hist
 #'
 #' @examples
-LMassess <- function(pred.surv, data.surv, tHor, simu = FALSE){
+LMassess <- function(pred.surv, data.surv, tHor){
 
   methods <- colnames(pred.surv)
 
   res <- list()
 
-  res[["BS"]] <- res[["AUC"]] <- res[["msep"]] <- rep(NA, length = length(methods))
-  names(res[["BS"]]) <- names(res[["AUC"]]) <- names(res[["msep"]]) <- methods
+  res[["BS"]] <- res[["AUC"]] <- rep(NA, length = length(methods))
+  names(res[["BS"]]) <- names(res[["AUC"]]) <- methods
 
   for (method in methods){
 
@@ -45,16 +45,6 @@ LMassess <- function(pred.surv, data.surv, tHor, simu = FALSE){
                           times = tHor.AUC)
 
     res[["AUC"]][method] <- ROC.method$AUC[2]
-
-    # MSEP
-
-    if (simu){
-
-      n <- nrow(data.surv)
-
-      res[["msep"]][tHor.char,method] <- sum((data.surv$surv - pred.surv[,method])^2)/n
-
-    }
 
   }
 

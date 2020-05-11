@@ -1,9 +1,5 @@
-#' Title
+#' Internal function for simulations
 #'
-#' @param model
-#' @param data
-#'
-#' @return
 #' @export
 #'
 #' @importFrom lme4 nobars findbars

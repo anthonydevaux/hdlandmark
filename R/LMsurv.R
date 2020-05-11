@@ -1,8 +1,5 @@
-LMsurv <- function(data.surv, time.event, event, long.method, surv.methods,
-                   cox.autoVar, cox.allVar,
-                   coxnet.opt, coxnet.lasso, coxnet.ridge,
-                   spls.opt, spls.nosparse, spls.maxsparse,
-                   rsf.split, rsf.opt, rsf.noVS, rsf.default){
+LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels,
+                   spls.submodels, rsf.submodels, rsf.split){
 
   model.surv <- list()
 
@@ -10,37 +7,26 @@ LMsurv <- function(data.surv, time.event, event, long.method, surv.methods,
 
     if (surv.method=="cox"){
 
-      model.surv[[surv.method]] <- LMsurv.cox(data.surv = data.surv,
-                                              cox.autoVar = cox.autoVar,
-                                              cox.allVar = cox.allVar)
+      model.surv[[surv.method]] <- LMsurv.cox(data.surv = data.surv, cox.submodels = cox.submodels)
 
     }
 
     if (surv.method=="penalized-cox"){
 
-      model.surv[[surv.method]] <- LMsurv.coxnet(data.surv = data.surv,
-                                                 coxnet.opt = coxnet.opt,
-                                                 coxnet.lasso = coxnet.lasso,
-                                                 coxnet.ridge = coxnet.ridge)
+      model.surv[[surv.method]] <- LMsurv.coxnet(data.surv = data.surv, coxnet.submodels = coxnet.submodels)
 
     }
 
-    if (surv.method=="sPLS"){
+    if (surv.method=="spls"){
 
-      model.surv[[surv.method]] <- LMsurv.spls(data.surv = data.surv,
-                                               spls.opt = spls.opt,
-                                               spls.nosparse = spls.nosparse,
-                                               spls.maxsparse = spls.maxsparse)
+      model.surv[[surv.method]] <- LMsurv.spls(data.surv = data.surv, spls.submodels = spls.submodels)
 
     }
 
     if (surv.method=="rsf"){
 
-      model.surv[[surv.method]] <- LMsurv.rsf(data.surv = data.surv,
-                                              rsf.split = rsf.split,
-                                              rsf.opt = rsf.opt,
-                                              rsf.noVS = rsf.noVS,
-                                              rsf.default = rsf.default)
+      model.surv[[surv.method]] <- LMsurv.rsf(data.surv = data.surv, rsf.split = rsf.split,
+                                              rsf.submodels = rsf.submodels)
 
     }
 

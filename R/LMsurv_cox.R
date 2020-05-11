@@ -1,8 +1,7 @@
 #' Title
 #'
 #' @param data.surv
-#' @param cox.autoVar
-#' @param cox.allVar
+#' @param cox.submodels
 #'
 #' @return
 #' @export
@@ -10,7 +9,7 @@
 #' @importFrom survival Surv coxph
 #'
 #' @examples
-LMsurv.cox <- function(data.surv, cox.autoVar, cox.allVar){
+LMsurv.cox <- function(data.surv, cox.submodels){
 
   model.cox <- list()
 
@@ -18,7 +17,7 @@ LMsurv.cox <- function(data.surv, cox.autoVar, cox.allVar){
 
   #### Cox with variables selection
 
-  if (cox.autoVar){
+  if (any(cox.submodels %in% c("autoVar"))){
 
     data.surv.omit <- na.omit(data.surv) # omit values to compute step function
 
@@ -32,7 +31,7 @@ LMsurv.cox <- function(data.surv, cox.autoVar, cox.allVar){
 
   #### Cox without variables selection (all variables)
 
-  if (cox.allVar){
+  if (any(cox.submodels %in% c("allVar"))){
 
     coxFit <- coxph(Surv(time.event, event) ~ ., data = data.surv, x = TRUE)
 

@@ -2,38 +2,13 @@
 % Please edit documentation in R/LMsum_simu.R
 \name{LMsum_simu}
 \alias{LMsum_simu}
-\title{Function to compute several summaries of longitudinal outcomes}
+\title{Internal function for simulations}
 \usage{
-LMsum_simu(
-  markers.true,
-  data,
-  tLM,
-  subject,
-  time,
-  RE,
-  HW = tLM,
-  threshold = NULL
-)
-}
-\arguments{
-\item{data}{A dataframe containing longitudinal data}
-
-\item{tLM}{An integer indicating the landmark time}
-
-\item{subject}{A character indicating the subject variable}
-
-\item{time}{A character indicating the time-dependent variable}
-
-\item{HW}{An integer meaning the range of history window for computing the cumulative values.
-Default is \code{HW = tLM} resulting of the entire history.}
-
-\item{threshold}{A list containing a numeric threshold}
-}
-\value{
-The original dataframe including the summaries compute from longitudinal outcomes
+LMsum_simu(markers.true, data, tLM, subject, time, RE, HW = tLM,
+  threshold = NULL)
 }
 \description{
-Function to compute several summaries of longitudinal outcomes
+Internal function for simulations
 }
 \examples{
 

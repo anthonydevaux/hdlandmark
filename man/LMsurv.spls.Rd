@@ -4,13 +4,10 @@
 \alias{LMsurv.spls}
 \title{Title}
 \usage{
-LMsurv.spls(data.surv, spls.opt, spls.nosparse, spls.maxsparse)
+LMsurv.spls(data.surv, spls.submodels)
 }
 \arguments{
-\item{spls.maxsparse}{}
-}
-\value{
-
+\item{spls.submodels}{}
 }
 \description{
 Title

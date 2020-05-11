@@ -2,18 +2,12 @@
 % Please edit documentation in R/predRE_binary_simu.R
 \name{predRE.binary_simu}
 \alias{predRE.binary_simu}
-\title{Title}
+\title{Internal function for simulations}
 \usage{
 predRE.binary_simu(model, data)
 }
-\arguments{
-\item{data}{}
-}
-\value{
-
-}
 \description{
-Title
+Internal function for simulations
 }
 \examples{
 

@@ -14,6 +14,7 @@
 #' @export
 #'
 #' @importFrom arules discretize
+#' @import funData
 #'
 #' @examples
 LMsum.mfpc <- function(data, data.surv, data.pred, data.surv.pred, markers, tLM, subject, time,

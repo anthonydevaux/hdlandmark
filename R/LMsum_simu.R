@@ -1,16 +1,5 @@
-#' Function to compute several summaries of longitudinal outcomes
+#' Internal function for simulations
 #'
-#' @param params.true
-#' @param data A dataframe containing longitudinal data
-#' @param tLM An integer indicating the landmark time
-#' @param subject A character indicating the subject variable
-#' @param time A character indicating the time-dependent variable
-#' @param RE
-#' @param HW An integer meaning the range of history window for computing the cumulative values.
-#' Default is \code{HW = tLM} resulting of the entire history.
-#' @param threshold A list containing a numeric threshold
-#'
-#' @return The original dataframe including the summaries compute from longitudinal outcomes
 #' @export
 #'
 #' @importFrom stringr str_detect regex

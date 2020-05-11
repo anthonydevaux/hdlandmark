@@ -4,13 +4,10 @@
 \alias{LMsurv.rsf}
 \title{Title}
 \usage{
-LMsurv.rsf(data.surv, rsf.split, rsf.opt, rsf.noVS, rsf.default)
+LMsurv.rsf(data.surv, rsf.split, rsf.submodels)
 }
 \arguments{
-\item{rsf.default}{}
-}
-\value{
-
+\item{rsf.submodels}{}
 }
 \description{
 Title

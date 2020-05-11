@@ -1,9 +1,7 @@
 #' Title
 #'
 #' @param data.surv
-#' @param spls.opt
-#' @param spls.nosparse
-#' @param spls.maxsparse
+#' @param spls.submodels
 #'
 #' @return
 #' @export
@@ -11,7 +9,7 @@
 #' @importFrom plsRcox cv.coxsplsDR coxsplsDR
 #'
 #' @examples
-LMsurv.spls <- function(data.surv, spls.opt, spls.nosparse, spls.maxsparse){
+LMsurv.spls <- function(data.surv, spls.submodels){
 
   model.spls <- list()
 
@@ -32,7 +30,7 @@ LMsurv.spls <- function(data.surv, spls.opt, spls.nosparse, spls.maxsparse){
 
   ##############################################
 
-  if (spls.opt){
+  if (any(spls.submodels %in% c("opt"))){
 
     best.auc <- 0.5
 
@@ -75,7 +73,7 @@ LMsurv.spls <- function(data.surv, spls.opt, spls.nosparse, spls.maxsparse){
 
   }
 
-  if (spls.nosparse){
+  if (any(spls.submodels %in% c("nosparse"))){
 
     error.flag <- "error"
     error.ind <- 0
@@ -103,7 +101,7 @@ LMsurv.spls <- function(data.surv, spls.opt, spls.nosparse, spls.maxsparse){
 
   }
 
-  if (spls.maxsparse){
+  if (any(spls.submodels %in% c("maxsparse"))){
 
     error.flag <- "error"
     error.ind <- 0

@@ -1,10 +1,4 @@
-#' Function to predict the random effects on data using hlme output
-#'
-#' @param model A \code{hlme} object
-#' @param data A dataframe containing longitudinal data
-#'
-#' @return A list containing the random effect for each subject, the fixed coefficients
-#' from \code{hlme} and the formula used to compute the \code{hlme} mixed model
+#' Internal function for simulations
 #'
 #' @importFrom lme4 ranef fixef VarCorr
 #'

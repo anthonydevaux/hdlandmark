@@ -4,13 +4,10 @@
 \alias{LMsurv.cox}
 \title{Title}
 \usage{
-LMsurv.cox(data.surv, cox.autoVar, cox.allVar)
+LMsurv.cox(data.surv, cox.submodels)
 }
 \arguments{
-\item{cox.allVar}{}
-}
-\value{
-
+\item{cox.submodels}{}
 }
 \description{
 Title

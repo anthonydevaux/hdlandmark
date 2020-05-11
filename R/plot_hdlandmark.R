@@ -49,22 +49,38 @@ plot.hdlandmark <- function(hdlandmark.output){
     pd <- position_dodge(0.2)
 
     g.AUC <- ggplot(tab.plot, aes(x = tHor, y = AUC.mean, group = method, color = method)) +
-      geom_point(position = pd, size = 3) +
-      geom_errorbar(aes(ymin = AUC.LB, ymax = AUC.UB), width = 0.1, position = pd, size = 1) +
+      geom_line(size = 1) +
       xlab("Horizon time") +
-      ylab("AUC (95% CI)") +
+      ylab("AUC") +
       scale_color_manual("Methods", values = viridis(length(unique(tab.plot$method)))) +
       facet_grid(tLM ~ .) +
       theme_bw()
 
     g.BS <- ggplot(tab.plot, aes(x = tHor, y = BS.mean, group = method, color = method)) +
-      geom_point(position = pd, size = 3) +
-      geom_errorbar(aes(ymin = BS.LB, ymax = BS.UB), width = 0.1, position = pd, size = 1) +
+      geom_line(size = 1) +
       xlab("Horizon time") +
-      ylab("BS (95% CI)") +
+      ylab("BS") +
       scale_color_manual("Methods", values = viridis(length(unique(tab.plot$method)))) +
       facet_grid(tLM ~ .) +
       theme_bw()
+
+    # g.AUC <- ggplot(tab.plot, aes(x = tHor, y = AUC.mean, group = method, color = method)) +
+    #   geom_point(position = pd, size = 3) +
+    #   geom_errorbar(aes(ymin = AUC.LB, ymax = AUC.UB), width = 0.1, position = pd, size = 1) +
+    #   xlab("Horizon time") +
+    #   ylab("AUC (95% CI)") +
+    #   scale_color_manual("Methods", values = viridis(length(unique(tab.plot$method)))) +
+    #   facet_grid(tLM ~ .) +
+    #   theme_bw()
+    #
+    # g.BS <- ggplot(tab.plot, aes(x = tHor, y = BS.mean, group = method, color = method)) +
+    #   geom_point(position = pd, size = 3) +
+    #   geom_errorbar(aes(ymin = BS.LB, ymax = BS.UB), width = 0.1, position = pd, size = 1) +
+    #   xlab("Horizon time") +
+    #   ylab("BS (95% CI)") +
+    #   scale_color_manual("Methods", values = viridis(length(unique(tab.plot$method)))) +
+    #   facet_grid(tLM ~ .) +
+    #   theme_bw()
 
   }else{
 

@@ -262,7 +262,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
       BS[[as.character(tHor)]] <- rbind(BS[[as.character(tHor)]], res.LMassess$BS)
 
       pred.surv[[as.character(tHor)]] <- rbind(pred.surv[[as.character(tHor)]], res.LMpred$pred.surv)
-      pred.surv[[as.character(tHor)]] <- pred.surv[[as.character(tHor)]][order(as.integer(rownames(pred.surv[[as.character(tHor)]]))), ]
+      pred.surv[[as.character(tHor)]] <- pred.surv[[as.character(tHor)]][order(as.integer(rownames(pred.surv[[as.character(tHor)]]))), , drop = FALSE]
 
     }
 

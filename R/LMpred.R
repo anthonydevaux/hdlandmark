@@ -152,9 +152,11 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
 
         if (any(sub.method %in% c("ranger"))){
 
-          res.survfit <- predict(model.current, data.surv)
+          data.surv.omit <- na.omit(data.surv)
+          id.noNA <- id.noNA <- rownames(data.surv.omit)
+          res.survfit <- predict(model.current, data.surv.omit)
           id.time <- sum(res.survfit$unique.death.times <= tHor)
-          pred.surv[, models.ind] <- res.survfit$survival[,id.time]
+          pred.surv[id.noNA, models.ind] <- res.survfit$survival[,id.time]
 
         }
 

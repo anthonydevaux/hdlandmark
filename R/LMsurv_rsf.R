@@ -95,7 +95,9 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
 
   if (any(rsf.submodels %in% c("ranger"))){ # rsf tuning
 
-    res.rsf <- ranger(Surv(time.event, event)~., data = data.surv,
+    data.surv.omit <- na.omit(data.surv)
+
+    res.rsf <- ranger(Surv(time.event, event)~., data = data.surv.omit,
                       num.trees = 1000)
     model.rsf[["ranger"]] <- res.rsf
 

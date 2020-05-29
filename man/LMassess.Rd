@@ -4,7 +4,7 @@
 \alias{LMassess}
 \title{Title}
 \usage{
-LMassess(pred.surv, data.surv, tHor, simu = FALSE)
+LMassess(pred.surv, data.surv, tHor)
 }
 \arguments{
 \item{simu}{}

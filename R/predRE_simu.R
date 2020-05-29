@@ -39,6 +39,13 @@ predRE_simu <- function(model, data){
                   covar01, model$params$sd.re[2]^2, covar12,
                   covar02, covar12, model$params$sd.re[3]^2), ncol = 3)
 
+  }else if (len.sd.re==4){
+
+    B <- matrix(c(model$params$sd.re[1]^2, 0, 0, 0,
+                  0, model$params$sd.re[2]^2, 0, 0,
+                  0, 0, model$params$sd.re[3]^2, 0,
+                  0, 0, 0, model$params$sd.re[4]^2), ncol = 4)
+
   }
 
   se <- model$params$sigmae^2 # residual variance error

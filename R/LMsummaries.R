@@ -1,6 +1,6 @@
 LMsummaries <- function(data, data.pred, markers, tLM,
                         subject, time, time.event, event,
-                        long.method){
+                        long.method, lmm.package){
 
   ########### Survival data at landmark time ###########
 
@@ -16,8 +16,8 @@ LMsummaries <- function(data, data.pred, markers, tLM,
   }
 
   data.surv[,time.event] <- data.surv[,time.event] - tLM # scaling time data
-  colnames(data.surv)[which(colnames(data.surv)%in%c(time.event, event))] <-
-    c("time.event","event")
+  colnames(data.surv)[which(colnames(data.surv)==time.event)] <- "time.event"
+  colnames(data.surv)[which(colnames(data.surv)==event)] <- "event"
 
   # Prediction data
 
@@ -31,8 +31,8 @@ LMsummaries <- function(data, data.pred, markers, tLM,
   }
 
   data.surv.pred[,time.event] <- data.surv.pred[,time.event] - tLM # scaling time data
-  colnames(data.surv.pred)[which(colnames(data.surv.pred)%in%c(time.event, event))] <-
-    c("time.event","event")
+  colnames(data.surv.pred)[which(colnames(data.surv.pred)==time.event)] <- "time.event"
+  colnames(data.surv.pred)[which(colnames(data.surv.pred)==event)] <- "event"
 
   ############# Summaries ############
 
@@ -42,7 +42,7 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
     # estimation
 
-    res.glmm <- LMsum.glmm(data, data.surv, markers, tLM, subject, time, threshold = NULL)
+    res.glmm <- LMsum.glmm(data, data.surv, markers, tLM, subject, time, threshold = NULL, lmm.package)
     data.surv.long <- res.glmm$data.surv[,!(names(res.glmm$data.surv) %in%
                                               c(time, names(markers)))]
 
@@ -53,7 +53,7 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     # prediction
 
     res.glmm.pred <- LMsum.glmm(data.pred, data.surv.pred, res.glmm$markers.model,
-                                tLM, subject, time, threshold = NULL)
+                                tLM, subject, time, threshold = NULL, lmm.package)
     data.surv.long.pred <- res.glmm.pred$data.surv[,!(names(res.glmm.pred$data.surv) %in%
                                                         c(time, names(markers)))]
 

@@ -10,6 +10,7 @@
 #' @param time.event
 #' @param event
 #' @param long.method
+#' @param lmm.package
 #' @param cox.submodels
 #' @param coxnet.submodels
 #' @param spls.submodels
@@ -26,7 +27,7 @@
 #' @examples
 hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        subject, time, time.event, event,
-                       long.method = c("combine", "GLMM", "MFPC"),
+                       long.method = c("combine", "GLMM", "MFPC"), lmm.package = c("lme4", "lcmm"),
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
                        rsf.split = c("logrank", "bs.gradient"),
@@ -87,6 +88,12 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   }else{
     if (!all(long.method%in%c("combine","GLMM","MFPC"))){
       stop("Only combine, GLMM or MFPC are allowed for long.method")
+    }
+  }
+  if (length(lmm.package)>1){
+    lmm.package <- lmm.package[1]
+    if (!all(lmm.package%in%c("lme4","lcmm"))){
+      stop("Only lme4 or lcmm packages are allowed for estimation of linear mixed models")
     }
   }
   if (!all(cox.submodels%in%c("autoVar","allVar"))){
@@ -174,7 +181,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                                                  long.method = long.method, surv.methods = surv.methods,
                                                  cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
                                                  spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
-                                                 rsf.split = rsf.split)
+                                                 rsf.split = rsf.split, lmm.package = lmm.package)
 
     }
 
@@ -200,7 +207,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                         long.method, surv.methods,
                         cox.submodels, coxnet.submodels,
                         spls.submodels, rsf.submodels,
-                        rsf.split){
+                        rsf.split, lmm.package){
 
   ids <- unique(data[,subject])
   n <- length(ids)
@@ -232,7 +239,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                              subject = subject, time = time, time.event = time.event, event = event,
-                             long.method = long.method)
+                             long.method = long.method, lmm.package = lmm.package)
 
     for (tHor in tHors){ # tHor loop
 
@@ -244,6 +251,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
       data.surv.pred <- res.LMsum$data.surv.pred
       data.surv.pred[which(data.surv.pred$time.event > tHor), "event"] <- 0
       data.surv.pred$time.event <- pmin(data.surv.pred$time.event, tHor)
+
+      browser()
 
       # survival model on training data
       res.LMsurv <- LMsurv(data.surv = data.surv, surv.methods = surv.methods,

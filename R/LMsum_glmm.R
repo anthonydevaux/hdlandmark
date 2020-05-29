@@ -15,7 +15,7 @@
 #' @import lme4
 #'
 #' @examples
-LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold = NULL){
+LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold = NULL, lmm.package){
 
   markers.names <- names(markers)
 
@@ -27,18 +27,28 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold =
 
     cat("random effect...")
 
+    browser()
+
     # numeric marker
-    if (class(data[,marker])=="numeric"){
+    if (class(data[,marker])%in%c("numeric","integer")){
 
-      if (class(markers[[marker]]$model)!="lmerMod"){
+      if (lmm.package=="lme4"){
 
-        markers[[marker]]$model <- lmer(markers[[marker]]$model,
-                                        data = data, REML = FALSE,
-                                        control = lmerControl(optimizer ="Nelder_Mead"))
+        res.lmm <- lmm.lme4(markers[[marker]]$model, data)
+        markers[[marker]]$model <- res.lmm$model.output
+        markers[[marker]]$model$package <- "lme4"
 
       }
 
-      pred.RE <- predRE(markers[[marker]]$model, data)
+      if (lmm.package=="lcmm"){
+
+        res.lmm <- lmm.lcmm(markers[[marker]]$model, data)
+        markers[[marker]]$model <- res.lmm$model.output
+        markers[[marker]]$model$package <- "lcmm"
+
+      }
+
+      pred.RE <- res.lmm$pred.RE
 
     }
 
@@ -60,17 +70,19 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold =
     data.surv[which(data.surv[,subject]%in%rownames(pred.RE$b_i)),
               (ncol(data.surv) + 1):(ncol(data.surv) + ncol(pred.RE$b_i))] <- pred.RE$b_i
 
-    b_i_var <- colnames(pred.RE$b_i)
-    b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
-
-    if (any(b_i_var_issue)){
-      b_i_var[b_i_var_issue] <-
-        regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
-    }
+    # b_i_var <- colnames(pred.RE$b_i)
+    # b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
+    #
+    # if (any(b_i_var_issue)){
+    #   b_i_var[b_i_var_issue] <-
+    #     regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
+    # }
+    #
+    # colnames(data.surv)[(ncol(data.surv)-ncol(pred.RE$b_i)+1):(ncol(data.surv))] <-
+    #   paste(marker, "RE", b_i_var, sep = "_")
 
     colnames(data.surv)[(ncol(data.surv)-ncol(pred.RE$b_i)+1):(ncol(data.surv))] <-
-      paste(marker, "RE", b_i_var, sep = "_")
-
+      paste(marker, "RE", seq(ncol(pred.RE$b_i))-1, sep = "_")
 
     ####### Current value at landmark time #######
 

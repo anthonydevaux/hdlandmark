@@ -1,18 +1,18 @@
-#' Function to predict the random effects on data using hlme output
+#' Function to predict the random effects on data using lcmm output
 #'
-#' @param model A \code{hlme} object
+#' @param model A \code{lcmm} object
 #' @param data A dataframe containing longitudinal data
 #'
 #' @return A list containing the random effect for each subject, the fixed coefficients
-#' from \code{hlme} and the formula used to compute the \code{hlme} mixed model
+#' from \code{lcmm} and the formula used to compute the \code{lcmm} mixed model
 #'
 #' @export
-#' @import lme4
+#' @import lcmm
 #' @importFrom Matrix bdiag
 #'
 #' @examples
 #'
-predRE <- function(model, data){
+predRE.lcmm <- function(model, data){
 
   model.formula <- formula(model)
 

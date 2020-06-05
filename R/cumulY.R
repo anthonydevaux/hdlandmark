@@ -15,7 +15,9 @@ cumulY <- function(predRE, data, time, marker_name, tLM, HW){
 
   subject <- predRE$group
 
-  ind_subjects <- unique(data[!is.na(data[,marker_name]),subject])
+  #ind_subjects <- unique(data[!is.na(data[,marker_name]),subject])
+  ind_subjects <- as.integer(rownames(predRE$b_i))
+  #ind_subjects <- unique(data[,subject])
 
   Y_cumul <- matrix(NA, nrow = length(ind_subjects), ncol = 1,
                     dimnames = list(ind_subjects, "Y_cumul"))

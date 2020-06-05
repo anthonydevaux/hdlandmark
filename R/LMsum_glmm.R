@@ -27,24 +27,22 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold =
 
     cat("random effect...")
 
-    browser()
-
     # numeric marker
     if (class(data[,marker])%in%c("numeric","integer")){
 
       if (lmm.package=="lme4"){
 
-        res.lmm <- lmm.lme4(markers[[marker]]$model, data)
+        res.lmm <- lmm.lme4(markers[[marker]]$model, markers[[marker]]$formul, data)
+        markers[[marker]]$formul <- markers[[marker]]$model
         markers[[marker]]$model <- res.lmm$model.output
-        markers[[marker]]$model$package <- "lme4"
 
       }
 
       if (lmm.package=="lcmm"){
 
-        res.lmm <- lmm.lcmm(markers[[marker]]$model, data)
+        res.lmm <- lmm.lcmm(markers[[marker]]$model, markers[[marker]]$formul, data)
+        markers[[marker]]$formul <- markers[[marker]]$model
         markers[[marker]]$model <- res.lmm$model.output
-        markers[[marker]]$model$package <- "lcmm"
 
       }
 

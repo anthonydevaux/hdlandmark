@@ -1,6 +1,7 @@
 #' Function to predict the random effects on data using lcmm output
 #'
 #' @param model A \code{lcmm} object
+#' @param formul
 #' @param data A dataframe containing longitudinal data
 #'
 #' @return A list containing the random effect for each subject, the fixed coefficients
@@ -12,34 +13,41 @@
 #'
 #' @examples
 #'
-predRE.lcmm <- function(model, data){
+predRE.lcmm <- function(model, formul, data){
 
-  model.formula <- formula(model)
-
-  subject <- names(ranef(model))
+  subject <- formul$subject
 
   row_subject <- rownames(data)
 
-  beta <- fixef(model) # fixed effect
-  B <- as.matrix(bdiag(VarCorr(model))) # random effects matrice var-covar
-  se <- sigma(model)^2 # residual variance error
+  beta <- lcmm::fixef(model)[[2]] # fixed effect
+
+  # Variance-covariance matrix of the random-effects
+
+  B <- matrix(0, ncol = sum(model$idea0), nrow = sum(model$idea0))
+  colnames(B) <- model$Xnames[model$idea0==1]
+  rownames(B) <- model$Xnames[model$idea0==1]
+  B[upper.tri(B,diag=TRUE)] <- model$best[(model$N[1]+model$N[2]+1):(model$N[1]+model$N[2]+model$N[3])]
+  B <- t(B)
+  B[upper.tri(B,diag=TRUE)] <- model$best[(model$N[1]+model$N[2]+1):(model$N[1]+model$N[2]+model$N[3])]
+
+  se <- tail(model$best, n = 1)^2 # residual variance error
 
   # random design matrix
 
-  Z.formula <- as.formula(paste("~", as.character(findbars(model.formula)[[1]])[2]))
+  Z.formula <- formul$random
   Z <- model.matrix(Z.formula, data)
 
   row_subject <- intersect(row_subject, rownames(Z))
 
   # fixed design matrix
 
-  X.formula <- as.formula(nobars(model.formula)[-2])
+  X.formula <- formul$fixed[-2]
   X <- model.matrix(X.formula, data)
 
   row_subject <- intersect(row_subject, rownames(X))
 
   # outcome
-  Y <- na.omit(data[,as.character(model.formula)[2], drop = FALSE])
+  Y <- na.omit(data[,as.character(formul$fixed)[2], drop = FALSE])
 
   row_subject <- intersect(row_subject, rownames(Y))
 
@@ -68,7 +76,8 @@ predRE.lcmm <- function(model, data){
 
   return(list(b_i = predRE,
               beta = beta,
-              call = model.formula,
+              call = as.formula(paste(formul$fixed[2], formul$fixed[1], formul$fixed[3],
+                                      "+ (", formul$random[2], "|", formul$subject, ")")),
               group = subject))
 
 }

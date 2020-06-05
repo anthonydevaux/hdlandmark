@@ -15,6 +15,8 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
 
   model.rsf <- list()
 
+  data.surv <- data.surv[,!(names(data.surv) %in% "subject")]
+
   for (splitrule in rsf.split){
 
     best.param <- NULL

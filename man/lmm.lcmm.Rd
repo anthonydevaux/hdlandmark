@@ -4,7 +4,7 @@
 \alias{lmm.lcmm}
 \title{Title}
 \usage{
-lmm.lcmm(model, data)
+lmm.lcmm(model, formul, data)
 }
 \arguments{
 \item{data}{}

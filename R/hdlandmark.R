@@ -1,4 +1,5 @@
-#' Title
+#' hdlandmark provides individual probabilities of survival using covariates and summaries build
+#' on longitudinal data from markers collected over the time and
 #'
 #' @param data
 #' @param data.pred
@@ -11,6 +12,7 @@
 #' @param event
 #' @param long.method
 #' @param lmm.package
+#' @param surv.covar
 #' @param cox.submodels
 #' @param coxnet.submodels
 #' @param spls.submodels
@@ -28,6 +30,7 @@
 hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        subject, time, time.event, event,
                        long.method = c("combine", "GLMM", "MFPC"), lmm.package = c("lme4", "lcmm"),
+                       surv.covar = c("baseline","LOtLM"),
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
                        rsf.split = c("logrank", "bs.gradient"),
@@ -94,6 +97,12 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     lmm.package <- lmm.package[1]
     if (!all(lmm.package%in%c("lme4","lcmm"))){
       stop("Only lme4 or lcmm packages are allowed for estimation of linear mixed models")
+    }
+  }
+  if (length(surv.covar)>1){
+    surv.covar <- surv.covar[1]
+    if (!all(surv.covar%in%c("baseline","LOtLM"))){
+      stop("Only baseline or LOtLM packages are allowed for surv.covar")
     }
   }
   if (!all(cox.submodels%in%c("autoVar","allVar"))){
@@ -171,17 +180,26 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     if (parallel){
 
+      resu.para <- .hdlandmark.para(data = data.tLM, data.pred = data.pred.tLM, markers = markers, tLM = tLM, tHors = tHors,
+                                    kfolds = kfolds, seed = seed, Ncpus = Ncpus,
+                                    subject = subject, time = time, time.event = time.event, event = event,
+                                    long.method = long.method, surv.methods = surv.methods,
+                                    cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
+                                    spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
+                                    rsf.split = rsf.split, lmm.package = lmm.package,
+                                    surv.covar = surv.covar)
 
+      models[[as.character(tLM)]] <- NULL
 
     }else{
 
       models[[as.character(tLM)]] <- .hdlandmark(data = data.tLM, data.pred = data.pred.tLM, markers = markers, tLM = tLM, tHors = tHors,
-                                                 kfolds = kfolds, seed = seed,
-                                                 subject = subject, time = time, time.event = time.event, event = event,
+                                                 kfolds = kfolds, subject = subject, time = time, time.event = time.event, event = event,
                                                  long.method = long.method, surv.methods = surv.methods,
                                                  cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
                                                  spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
-                                                 rsf.split = rsf.split, lmm.package = lmm.package)
+                                                 rsf.split = rsf.split, lmm.package = lmm.package,
+                                                 surv.covar = surv.covar)
 
     }
 
@@ -200,14 +218,13 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 }
 
 
-
+# without parallel
 .hdlandmark <- function(data, data.pred, markers, tLM, tHors,
-                        kfolds, seed,
-                        subject, time, time.event, event,
+                        kfolds, subject, time, time.event, event,
                         long.method, surv.methods,
                         cox.submodels, coxnet.submodels,
                         spls.submodels, rsf.submodels,
-                        rsf.split, lmm.package){
+                        rsf.split, lmm.package, surv.covar){
 
   ids <- unique(data[,subject])
   n <- length(ids)
@@ -239,7 +256,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                              subject = subject, time = time, time.event = time.event, event = event,
-                             long.method = long.method, lmm.package = lmm.package)
+                             long.method = long.method, lmm.package = lmm.package,
+                             surv.covar = surv.covar)
 
     for (tHor in tHors){ # tHor loop
 
@@ -251,8 +269,6 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
       data.surv.pred <- res.LMsum$data.surv.pred
       data.surv.pred[which(data.surv.pred$time.event > tHor), "event"] <- 0
       data.surv.pred$time.event <- pmin(data.surv.pred$time.event, tHor)
-
-      browser()
 
       # survival model on training data
       res.LMsurv <- LMsurv(data.surv = data.surv, surv.methods = surv.methods,
@@ -276,6 +292,99 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     }
 
   }
+
+  return(list(data.surv = res.LMsum$data.surv, data.surv.pred = res.LMsum$data.surv.pred,
+              model.surv = res.LMsurv$model.surv, pred.surv = pred.surv,
+              AUC = AUC, BS = BS))
+
+}
+
+# with parallel
+.hdlandmark.para <- function(data, data.pred, markers, tLM, tHors,
+                             kfolds, seed, Ncpus,
+                             subject, time, time.event, event,
+                             long.method, surv.methods,
+                             cox.submodels, coxnet.submodels,
+                             spls.submodels, rsf.submodels,
+                             rsf.split, lmm.package, surv.covar){
+
+  ids <- unique(data[,subject])
+  n <- length(ids)
+  set.seed(seed)
+  fold <- sample(rep(1:kfolds, length.out = n))
+
+  pred.surv <- AUC <- BS <- list()
+
+  Ncpus <- Ncpus
+  cl <- makeCluster(Ncpus)
+  clusterEvalQ(cl, sink(paste0("output/hdlandmark_", Sys.getpid(), ".txt")))
+  registerDoParallel(cl)
+
+  resu <- foreach(k=1:kfolds, .combine='rbind', .packages = c("lme4", "lcmm","randomForestSRC",
+                                                              "glmnet","plsRcox","survival",
+                                                              "timeROC","pec")) %dopar% { # boucle foreach pour parallelisation
+
+    cat(paste0("Fold : ",k,"/",kfolds),"\n")
+
+    ids.test <- ids[which(fold==k)]
+
+    if (kfolds==1){
+
+      ids.train <- ids.test
+
+    }else{
+
+      ids.train <- ids[which(fold!=k)]
+
+    }
+
+    data.k <- data[which(data[,subject]%in%ids.train),]
+    data.pred.k <- data.pred[which(data.pred[,subject]%in%ids.test),]
+
+    # estimation of summaries on training data and test data
+
+    res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
+                             subject = subject, time = time, time.event = time.event, event = event,
+                             long.method = long.method, lmm.package = lmm.package,
+                             surv.covar = surv.covar)
+
+    for (tHor in tHors){ # tHor loop
+
+      # censuring to horizon time
+      data.surv <- res.LMsum$data.surv
+      data.surv[which(data.surv$time.event > tHor), "event"] <- 0
+      data.surv$time.event <- pmin(data.surv$time.event, tHor)
+
+      data.surv.pred <- res.LMsum$data.surv.pred
+      data.surv.pred[which(data.surv.pred$time.event > tHor), "event"] <- 0
+      data.surv.pred$time.event <- pmin(data.surv.pred$time.event, tHor)
+
+      # survival model on training data
+      res.LMsurv <- LMsurv(data.surv = data.surv, surv.methods = surv.methods,
+                           cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
+                           spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
+                           rsf.split = rsf.split)
+
+      # survival model on test data
+      res.LMpred <- LMpred(data.surv = data.surv.pred, model.surv = res.LMsurv$model.surv,
+                           long.method = long.method, surv.methods = surv.methods,
+                           tHor = tHor)
+
+      res.LMassess <- LMassess(pred.surv = res.LMpred$pred.surv, data.surv = data.surv.pred, tHor = tHor)
+
+      AUC[[as.character(tHor)]] <- rbind(AUC[[as.character(tHor)]], res.LMassess$AUC)
+      BS[[as.character(tHor)]] <- rbind(BS[[as.character(tHor)]], res.LMassess$BS)
+
+      pred.surv[[as.character(tHor)]] <- rbind(pred.surv[[as.character(tHor)]], res.LMpred$pred.surv)
+      pred.surv[[as.character(tHor)]] <- pred.surv[[as.character(tHor)]][order(as.integer(rownames(pred.surv[[as.character(tHor)]]))), , drop = FALSE]
+
+    }
+
+    return(list(AUC = AUC, BS = BS, pred.surv = pred.surv))
+
+                                                              }
+
+  browser()
 
   return(list(data.surv = res.LMsum$data.surv, data.surv.pred = res.LMsum$data.surv.pred,
               model.surv = res.LMsurv$model.surv, pred.surv = pred.surv,

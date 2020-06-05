@@ -1,6 +1,6 @@
 LMsummaries <- function(data, data.pred, markers, tLM,
                         subject, time, time.event, event,
-                        long.method, lmm.package){
+                        long.method, lmm.package, surv.covar){
 
   ########### Survival data at landmark time ###########
 
@@ -8,11 +8,38 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
   data.surv <- data.frame()
 
-  for (ind_subject in unique(data[,subject])){
-    temp_subject <- data[which(data[,subject]==ind_subject),]
-    temp_subject <- temp_subject[which.min(temp_subject[,time]),]
+  if (surv.covar=="baseline"){
 
-    data.surv <- rbind(data.surv, temp_subject)
+    for (ind_subject in unique(data[,subject])){
+      temp_subject <- data[which(data[,subject]==ind_subject),]
+      temp_subject <- temp_subject[which.min(temp_subject[,time]),]
+
+      data.surv <- rbind(data.surv, temp_subject)
+    }
+
+  }else if (surv.covar=="LOtLM"){
+
+    for (ind_subject in unique(data[,subject])){
+      temp_subject <- data[which(data[,subject]==ind_subject),]
+      data_subject <- temp_subject[which.max(temp_subject[,time]),]
+
+      var.na <- is.na(data_subject[,!(names(data_subject)%in%c(names(markers),subject,time,time.event,event))])
+
+      if (any(var.na)){
+
+        varnames.na <- colnames(var.na)[which(var.na==TRUE)]
+
+        for (var in varnames.na){
+
+          data_subject[,var] <- tail(na.omit(temp_subject[,var]),1)
+
+        }
+
+      }
+
+      data.surv <- rbind(data.surv, data_subject)
+    }
+
   }
 
   data.surv[,time.event] <- data.surv[,time.event] - tLM # scaling time data
@@ -23,11 +50,39 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
   data.surv.pred <- data.frame()
 
-  for (ind_subject in unique(data.pred[,subject])){
-    temp_subject <- data.pred[which(data.pred[,subject]==ind_subject),]
-    temp_subject <- temp_subject[which.min(temp_subject[,time]),]
+  if (surv.covar=="baseline"){
 
-    data.surv.pred <- rbind(data.surv.pred, temp_subject)
+    for (ind_subject in unique(data.pred[,subject])){
+      temp_subject <- data.pred[which(data.pred[,subject]==ind_subject),]
+      temp_subject <- temp_subject[which.min(temp_subject[,time]),]
+
+      data.surv.pred <- rbind(data.surv.pred, temp_subject)
+    }
+
+  }else if (surv.covar=="LOtLM"){
+
+    for (ind_subject in unique(data.pred[,subject])){
+      temp_subject <- data.pred[which(data.pred[,subject]==ind_subject),]
+      data_subject <- temp_subject[which.max(temp_subject[,time]),]
+
+      var.na <- is.na(data_subject[,!(names(data_subject)%in%c(names(markers),subject,time,time.event,event))])
+
+      if (any(var.na)){
+
+        varnames.na <- colnames(var.na)[which(var.na==TRUE)]
+
+        for (var in varnames.na){
+
+          data_subject[,var] <- tail(na.omit(temp_subject[,var]),1)
+
+        }
+
+      }
+
+      data.surv.pred <- rbind(data.surv.pred, data_subject)
+
+    }
+
   }
 
   data.surv.pred[,time.event] <- data.surv.pred[,time.event] - tLM # scaling time data

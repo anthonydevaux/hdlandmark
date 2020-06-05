@@ -6,9 +6,9 @@
 \usage{
 hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
   time.event, event, long.method = c("combine", "GLMM", "MFPC"),
-  lmm.package = c("lme4", "lcmm"), cox.submodels = c("autoVar",
-  "allVar"), coxnet.submodels = c("opt", "lasso", "ridge"),
-  spls.submodels = c("opt", "nosparse", "maxsparse"),
+  lmm.package = c("lme4", "lcmm"), surv.covar = c("baseline", "LOtLM"),
+  cox.submodels = c("autoVar", "allVar"), coxnet.submodels = c("opt",
+  "lasso", "ridge"), spls.submodels = c("opt", "nosparse", "maxsparse"),
   rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
   "bs.gradient"), kfolds = 10, seed = 1234, parallel = FALSE,
   Ncpus = 1)

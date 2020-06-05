@@ -16,10 +16,18 @@ lmm.lme4 <- function(model, data){
     model.output <- lmer(model,
                          data = data, REML = FALSE,
                          control = lmerControl(optimizer ="Nelder_Mead"))
+
+    pred.RE <- predRE.lme4(model.output, data)
+
+    return(list(model.output = model.output, pred.RE = pred.RE))
+
+  }else{
+
+    pred.RE <- predRE.lme4(model = model, formul = model, data = data)
+
+    return(list(model.output = model, pred.RE = pred.RE))
+
   }
 
-  pred.RE <- predRE.lme4(model.output, data)
-
-  return(list(model.output = model.output, pred.RE = pred.RE))
 
 }

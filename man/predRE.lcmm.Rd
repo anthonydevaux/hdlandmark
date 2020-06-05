@@ -4,7 +4,7 @@
 \alias{predRE.lcmm}
 \title{Function to predict the random effects on data using lcmm output}
 \usage{
-predRE.lcmm(model, data)
+predRE.lcmm(model, formul, data)
 }
 \arguments{
 \item{model}{A \code{lcmm} object}

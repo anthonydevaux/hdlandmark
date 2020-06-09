@@ -2,7 +2,8 @@
 % Please edit documentation in R/hdlandmark.R
 \name{hdlandmark}
 \alias{hdlandmark}
-\title{Title}
+\title{hdlandmark provides individual probabilities of survival using covariates and summaries build
+on longitudinal data from markers collected over the time and}
 \usage{
 hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
   time.event, event, long.method = c("combine", "GLMM", "MFPC"),
@@ -10,12 +11,12 @@ hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
   cox.submodels = c("autoVar", "allVar"), coxnet.submodels = c("opt",
   "lasso", "ridge"), spls.submodels = c("opt", "nosparse", "maxsparse"),
   rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
-  "bs.gradient"), kfolds = 10, seed = 1234, parallel = FALSE,
-  Ncpus = 1)
+  "bs.gradient"), kfolds = 10, seed = 1234)
 }
 \arguments{
-\item{Ncpus}{}
+\item{seed}{}
 }
 \description{
-Title
+hdlandmark provides individual probabilities of survival using covariates and summaries build
+on longitudinal data from markers collected over the time and
 }

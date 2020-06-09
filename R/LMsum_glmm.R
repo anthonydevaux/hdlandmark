@@ -32,7 +32,7 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold =
 
       if (lmm.package=="lme4"){
 
-        res.lmm <- lmm.lme4(markers[[marker]]$model, markers[[marker]]$formul, data)
+        res.lmm <- lmm.lme4(markers[[marker]]$model, data)
         markers[[marker]]$formul <- markers[[marker]]$model
         markers[[marker]]$model <- res.lmm$model.output
 

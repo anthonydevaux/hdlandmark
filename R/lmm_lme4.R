@@ -23,7 +23,7 @@ lmm.lme4 <- function(model, data){
 
   }else{
 
-    pred.RE <- predRE.lme4(model = model, formul = model, data = data)
+    pred.RE <- predRE.lme4(model = model, data = data)
 
     return(list(model.output = model, pred.RE = pred.RE))
 

@@ -110,7 +110,7 @@ LMsurv.spls <- function(data.surv, spls.submodels){
 
       error.flag <- tryCatch(cv.coxsplsDR(list(x = data.surv.X, time = data.surv.Y$time.event,
                                                status = data.surv.Y$event),
-                                          eta = 0, nt = 10, nfold = 5, plot.it = FALSE,
+                                          eta = 0.9, nt = 10, nfold = 5, plot.it = FALSE,
                                           allCVcrit = FALSE, details = TRUE),
                              error = function(e){return("error")})
 
@@ -122,7 +122,7 @@ LMsurv.spls <- function(data.surv, spls.submodels){
 
     res.spls <- coxsplsDR(Xplan = data.surv.X, time = data.surv.Y$time.event,
                           time2 = data.surv.Y$event,
-                          ncomp = cv.splsdrFit$lambda.min10, eta = 0,
+                          ncomp = cv.splsdrFit$lambda.min10, eta = 0.9,
                           trace = TRUE, allres = TRUE)
 
     model.spls[["maxsparse"]] <- res.spls

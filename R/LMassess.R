@@ -28,23 +28,25 @@ LMassess <- function(pred.surv, data.surv, tHor){
     # Brier score
 
     surv.method <- na.omit(cbind(rep(1,length(pred.surv[,method])), pred.surv[,method]))
-    data.method <- data.surv[which(!is.na(pred.surv[,method])),]
+    data.method <- data.surv[which(!is.na(pred.surv[,method])),, drop = FALSE]
 
-    pec.method <- pec(object = surv.method, formula = Surv(time.event, event) ~ 1,
-                      data = data.method, exact = FALSE, times = c(0,tHor), ptime = 0)
+    pec.method <- tryCatch(pec(object = surv.method, formula = Surv(time.event, event) ~ 1,
+                               data = data.method, exact = FALSE, times = c(0,tHor), ptime = 0),
+                           error = function(e){return(NULL)})
 
-    res[["BS"]][method] <- pec.method$AppErr$matrix[2]
+    res[["BS"]][method] <- ifelse(!is.null(pec.method), pec.method$AppErr$matrix[2], NA)
 
     # AUC
 
     tHor.AUC <- tHor - 0.001
 
-    ROC.method <- timeROC(T = data.method$time.event, delta = data.method$event,
-                          marker = 1 - surv.method[,2],
-                          cause = 1, iid = TRUE,
-                          times = tHor.AUC)
+    ROC.method <- tryCatch(timeROC(T = data.method$time.event, delta = data.method$event,
+                                   marker = 1 - surv.method[,2],
+                                   cause = 1, iid = TRUE,
+                                   times = tHor.AUC),
+                           error = function(e){return(NULL)})
 
-    res[["AUC"]][method] <- ROC.method$AUC[2]
+    res[["AUC"]][method] <- ifelse(!is.null(ROC.method), ROC.method$AUC[2], NA)
 
   }
 

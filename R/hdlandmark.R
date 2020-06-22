@@ -236,8 +236,6 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     }
 
-
-
     # estimation of summaries on training data and test data
 
     res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,

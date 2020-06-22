@@ -41,14 +41,14 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
 
         if (surv.method == "cox"){
 
-          res.survfit <- survfit(model.current, data.surv)
+          res.survfit <- tryCatch(survfit(model.current, data.surv), error = function(e){return(NULL)})
 
         }
 
         if (surv.method == "penalized-cox"){
 
           data.surv.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
-          res.survfit <- survfit(model.current, data.surv.coxnet)
+          res.survfit <- tryCatch(survfit(model.current, data.surv.coxnet), error = function(e){return(NULL)})
 
         }
 

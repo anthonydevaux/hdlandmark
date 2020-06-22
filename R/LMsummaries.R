@@ -125,7 +125,7 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     # estimation + prediction
 
     res.mfpc <- LMsum.mfpc(data, data.surv, data.pred, data.surv.pred, markers, tLM, subject, time,
-                           time.interval = 0.1, pve = 0.99, nbasis = 3)
+                           time.interval = 0.05, pve = 0.99, nbasis = 3)
 
     data.surv.long <- res.mfpc$data.surv[,!(names(res.mfpc$data.surv) %in%
                                               c(time, names(markers)))]
@@ -148,11 +148,11 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
     # estimation
 
-    res.glmm <- LMsum.glmm(data, data.surv, markers, tLM, subject, time, threshold = NULL)
+    res.glmm <- LMsum.glmm(data, data.surv, markers, tLM, subject, time, threshold = NULL, lmm.package)
     data.surv.glmm <- res.glmm$data.surv
 
     res.mfpc  <- LMsum.mfpc(data, data.surv, data.pred, data.surv.pred, markers, tLM, subject, time,
-                            time.interval = 0.1, pve = 0.99, nbasis = 3)
+                            time.interval = 0.05, pve = 0.99, nbasis = 3)
     data.surv.mfpc <- res.mfpc$data.surv
 
     data.surv.combine <- merge(data.surv.glmm, data.surv.mfpc, sort = FALSE)
@@ -166,7 +166,7 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     # prediction
 
     res.glmm.pred <- LMsum.glmm(data.pred, data.surv.pred, res.glmm$markers.model,
-                                tLM, subject, time, threshold = NULL)
+                                tLM, subject, time, threshold = NULL, lmm.package)
     data.surv.pred.glmm <- res.glmm.pred$data.surv
     data.surv.pred.mfpc <- res.mfpc$data.surv.pred
 

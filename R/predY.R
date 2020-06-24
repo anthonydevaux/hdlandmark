@@ -28,8 +28,22 @@ predY <- function(predRE, data, time, tLM){
 
   id_subject <- intersect(id_subject, data[rownames(X),subject])
 
-  Z_formula <- as.formula(paste("~", as.character(findbars(formul)[[1]])[2]))
-  Z <- model.matrix(Z_formula, data)
+  #Z_formula <- as.formula(paste("~", as.character(findbars(formul)[[1]])[2]))
+  Z_formula <- lapply(findbars(formul),
+                      FUN = function(x){
+                        return(as.formula(paste("~", as.character(x)[2])))
+                      })
+
+  if (length(Z_formula)>1){
+
+    Z <- sapply(Z_formula, FUN = function(x) model.matrix(x, data))
+    rownames(Z) <- rownames(X)
+
+  }else{
+
+    Z <- model.matrix(Z_formula[[1]], data)
+
+  }
 
   id_subject <- intersect(id_subject, data[rownames(Z),subject])
 

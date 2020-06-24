@@ -17,8 +17,12 @@ predRE.binary <- function(model, data){
   var.group <- names(ranef(model))
 
   X.formula <- as.formula(nobars(model.formula)[-2])
-  Z.formula <- as.formula(paste("~", as.character(findbars(model.formula)[[1]])[2]))
-  #Y.formula <- as.formula(paste("~", -1, "+", as.character(model.formula)[2]))
+  #Z.formula <- as.formula(paste("~", as.character(findbars(model.formula)[[1]])[2]))
+
+  Z.formula <- lapply(findbars(model.formula),
+                      FUN = function(x){
+                        return(as.formula(paste("~", as.character(x)[2])))
+                        })
 
   # parametres
   beta <- fixef(model) # fixed effect
@@ -39,7 +43,18 @@ predRE.binary <- function(model, data){
     if (nrow(data.subject)>0) {
 
       X.mat <- model.matrix(X.formula, data.subject)
-      Z.mat <- model.matrix(Z.formula, data.subject)
+
+      if (length(Z.formula)>1){
+
+        Z.mat <- sapply(Z.formula, FUN = function(x) model.matrix(x, data.subject))
+
+      }else{
+
+        Z.mat <- model.matrix(Z.formula[[1]], data.subject)
+
+      }
+
+
       Y <- data.subject[,as.character(model.formula)[2]]
       levels(Y) <- c(0,1)
 

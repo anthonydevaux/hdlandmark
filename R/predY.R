@@ -36,7 +36,7 @@ predY <- function(predRE, data, time, tLM){
 
   if (length(Z_formula)>1){
 
-    Z <- sapply(Z_formula, FUN = function(x) model.matrix(x, data))
+    Z <- do.call(cbind, lapply(Z_formula, FUN = function(x) model.matrix(x, data)))
     rownames(Z) <- rownames(X)
 
   }else{

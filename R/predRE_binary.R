@@ -46,7 +46,8 @@ predRE.binary <- function(model, data){
 
       if (length(Z.formula)>1){
 
-        Z.mat <- sapply(Z.formula, FUN = function(x) model.matrix(x, data.subject))
+        #Z.mat <- sapply(Z.formula, FUN = function(x) model.matrix(x, data.subject))
+        Z.mat <- do.call(cbind, lapply(Z.formula, FUN = function(x) model.matrix(x,data.subject)))
 
       }else{
 

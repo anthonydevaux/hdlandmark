@@ -20,6 +20,7 @@
 #' @param rsf.split
 #' @param kfolds
 #' @param seed
+#' @param scaling
 #'
 #' @return
 #' @export
@@ -32,7 +33,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
                        rsf.split = c("logrank", "bs.gradient"),
-                       kfolds = 10, seed = 1234){
+                       kfolds = 10, seed = 1234, scaling = FALSE){
 
   ####### Check #######
 
@@ -205,7 +206,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                         cox.submodels, coxnet.submodels,
                         spls.submodels, rsf.submodels,
                         rsf.split, lmm.package, surv.covar,
-                        seed){
+                        seed, scaling){
 
   ids <- unique(data[,subject])
   n <- length(ids)
@@ -241,7 +242,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                              subject = subject, time = time, time.event = time.event, event = event,
                              long.method = long.method, lmm.package = lmm.package,
-                             surv.covar = surv.covar)
+                             surv.covar = surv.covar, scaling = scaling)
 
     for (tHor in tHors){ # tHor loop
 

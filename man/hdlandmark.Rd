@@ -11,10 +11,10 @@ hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
   cox.submodels = c("autoVar", "allVar"), coxnet.submodels = c("opt",
   "lasso", "ridge"), spls.submodels = c("opt", "nosparse", "maxsparse"),
   rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
-  "bs.gradient"), kfolds = 10, seed = 1234)
+  "bs.gradient"), kfolds = 10, seed = 1234, scaling = FALSE)
 }
 \arguments{
-\item{seed}{}
+\item{scaling}{}
 }
 \description{
 hdlandmark provides individual probabilities of survival using covariates and summaries build

@@ -1,6 +1,6 @@
 LMsummaries <- function(data, data.pred, markers, tLM,
                         subject, time, time.event, event,
-                        long.method, lmm.package, surv.covar){
+                        long.method, lmm.package, surv.covar, scaling){
 
   ########### Survival data at landmark time ###########
 
@@ -178,6 +178,16 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     colnames(data.surv.long.pred)[which(colnames(data.surv.long.pred)==subject)] <- "subject"
 
     rownames(data.surv.long.pred) <- data.surv.long.pred$subject
+
+  }
+
+  if (scaling){
+
+    data.surv.long[,(which(colnames(data.surv.long)=="event")+1):ncol(data.surv.long)] <-
+      scale(data.surv.long[,(which(colnames(data.surv.long)=="event")+1):ncol(data.surv.long)])
+
+    data.surv.long.pred[,(which(colnames(data.surv.long.pred)=="event")+1):ncol(data.surv.long.pred)] <-
+      scale(data.surv.long.pred[,(which(colnames(data.surv.long.pred)=="event")+1):ncol(data.surv.long.pred)])
 
   }
 

@@ -31,7 +31,8 @@ LMassess <- function(pred.surv, data.surv, tHor){
     data.method <- data.surv[which(!is.na(pred.surv[,method])),, drop = FALSE]
 
     pec.method <- tryCatch(pec(object = surv.method, formula = Surv(time.event, event) ~ 1,
-                               data = data.method, exact = FALSE, times = c(0,tHor), ptime = 0),
+                               data = data.method, cens.model = "marginal",
+                               exact = FALSE, times = c(0,tHor), ptime = 0),
                            error = function(e){return(NULL)})
 
     res[["BS"]][method] <- ifelse(!is.null(pec.method), pec.method$AppErr$matrix[2], NA)

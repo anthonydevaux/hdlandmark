@@ -183,7 +183,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                                                cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
                                                spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
                                                rsf.split = rsf.split, lmm.package = lmm.package,
-                                               surv.covar = surv.covar, seed = seed)
+                                               surv.covar = surv.covar, seed = seed, scaling = scaling)
 
   }
 

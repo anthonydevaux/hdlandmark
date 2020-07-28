@@ -29,7 +29,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
       nodesize.max <- 20
 
       for (nodesize in seq(1,nodesize.max,5)){
-        for (mtry in seq(1,mtry.max,3)){
+        for (mtry in seq(1,mtry.max,5)){
 
           cat(paste0("Nodesize : ", nodesize, " and mtry : ", mtry), "\n")
 

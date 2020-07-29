@@ -46,6 +46,9 @@ LMsummaries <- function(data, data.pred, markers, tLM,
   colnames(data.surv)[which(colnames(data.surv)==time.event)] <- "time.event"
   colnames(data.surv)[which(colnames(data.surv)==event)] <- "event"
 
+  # order column for scaling
+  data.surv <- data.surv[,c(which(colnames(data.surv)!="event"),which(colnames(data.surv)=="event"))]
+
   # Prediction data
 
   data.surv.pred <- data.frame()
@@ -88,6 +91,9 @@ LMsummaries <- function(data, data.pred, markers, tLM,
   data.surv.pred[,time.event] <- data.surv.pred[,time.event] - tLM # scaling time data
   colnames(data.surv.pred)[which(colnames(data.surv.pred)==time.event)] <- "time.event"
   colnames(data.surv.pred)[which(colnames(data.surv.pred)==event)] <- "event"
+
+  # order column for scaling
+  data.surv.pred <- data.surv.pred[,c(which(colnames(data.surv.pred)!="event"),which(colnames(data.surv.pred)=="event"))]
 
   ############# Summaries ############
 

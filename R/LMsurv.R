@@ -1,3 +1,17 @@
+#' Title
+#'
+#' @param data.surv
+#' @param surv.methods
+#' @param cox.submodels
+#' @param coxnet.submodels
+#' @param spls.submodels
+#' @param rsf.submodels
+#' @param rsf.split
+#'
+#' @return
+#' @export
+#'
+#' @examples
 LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels,
                    spls.submodels, rsf.submodels, rsf.split){
 

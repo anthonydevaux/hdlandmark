@@ -9,6 +9,9 @@ lmm.lcmm(model, formul, data)
 \arguments{
 \item{data}{}
 }
+\value{
+
+}
 \description{
 Title
 }

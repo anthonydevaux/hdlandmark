@@ -6,6 +6,9 @@
 \usage{
 thresholdY(predRE, data, time, marker_name, tLM, threshold = NULL)
 }
+\value{
+
+}
 \description{
 Title
 }

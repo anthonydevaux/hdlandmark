@@ -9,6 +9,9 @@ LMsurv.coxnet(data.surv, coxnet.submodels)
 \arguments{
 \item{coxnet.submodels}{}
 }
+\value{
+
+}
 \description{
 Title
 }

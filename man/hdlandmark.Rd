@@ -5,16 +5,34 @@
 \title{hdlandmark provides individual probabilities of survival using covariates and summaries build
 on longitudinal data from markers collected over the time and}
 \usage{
-hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
-  time.event, event, long.method = c("combine", "GLMM", "MFPC"),
-  lmm.package = c("lme4", "lcmm"), surv.covar = c("baseline", "LOtLM"),
-  cox.submodels = c("autoVar", "allVar"), coxnet.submodels = c("opt",
-  "lasso", "ridge"), spls.submodels = c("opt", "nosparse", "maxsparse"),
-  rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
-  "bs.gradient"), kfolds = 10, seed = 1234, scaling = FALSE)
+hdlandmark(
+  data,
+  data.pred = NULL,
+  markers,
+  tLMs,
+  tHors,
+  subject,
+  time,
+  time.event,
+  event,
+  long.method = c("combine", "GLMM", "MFPC"),
+  lmm.package = c("lme4", "lcmm"),
+  surv.covar = c("baseline", "LOtLM"),
+  cox.submodels = c("autoVar", "allVar"),
+  coxnet.submodels = c("opt", "lasso", "ridge"),
+  spls.submodels = c("opt", "nosparse", "maxsparse"),
+  rsf.submodels = c("opt", "noVS", "default"),
+  rsf.split = c("logrank", "bs.gradient"),
+  kfolds = 10,
+  seed = 1234,
+  scaling = FALSE
+)
 }
 \arguments{
 \item{scaling}{}
+}
+\value{
+
 }
 \description{
 hdlandmark provides individual probabilities of survival using covariates and summaries build

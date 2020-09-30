@@ -1,3 +1,22 @@
+#' Title
+#'
+#' @param data
+#' @param data.pred
+#' @param markers
+#' @param tLM
+#' @param subject
+#' @param time
+#' @param time.event
+#' @param event
+#' @param long.method
+#' @param lmm.package
+#' @param surv.covar
+#' @param scaling
+#'
+#' @return
+#' @export
+#'
+#' @examples
 LMsummaries <- function(data, data.pred, markers, tLM,
                         subject, time, time.event, event,
                         long.method, lmm.package, surv.covar, scaling){

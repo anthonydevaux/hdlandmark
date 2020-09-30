@@ -9,6 +9,9 @@ LMsurv.rsf(data.surv, rsf.split, rsf.submodels)
 \arguments{
 \item{rsf.submodels}{}
 }
+\value{
+
+}
 \description{
 Title
 }

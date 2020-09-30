@@ -21,9 +21,18 @@ LMsurv.cox <- function(data.surv, cox.submodels){
 
     data.surv.omit <- na.omit(data.surv) # omit values to compute step function
 
-    best.coxFit <- step(coxph(Surv(time.event, event) ~ ., data = data.surv.omit))
+    best.coxFit <- tryCatch(step(coxph(Surv(time.event, event) ~ ., data = data.surv.omit)),
+                            error = function(e) {return(NULL)})
 
-    coxFit <- coxph(best.coxFit$formula, data = data.surv, x = TRUE)
+    if (!is.null(best.coxFit)){
+
+      coxFit <- coxph(best.coxFit$formula, data = data.surv, x = TRUE)
+
+    }else{
+
+      coxFit <- "error"
+
+    }
 
     model.cox[["autoVar"]] <- coxFit
 

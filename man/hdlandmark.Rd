@@ -25,11 +25,12 @@ hdlandmark(
   rsf.split = c("logrank", "bs.gradient"),
   kfolds = 10,
   seed = 1234,
-  scaling = FALSE
+  scaling = FALSE,
+  SL.weights = NULL
 )
 }
 \arguments{
-\item{scaling}{}
+\item{SL.weights}{}
 }
 \value{
 

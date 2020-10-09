@@ -21,6 +21,7 @@
 #' @param kfolds
 #' @param seed
 #' @param scaling
+#' @param SL.weights
 #'
 #' @return
 #' @export
@@ -33,7 +34,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
                        rsf.split = c("logrank", "bs.gradient"),
-                       kfolds = 10, seed = 1234, scaling = FALSE){
+                       kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL){
 
   ####### Check #######
 
@@ -183,7 +184,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                                                cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
                                                spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
                                                rsf.split = rsf.split, lmm.package = lmm.package,
-                                               surv.covar = surv.covar, seed = seed, scaling = scaling)
+                                               surv.covar = surv.covar, seed = seed, scaling = scaling,
+                                               SL.weights = SL.weights)
 
   }
 
@@ -206,7 +208,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                         cox.submodels, coxnet.submodels,
                         spls.submodels, rsf.submodels,
                         rsf.split, lmm.package, surv.covar,
-                        seed, scaling){
+                        seed, scaling, SL.weights){
 
   ids <- unique(data[,subject])
   n <- length(ids)
@@ -265,6 +267,14 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
       res.LMpred <- LMpred(data.surv = data.surv.pred, model.surv = res.LMsurv$model.surv,
                            long.method = long.method, surv.methods = surv.methods,
                            tHor = tHor)
+
+      if (!is.null(SL.weights)){
+
+        SL.pred <- res.LMpred$pred.surv%*%SL.weights
+        colnames(SL.pred) <- "superlearner"
+        res.LMpred$pred.surv <- cbind(res.LMpred$pred.surv, SL.pred)
+
+      }
 
       res.LMassess <- LMassess(pred.surv = res.LMpred$pred.surv, data.surv = data.surv.pred, tHor = tHor)
 

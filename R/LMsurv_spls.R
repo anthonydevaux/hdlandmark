@@ -17,6 +17,8 @@ LMsurv.spls <- function(data.surv, spls.submodels){
   data.surv.X <- model.matrix( ~ ., data.surv.omit[,!(names(data.surv.omit) %in% c("time.event","event"))])[,-1]
   data.surv.Y <- data.surv.omit[,c("time.event","event")]
 
+  best.eta <- best.ncomp <- NULL
+
   ##############################################
   # drop variables with null standard deviation
 

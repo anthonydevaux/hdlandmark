@@ -9,9 +9,6 @@ LMassess(pred.surv, data.surv, tHor)
 \arguments{
 \item{simu}{}
 }
-\value{
-
-}
 \description{
 Title
 }

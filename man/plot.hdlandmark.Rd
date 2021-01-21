@@ -9,9 +9,6 @@ plot.hdlandmark(hdlandmark.output)
 \arguments{
 \item{hdlandmark.output}{}
 }
-\value{
-
-}
 \description{
 Title
 }

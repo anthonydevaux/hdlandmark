@@ -9,9 +9,6 @@ LMsurv.cox(data.surv, cox.submodels)
 \arguments{
 \item{cox.submodels}{}
 }
-\value{
-
-}
 \description{
 Title
 }

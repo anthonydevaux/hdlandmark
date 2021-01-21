@@ -9,9 +9,6 @@ LMsurv.spls(data.surv, spls.submodels)
 \arguments{
 \item{spls.submodels}{}
 }
-\value{
-
-}
 \description{
 Title
 }

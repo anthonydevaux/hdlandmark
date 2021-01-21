@@ -4,21 +4,11 @@
 \alias{LMsurv}
 \title{Title}
 \usage{
-LMsurv(
-  data.surv,
-  surv.methods,
-  cox.submodels,
-  coxnet.submodels,
-  spls.submodels,
-  rsf.submodels,
-  rsf.split
-)
+LMsurv(data.surv, surv.methods, cox.submodels, coxnet.submodels,
+  spls.submodels, rsf.submodels, rsf.split)
 }
 \arguments{
 \item{rsf.split}{}
-}
-\value{
-
 }
 \description{
 Title

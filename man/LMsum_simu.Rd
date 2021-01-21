@@ -4,16 +4,8 @@
 \alias{LMsum_simu}
 \title{Internal function for simulations}
 \usage{
-LMsum_simu(
-  markers.true,
-  data,
-  tLM,
-  subject,
-  time,
-  RE,
-  HW = tLM,
-  threshold = NULL
-)
+LMsum_simu(markers.true, data, tLM, subject, time, RE, HW = tLM,
+  threshold = NULL)
 }
 \description{
 Internal function for simulations

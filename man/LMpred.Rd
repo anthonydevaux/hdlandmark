@@ -9,9 +9,6 @@ LMpred(data.surv, model.surv, long.method, surv.methods, tHor)
 \arguments{
 \item{tHor}{}
 }
-\value{
-
-}
 \description{
 Title
 }

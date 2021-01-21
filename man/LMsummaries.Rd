@@ -4,26 +4,11 @@
 \alias{LMsummaries}
 \title{Title}
 \usage{
-LMsummaries(
-  data,
-  data.pred,
-  markers,
-  tLM,
-  subject,
-  time,
-  time.event,
-  event,
-  long.method,
-  lmm.package,
-  surv.covar,
-  scaling
-)
+LMsummaries(data, data.pred, markers, tLM, subject, time, time.event,
+  event, long.method, lmm.package, surv.covar, scaling)
 }
 \arguments{
 \item{scaling}{}
-}
-\value{
-
 }
 \description{
 Title

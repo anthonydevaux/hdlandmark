@@ -4,25 +4,11 @@
 \alias{LMsum.mfpc}
 \title{Title}
 \usage{
-LMsum.mfpc(
-  data,
-  data.surv,
-  data.pred,
-  data.surv.pred,
-  markers,
-  tLM,
-  subject,
-  time,
-  time.interval = 0.1,
-  pve = 0.95,
-  nbasis = 3
-)
+LMsum.mfpc(data, data.surv, data.pred, data.surv.pred, markers, tLM,
+  subject, time, time.interval = 0.1, pve = 0.95, nbasis = 3)
 }
 \arguments{
 \item{nbasis}{}
-}
-\value{
-
 }
 \description{
 Title

@@ -191,9 +191,6 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   if (!class(tLMs)=="numeric"){
     stop("tLM should be class of numeric")
   }
-  if (!all(tLMs>0)){
-    stop("tLMs should be positive")
-  }
   if (!class(tHors)=="numeric"){
     stop("tHor should be class of list")
   }

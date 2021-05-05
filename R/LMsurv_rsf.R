@@ -3,6 +3,8 @@
 #' @param data.surv
 #' @param rsf.split
 #' @param rsf.submodels
+#' @param cause
+#' @param CR
 #'
 #' @return
 #' @export
@@ -11,7 +13,7 @@
 #' @importFrom survival Surv
 #'
 #' @examples
-LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
+LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALSE){
 
   model.rsf <- list()
 
@@ -39,6 +41,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
                            ntree = 500,
                            nsplit = 0,
                            splitrule = splitrule,
+                           cause = cause,
                            bootstrap = "by.root", samptype = "swr")
 
           rf.err <- tail(res.rsf$err.rate, 1)
@@ -55,7 +58,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
 
       if (any(rsf.submodels %in% c("noVS"))){
 
-        model.rsf[[paste(splitrule, "noVS", sep = "-")]] <- res.rsf
+        model.rsf[[paste(splitrule, "noVS", ifelse(CR, "CR", ""), sep = "-")]] <- res.rsf
 
       }
 
@@ -72,9 +75,10 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
                           ntree = 1000,
                           nsplit = 0,
                           splitrule = splitrule,
+                          cause = cause,
                           bootstrap = "by.root", samptype = "swr")
 
-      model.rsf[[paste(splitrule, "opt", sep = "-")]] <- best.rf.VI
+      model.rsf[[paste(splitrule, "opt", ifelse(CR, "CR", ""), sep = "-")]] <- best.rf.VI
 
     }
 
@@ -84,9 +88,10 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels){
                        ntree = 1000,
                        nsplit = 0,
                        splitrule = splitrule,
+                       cause = cause,
                        bootstrap = "by.root", samptype = "swr")
 
-      model.rsf[[paste(splitrule, "default", sep = "-")]] <- res.rsf
+      model.rsf[[paste(splitrule, "default", ifelse(CR, "CR", ""), sep = "-")]] <- res.rsf
 
     }
 

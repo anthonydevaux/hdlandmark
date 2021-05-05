@@ -45,22 +45,22 @@ points.}
 }
 \value{
 \item{mu}{A \code{\link[funData]{funData}} object with one
-  observation, corresponding to the mean function.} \item{values}{A vector
-  containing the estimated eigenvalues.} \item{functions}{A
-  \code{\link[funData]{funData}} object containing the estimated functional
-  principal components.} \item{scores}{An matrix of estimated scores for the
-  observations in \code{funDataObject}. Each row corresponds to the scores of
-  one observation.} \item{fit}{A \code{\link[funData]{funData}} object
-  containing the estimated trajectories based on the truncated Karhunen-Loeve
-  representation and the estimated scores and functional principal components
-  for \code{predData} (if this is not \code{NULL}) or \code{funDataObject}
-  (if \code{predData} is \code{NULL}).} \item{npc}{The number of functional
-  principal components: either the supplied \code{npc}, or the minimum number
-  of basis functions needed to explain proportion \code{pve} of the variance
-  in the observed curves (cf. \code{\link[refund]{fpca.sc}}).}
-  \item{sigma2}{The estimated measurement error variance (cf.
-  \code{\link[refund]{fpca.sc}}).} \item{estVar}{The estimated smooth
-  variance function of the data.}
+observation, corresponding to the mean function.} \item{values}{A vector
+containing the estimated eigenvalues.} \item{functions}{A
+\code{\link[funData]{funData}} object containing the estimated functional
+principal components.} \item{scores}{An matrix of estimated scores for the
+observations in \code{funDataObject}. Each row corresponds to the scores of
+one observation.} \item{fit}{A \code{\link[funData]{funData}} object
+containing the estimated trajectories based on the truncated Karhunen-Loeve
+representation and the estimated scores and functional principal components
+for \code{predData} (if this is not \code{NULL}) or \code{funDataObject}
+(if \code{predData} is \code{NULL}).} \item{npc}{The number of functional
+principal components: either the supplied \code{npc}, or the minimum number
+of basis functions needed to explain proportion \code{pve} of the variance
+in the observed curves (cf. \code{\link[refund]{fpca.sc}}).}
+\item{sigma2}{The estimated measurement error variance (cf.
+\code{\link[refund]{fpca.sc}}).} \item{estVar}{The estimated smooth
+variance function of the data.}
 }
 \description{
 This function calculates a univariate functional principal components
@@ -69,7 +69,7 @@ analysis by smoothed covariance based on code from
 }
 \section{Warning}{
  This function works only for univariate functional data
-  observed on one-dimensional domains.
+observed on one-dimensional domains.
 }
 
 \examples{
@@ -99,5 +99,5 @@ analysis by smoothed covariance based on code from
 }
 \seealso{
 \code{\link[funData]{funData}}, \code{\link[refund]{fpca.sc}},
-  \code{\link{fpcaBasis}}, \code{\link{univDecomp}}
+\code{\link{fpcaBasis}}, \code{\link{univDecomp}}
 }

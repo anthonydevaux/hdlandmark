@@ -5,6 +5,8 @@
 #' @param long.method
 #' @param surv.methods
 #' @param tHor
+#' @param cause
+#' @param CR
 #'
 #' @return
 #' @export
@@ -12,9 +14,10 @@
 #' @importFrom survival survfit
 #' @importFrom randomForestSRC predict.rfsrc
 #' @import ranger
+#' @import riskRegression
 #'
 #' @examples
-LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
+LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause = 1, CR = FALSE){
 
   models <- unlist(lapply(model.surv, FUN = function(x) length(x$model)))
   models.nb <- sum(models)
@@ -29,7 +32,27 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
 
     # Cox, Penalized-cox
 
-    if (any(surv.method %in% c("cox", "penalized-cox"))){
+    if (surv.method == "cox"){
+
+      sub.methods <- names(model.surv[[surv.method]]$model)
+
+      for (sub.method in sub.methods){
+
+        model.current <- model.surv[[surv.method]]$model[[sub.method]]
+        method.name <- paste(long.method, surv.method, sub.method, sep = "-")
+        res.survfit <- tryCatch(survfit(model.current, data.surv), error = function(e){return(NULL)})
+        id.time <- sum(res.survfit$time <= tHor)
+        pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+        colnames(pred.surv)[models.ind] <- method.name
+        models.ind <- models.ind + 1
+
+      }
+
+    }
+
+    # penalized-cox
+
+    if (surv.method == "penalized-cox"){
 
       sub.methods <- names(model.surv[[surv.method]]$model)
 
@@ -39,29 +62,34 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
 
         method.name <- paste(long.method, surv.method, sub.method, sep = "-")
 
-        if (surv.method == "cox"){
-
-          res.survfit <- tryCatch(survfit(model.current, data.surv), error = function(e){return(NULL)})
-
-        }
-
-        if (surv.method == "penalized-cox"){
+        if (any(sub.method %in% c("opt","lasso","ridge"))){
 
           data.surv.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
           res.survfit <- tryCatch(survfit(model.current, data.surv.coxnet), error = function(e){return(NULL)})
+          id.time <- sum(res.survfit$time <= tHor)
+          pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+          colnames(pred.surv)[models.ind] <- method.name
+
 
         }
 
-        id.time <- sum(res.survfit$time <= tHor)
+        if (any(sub.method %in% c("opt-CR","lasso-CR","ridge-CR"))){
 
-        pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+          data.surv.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
+          res.survfit <- riskRegression::predictCauseSpecificCox(model.current,
+                                                                 newdata = data.surv.coxnet,
+                                                                 times = tHor,
+                                                                 cause = cause,
+                                                                 type = "survival")
 
-        colnames(pred.surv)[models.ind] <- method.name
+          pred.surv[rownames(na.omit(data.surv)), models.ind] <- res.survfit$survival[,1]
+          colnames(pred.surv)[models.ind] <- method.name
+
+        }
 
         models.ind <- models.ind + 1
 
       }
-
     }
 
     # sPLS
@@ -147,6 +175,17 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor){
           id.noNA <- rownames(model.frame(formula.xvar,
                                           data.surv[,model.current$xvar.names, drop = FALSE])) # id without NA
           pred.surv[id.noNA, models.ind] <- res.survfit$survival[,id.time]
+
+        }
+
+        if (any(sub.method %in% c("logrank-opt-CR","logrank-noVS-CR","logrank-default-CR"))){
+
+          res.survfit <- predict.rfsrc(model.current, data.surv)
+          id.time <- sum(res.survfit$time.interest <= tHor)
+          formula.xvar <- as.formula(as.character(model.current$call$formula)[c(1,3)])
+          id.noNA <- rownames(model.frame(formula.xvar,
+                                          data.surv[,model.current$xvar.names, drop = FALSE])) # id without NA
+          pred.surv[id.noNA, models.ind] <- res.survfit$cif[,id.time, cause]
 
         }
 

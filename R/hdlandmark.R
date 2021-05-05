@@ -26,11 +26,13 @@
 #' @param spls.submodels a character vector containing Deviance residuals sparse-Partial Least Square sub-methods \insertCite{bastien_deviance_2015}{hdlandmark}. \code{opt} for tuning sparcity parameter \eqn{\eta}, \code{nosparse} for \eqn{\eta = 0} and \code{maxsparse} for \eqn{\eta = 0.9} \insertCite{@see also @chun_sparse_2010}{hdlandmark}
 #' @param rsf.submodels a character vector containing random survival forests sub-methods \insertCite{ishwaran_random_2008}{hdlandmark}.
 #' @param rsf.split a character vector containing the split criterion for random survival forests sub-methods. \code{logrank} for log-rank splitting or \code{bs.gradient} for gradient-based brier score splitting.
+#' @param cause
 #' @param kfolds number of fold in cross-validation
 #' @param seed (optional) seed number
 #' @param scaling boolean to scale summaries (default is \code{FALSE})
 #' @param SL.weights (optional) allow to compute individual probabilities from a superlearner using numeric vector of weights for each sub-methods
 #'
+#' @import Rdpack
 #'
 #' @return
 #' \item{tLMs}{landmark time(s)}
@@ -55,85 +57,98 @@
 #' \insertAllCited{}
 #' @examples
 #'
-#' library(splines)
-#' library(rstpm2)
+#' \dontrun{
 #'
 #' data(pbc2)
 #'
 #' # Formula for the modeling of the biomarkers using splines
-#' marker <-
-#'     list(serBilir = list(model = list(fixed = serBilir ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   subject = "id"),
-#'                          deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   indFixed = c(2,3,4),
-#'                                   random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   indRandom = c(2,3,4))),
-#'     serChol = list(model = list(fixed = serChol ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  subject = "id"),
-#'                     deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  indFixed = c(2,3,4),
-#'                                  random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  indRandom = c(2,3,4))),
-#'     albumin = list(model = list(fixed = albumin ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                 random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                 subject = "id"),
-#'                    deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                 indFixed = c(2,3,4),
-#'                                 random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                 indRandom = c(2,3,4))),
-#'     alkaline = list(model = list(fixed = alkaline ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  subject = "id"),
-#'                     deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  indFixed = c(2,3,4),
-#'                                  random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                  indRandom = c(2,3,4))),
-#'     SGOT = list(model = list(fixed = SGOT ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                              random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
+#' serBilir = list(model = list(fixed = serBilir ~ year,
+#'                              random = ~ year,
 #'                              subject = "id"),
-#'                 deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                              indFixed = c(2,3,4),
-#'                              random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                              indRandom = c(2,3,4))),
-#'     platelets = list(model = list(fixed = platelets ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   subject = "id"),
-#'                      deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   indFixed = c(2,3,4),
-#'                                   random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                   indRandom = c(2,3,4))),
-#'     prothrombin = list(model = list(fixed = prothrombin ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                     random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                     subject = "id"),
-#'                        deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                     indFixed = c(2,3,4),
-#'                                     random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-#'                                     indRandom = c(2,3,4))),
-#'     ascites = list(model = ascites ~ year + (1 + year|id),
+#'                 deriv = list(fixed = ~ 1,
+#'                              indFixed = 2,
+#'                              random = ~ 1,
+#'                              indRandom = 2))
+#'
+#' serChol = list(model = list(fixed = serChol ~ year + I(year^2),
+#'                             random = ~ year + I(year^2),
+#'                             subject = "id"),
+#'                deriv = list(fixed = ~ 2*year,
+#'                             indFixed = c(2,3),
+#'                             random = ~ 2*year,
+#'                             indRandom = c(2,3)))
+#'
+#' albumin = list(model = list(fixed = albumin ~ year,
+#'                             random = ~ year,
+#'                             subject = "id"),
+#'                deriv = list(fixed = ~ 1,
+#'                             indFixed = 2,
+#'                             random = ~ 1,
+#'                             indRandom = 2))
+#'
+#' alkaline = list(model = list(fixed = alkaline ~ year,
+#'                              random = ~ year,
+#'                              subject = "id"),
+#'                 deriv = list(fixed = ~ 1,
+#'                              indFixed = 2,
+#'                              random = ~ 1,
+#'                              indRandom = 2))
+#'
+#' SGOT = list(model = list(fixed = SGOT ~ year,
+#'                          random = ~ year,
+#'                          subject = "id"),
+#'             deriv = list(fixed = ~ 1,
+#'                          indFixed = 2,
+#'                          random = ~ 1,
+#'                          indRandom = 2))
+#'
+#' platelets = list(model = list(fixed = platelets ~ year + I(year^2),
+#'                               random = ~ year + I(year^2),
+#'                               subject = "id"),
+#'                  deriv = list(fixed = ~ 2*year,
+#'                               indFixed = c(2,3),
+#'                               random = ~ 2*year,
+#'                               indRandom = c(2,3)))
+#'
+#' prothrombin = list(model = list(fixed = prothrombin ~ year,
+#'                                 random = ~ year,
+#'                                 subject = "id"),
 #'                    deriv = list(fixed = ~ 1,
 #'                                 indFixed = 2,
 #'                                 random = ~ 1,
-#'                                 indRandom = 2)),
-#'     hepatomegaly = list(model = hepatomegaly ~ ns(year, knots = c(1.0), Boundary.knots = c(0,4)) +
-#'                         (1 + ns(year, knots = c(1.0), Boundary.knots = c(0,4))||id),
-#'                         deriv = list(fixed = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-#'                                      indFixed = c(2,3),
-#'                                      random = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-#'                                      indRandom = c(2,3))),
-#'     spiders = list(model = spiders ~ ns(year, knots = c(1.0), Boundary.knots = c(0,4)) +
-#'                     (1 + ns(year, knots = c(1.0), Boundary.knots = c(0,4))||id),
-#'                     deriv = list(fixed = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-#'                                  indFixed = c(2,3),
-#'                                  random = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-#'                                  indRandom = c(2,3))),
-#'     edema2 = list(model = edema2 ~ year + (1 + year|id),
-#'                   deriv = list(fixed = ~ 1,
-#'                                indFixed = 2,
-#'                                random = ~ 1,
-#'                                indRandom = 2))
-#')
+#'                                 indRandom = 2))
+#'
+#' ascites = list(model = ascites ~ year + (1 + year|id),
+#'                deriv = list(fixed = ~ 1,
+#'                             indFixed = 2,
+#'                             random = ~ 1,
+#'                             indRandom = 2))
+#'
+#' hepatomegaly = list(model = hepatomegaly ~ year + (1 + year|id),
+#'                     deriv = list(fixed = ~ 1,
+#'                                  indFixed = 2,
+#'                                  random = ~ 1,
+#'                                  indRandom = 2))
+#'
+#' spiders = list(model = spiders ~ year + (1 + year|id),
+#'                deriv = list(fixed = ~ 1,
+#'                             indFixed = 2,
+#'                             random = ~ 1,
+#'                             indRandom = 2))
+#'
+#' edema2 = list(model = list(fixed = edema2 ~ year,
+#'                            random = ~ year,
+#'                            subject = "id"),
+#'               deriv = list(fixed = ~ 1,
+#'                            indFixed = 2,
+#'                            random = ~ 1,
+#'                            indRandom = 2))
+#'
+#' marker <- list(serBilir = serBilir, serChol = serChol, albumin = albumin,
+#'                alkaline = alkaline, SGOT = SGOT, platelets = platelets,
+#'                prothrombin = prothrombin, ascites = ascites,
+#'                hepatomegaly = hepatomegaly, spiders = spiders,
+#'                edema2 = edema2)
 #'
 #' # compute hdlandmark methodology
 #' hdlandmark.res <- hdlandmark(data = pbc2, data.pred = pbc2, markers = marker,
@@ -149,7 +164,7 @@
 #'
 #' # get individual predictions for each method
 #' hdlandmark.res$models[[`4`]]$pred.surv$`3`
-#'
+#' }
 #'
 #' @export
 hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
@@ -159,6 +174,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
                        rsf.split = c("logrank", "bs.gradient"),
+                       cause = 1,
                        kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL){
 
   ####### Check #######
@@ -208,6 +224,9 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   if (!class(event)=="character"){
     stop("event should be class of character")
   }
+  if (length(unique(data[,event]))>2){ # competitive risks
+    CR <- TRUE
+  }
   if (!event%in%colnames(data)){
     stop("event variable is missing in data")
   }
@@ -236,6 +255,12 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   if (!all(coxnet.submodels%in%c("opt","lasso","ridge"))){
     stop("Only opt, lasso or ridge are allowed for coxnet.submodels")
   }
+  if (CR){
+    if (any(coxnet.submodels=="opt")){
+      warning("opt coxnet.submodels is not available for competitive risks !")
+      coxnet.submodels <- coxnet.submodels[-which(coxnet.submodels=="opt")]
+    }
+  }
   if (!all(spls.submodels%in%c("opt","nosparse","maxsparse"))){
     stop("Only opt, nosparse or maxsparse are allowed for spls.submodels")
   }
@@ -245,7 +270,16 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   if (!all(rsf.split%in%c("logrank","bs.gradient"))){
     stop("Only logrank or bs.gradient are allowed for rsf.split")
   }
-
+  if (CR){
+    if (any(rsf.submodels=="ranger")){
+      warning("ranger rsf.submodels is not available for competitive risks !")
+      rsf.submodels <- rsf.submodels[-which(rsf.submodels=="ranger")]
+    }
+    if (any(rsf.split=="bs.gradient")){
+      warning("bs.gradient splitting rule is not available for competitive risks !")
+      rsf.split <- rsf.split[-which(rsf.split=="bs.gradient")]
+    }
+  }
   if (!is.null(data.pred)){
     if (!class(data.pred)%in%c("data.frame","matrix")){
       stop("data.pred should be class of data.frame or matrix")
@@ -303,14 +337,87 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
     }
 
-    models[[as.character(tLM)]] <- .hdlandmark(data = data.tLM, data.pred = data.pred.tLM, markers = markers, tLM = tLM, tHors = tHors,
-                                               kfolds = kfolds, subject = subject, time = time, time.event = time.event, event = event,
-                                               long.method = long.method, surv.methods = surv.methods,
-                                               cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
-                                               spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
-                                               rsf.split = rsf.split, lmm.package = lmm.package,
-                                               surv.covar = surv.covar, seed = seed, scaling = scaling,
-                                               SL.weights = SL.weights)
+    ids <- unique(data.tLM[,subject])
+    n <- length(ids)
+    set.seed(seed)
+    fold <- sample(rep(1:kfolds, length.out = n))
+
+    pred.surv <- AUC <- BS <- list()
+
+    for (k in 1:kfolds){
+
+      cat(paste0("Fold : ",k,"/",kfolds),"\n")
+
+      ids.test <- ids[which(fold==k)]
+
+      if (kfolds==1){
+
+        ids.train <- ids.test
+
+        data.k <- data.tLM
+        data.pred.k <- data.pred.tLM
+
+      }else{
+
+        ids.train <- ids[which(fold!=k)]
+
+        data.k <- data.tLM[which(data.tLM[,subject]%in%ids.train),]
+        data.pred.k <- data.pred.tLM[which(data.pred.tLM[,subject]%in%ids.test),]
+
+      }
+
+      # estimation of summaries on training data and test data
+
+      res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
+                               subject = subject, time = time, time.event = time.event, event = event,
+                               long.method = long.method, lmm.package = lmm.package,
+                               surv.covar = surv.covar, scaling = scaling)
+
+      for (tHor in tHors){ # tHor loop
+
+        # censuring to horizon time
+        data.surv <- res.LMsum$data.surv
+        data.surv[which(data.surv$time.event > tHor), "event"] <- 0
+        data.surv$time.event <- pmin(data.surv$time.event, tHor)
+
+        data.surv.pred <- res.LMsum$data.surv.pred
+        data.surv.pred[which(data.surv.pred$time.event > tHor), "event"] <- 0
+        data.surv.pred$time.event <- pmin(data.surv.pred$time.event, tHor)
+
+        # survival model on training data
+        res.LMsurv <- LMsurv(data.surv = data.surv, surv.methods = surv.methods,
+                             cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
+                             spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
+                             rsf.split = rsf.split, cause = cause, CR = CR)
+
+        # survival model on test data
+        res.LMpred <- LMpred(data.surv = data.surv.pred, model.surv = res.LMsurv$model.surv,
+                             long.method = long.method, surv.methods = surv.methods,
+                             tHor = tHor, cause = cause, CR = CR)
+
+        if (!is.null(SL.weights)){
+
+          SL.pred <- res.LMpred$pred.surv%*%SL.weights
+          colnames(SL.pred) <- "superlearner"
+          res.LMpred$pred.surv <- cbind(res.LMpred$pred.surv, SL.pred)
+
+        }
+
+        #res.LMassess <- LMassess(pred.surv = res.LMpred$pred.surv, data.surv = data.surv.pred, tHor = tHor)
+
+        #AUC[[as.character(tHor)]] <- rbind(AUC[[as.character(tHor)]], res.LMassess$AUC)
+        #BS[[as.character(tHor)]] <- rbind(BS[[as.character(tHor)]], res.LMassess$BS)
+
+        pred.surv[[as.character(tHor)]] <- rbind(pred.surv[[as.character(tHor)]], res.LMpred$pred.surv)
+        pred.surv[[as.character(tHor)]] <- pred.surv[[as.character(tHor)]][order(as.integer(rownames(pred.surv[[as.character(tHor)]]))), , drop = FALSE]
+
+      }
+
+    }
+
+    models[[as.character(tLM)]] <- list(data.surv = res.LMsum$data.surv, data.surv.pred = res.LMsum$data.surv.pred,
+                                        model.surv = res.LMsurv$model.surv, pred.surv = pred.surv,
+                                        AUC = AUC, BS = BS)
 
   }
 
@@ -323,98 +430,5 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   class(resu) <- "hdlandmark"
 
   return(resu)
-
-}
-
-
-.hdlandmark <- function(data, data.pred, markers, tLM, tHors,
-                        kfolds, subject, time, time.event, event,
-                        long.method, surv.methods,
-                        cox.submodels, coxnet.submodels,
-                        spls.submodels, rsf.submodels,
-                        rsf.split, lmm.package, surv.covar,
-                        seed, scaling, SL.weights){
-
-  ids <- unique(data[,subject])
-  n <- length(ids)
-  set.seed(seed)
-  fold <- sample(rep(1:kfolds, length.out = n))
-
-  pred.surv <- AUC <- BS <- list()
-
-  for (k in 1:kfolds){
-
-    cat(paste0("Fold : ",k,"/",kfolds),"\n")
-
-    ids.test <- ids[which(fold==k)]
-
-    if (kfolds==1){
-
-      ids.train <- ids.test
-
-      data.k <- data
-      data.pred.k <- data.pred
-
-    }else{
-
-      ids.train <- ids[which(fold!=k)]
-
-      data.k <- data[which(data[,subject]%in%ids.train),]
-      data.pred.k <- data.pred[which(data.pred[,subject]%in%ids.test),]
-
-    }
-
-    # estimation of summaries on training data and test data
-
-    res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
-                             subject = subject, time = time, time.event = time.event, event = event,
-                             long.method = long.method, lmm.package = lmm.package,
-                             surv.covar = surv.covar, scaling = scaling)
-
-    for (tHor in tHors){ # tHor loop
-
-      # censuring to horizon time
-      data.surv <- res.LMsum$data.surv
-      data.surv[which(data.surv$time.event > tHor), "event"] <- 0
-      data.surv$time.event <- pmin(data.surv$time.event, tHor)
-
-      data.surv.pred <- res.LMsum$data.surv.pred
-      data.surv.pred[which(data.surv.pred$time.event > tHor), "event"] <- 0
-      data.surv.pred$time.event <- pmin(data.surv.pred$time.event, tHor)
-
-      # survival model on training data
-      res.LMsurv <- LMsurv(data.surv = data.surv, surv.methods = surv.methods,
-                           cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
-                           spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
-                           rsf.split = rsf.split)
-
-      # survival model on test data
-      res.LMpred <- LMpred(data.surv = data.surv.pred, model.surv = res.LMsurv$model.surv,
-                           long.method = long.method, surv.methods = surv.methods,
-                           tHor = tHor)
-
-      if (!is.null(SL.weights)){
-
-        SL.pred <- res.LMpred$pred.surv%*%SL.weights
-        colnames(SL.pred) <- "superlearner"
-        res.LMpred$pred.surv <- cbind(res.LMpred$pred.surv, SL.pred)
-
-      }
-
-      res.LMassess <- LMassess(pred.surv = res.LMpred$pred.surv, data.surv = data.surv.pred, tHor = tHor)
-
-      AUC[[as.character(tHor)]] <- rbind(AUC[[as.character(tHor)]], res.LMassess$AUC)
-      BS[[as.character(tHor)]] <- rbind(BS[[as.character(tHor)]], res.LMassess$BS)
-
-      pred.surv[[as.character(tHor)]] <- rbind(pred.surv[[as.character(tHor)]], res.LMpred$pred.surv)
-      pred.surv[[as.character(tHor)]] <- pred.surv[[as.character(tHor)]][order(as.integer(rownames(pred.surv[[as.character(tHor)]]))), , drop = FALSE]
-
-    }
-
-  }
-
-  return(list(data.surv = res.LMsum$data.surv, data.surv.pred = res.LMsum$data.surv.pred,
-              model.surv = res.LMsurv$model.surv, pred.surv = pred.surv,
-              AUC = AUC, BS = BS))
 
 }

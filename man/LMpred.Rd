@@ -4,10 +4,11 @@
 \alias{LMpred}
 \title{Title}
 \usage{
-LMpred(data.surv, model.surv, long.method, surv.methods, tHor)
+LMpred(data.surv, model.surv, long.method, surv.methods, tHor, cause = 1,
+  CR = FALSE)
 }
 \arguments{
-\item{tHor}{}
+\item{CR}{}
 }
 \description{
 Title

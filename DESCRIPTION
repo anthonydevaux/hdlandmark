@@ -1,14 +1,36 @@
 Package: hdlandmark
-Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Anthony",
+           family = "Devaux",
+           role = c("aut", "cre"),
+           email = "anthony.devaux@u-bordeaux.fr",
+           comment = c(ORCID = "0000-0002-8862-4218"))
+Description: hdlandmark provides individual survival probabilities using covariates and summaries build on longitudinal data from biomarkers collected over the time. For each biomarker, an ensemble of predictive summaries are computed at the user-specified landmark time tLM. For instance, we use random-effects, level, slope and cumulative level. Then, these summaries and covariates are used as input in several survival prediction methods including: Cox model (his extension with penalty), sparse-Partial Least Square for survival data and random survival forests For each survival prediction method, we provide the individual prediction on horizon time tHor.
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
-Imports: Rdpack
-RdMacros: Rdpack
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.1
+Imports: 
+    lme4,
+    lcmm,
+    funData,
+    ggplot2,
+    pec,
+    timeROC,
+    survival,
+    prodlim,
+    randomForestSRC,
+    ranger,
+    arules,
+    stringr,
+    glmnet,	
+    plsRcox,
+    Matrix,
+    viridis,
+    Rdpack,
+    mgcv,
+    stats,
+    utils

@@ -5,10 +5,10 @@
 \title{Title}
 \usage{
 LMsurv(data.surv, surv.methods, cox.submodels, coxnet.submodels,
-  spls.submodels, rsf.submodels, rsf.split)
+  spls.submodels, rsf.submodels, rsf.split, cause = 1, CR = FALSE)
 }
 \arguments{
-\item{rsf.split}{}
+\item{CR}{}
 }
 \description{
 Title

@@ -10,8 +10,8 @@ hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
   cox.submodels = c("autoVar", "allVar"), coxnet.submodels = c("opt",
   "lasso", "ridge"), spls.submodels = c("opt", "nosparse", "maxsparse"),
   rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
-  "bs.gradient"), kfolds = 10, seed = 1234, scaling = FALSE,
-  SL.weights = NULL)
+  "bs.gradient"), cause = 1, kfolds = 10, seed = 1234,
+  scaling = FALSE, SL.weights = NULL)
 }
 \arguments{
 \item{data}{data.frame object containing longitudinal and survival data}
@@ -62,12 +62,12 @@ hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
 \item{tHors}{horizon time(s)}
 \item{models}{a list for each landmark time(s):}
 \itemize{
- \item \code{data.surv} input data in survival methods for training (only available on the last fold)
- \item \code{data.surv.pred} input data in survival methods for predicting (only available on the last fold)
- \item \code{model.surv} output object for the selected survival predictive methods (only available on the last fold)
- \item \code{pred.surv} for each horizon time(s), containing the individual probabilities for the selected survival predictive methods
- \item \code{AUC} list of horizon time(s) containing AUC for each fold for the selected survival predictive methods
- \item \code{BS} list of horizon time(s) containing BS for each fold for the selected survival predictive methods
+\item \code{data.surv} input data in survival methods for training (only available on the last fold)
+\item \code{data.surv.pred} input data in survival methods for predicting (only available on the last fold)
+\item \code{model.surv} output object for the selected survival predictive methods (only available on the last fold)
+\item \code{pred.surv} for each horizon time(s), containing the individual probabilities for the selected survival predictive methods
+\item \code{AUC} list of horizon time(s) containing AUC for each fold for the selected survival predictive methods
+\item \code{BS} list of horizon time(s) containing BS for each fold for the selected survival predictive methods
 }
 \item{long.method}{method(s) used to modeling the biomarkers}
 \item{surv.methods}{method(s) used to compute the individual survival prediction}
@@ -83,85 +83,98 @@ For each survival prediction method, we provide the individual prediction on hor
 }
 \examples{
 
-library(splines)
-library(rstpm2)
+\dontrun{
 
 data(pbc2)
 
 # Formula for the modeling of the biomarkers using splines
-marker <-
-    list(serBilir = list(model = list(fixed = serBilir ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  subject = "id"),
-                         deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  indFixed = c(2,3,4),
-                                  random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  indRandom = c(2,3,4))),
-    serChol = list(model = list(fixed = serChol ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 subject = "id"),
-                    deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 indFixed = c(2,3,4),
-                                 random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 indRandom = c(2,3,4))),
-    albumin = list(model = list(fixed = albumin ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                subject = "id"),
-                   deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                indFixed = c(2,3,4),
-                                random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                indRandom = c(2,3,4))),
-    alkaline = list(model = list(fixed = alkaline ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 subject = "id"),
-                    deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 indFixed = c(2,3,4),
-                                 random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                 indRandom = c(2,3,4))),
-    SGOT = list(model = list(fixed = SGOT ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                             random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
+serBilir = list(model = list(fixed = serBilir ~ year,
+                             random = ~ year,
                              subject = "id"),
-                deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                             indFixed = c(2,3,4),
-                             random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                             indRandom = c(2,3,4))),
-    platelets = list(model = list(fixed = platelets ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  subject = "id"),
-                     deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  indFixed = c(2,3,4),
-                                  random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                  indRandom = c(2,3,4))),
-    prothrombin = list(model = list(fixed = prothrombin ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                    random = ~ ns(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                    subject = "id"),
-                       deriv = list(fixed = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                    indFixed = c(2,3,4),
-                                    random = ~ -1 + nsxD(year, knots = c(0.5, 2.0), Boundary.knots = c(0,4)),
-                                    indRandom = c(2,3,4))),
-    ascites = list(model = ascites ~ year + (1 + year|id),
+                deriv = list(fixed = ~ 1,
+                             indFixed = 2,
+                             random = ~ 1,
+                             indRandom = 2))
+
+serChol = list(model = list(fixed = serChol ~ year + I(year^2),
+                            random = ~ year + I(year^2),
+                            subject = "id"),
+               deriv = list(fixed = ~ 2*year,
+                            indFixed = c(2,3),
+                            random = ~ 2*year,
+                            indRandom = c(2,3)))
+
+albumin = list(model = list(fixed = albumin ~ year,
+                            random = ~ year,
+                            subject = "id"),
+               deriv = list(fixed = ~ 1,
+                            indFixed = 2,
+                            random = ~ 1,
+                            indRandom = 2))
+
+alkaline = list(model = list(fixed = alkaline ~ year,
+                             random = ~ year,
+                             subject = "id"),
+                deriv = list(fixed = ~ 1,
+                             indFixed = 2,
+                             random = ~ 1,
+                             indRandom = 2))
+
+SGOT = list(model = list(fixed = SGOT ~ year,
+                         random = ~ year,
+                         subject = "id"),
+            deriv = list(fixed = ~ 1,
+                         indFixed = 2,
+                         random = ~ 1,
+                         indRandom = 2))
+
+platelets = list(model = list(fixed = platelets ~ year + I(year^2),
+                              random = ~ year + I(year^2),
+                              subject = "id"),
+                 deriv = list(fixed = ~ 2*year,
+                              indFixed = c(2,3),
+                              random = ~ 2*year,
+                              indRandom = c(2,3)))
+
+prothrombin = list(model = list(fixed = prothrombin ~ year,
+                                random = ~ year,
+                                subject = "id"),
                    deriv = list(fixed = ~ 1,
                                 indFixed = 2,
                                 random = ~ 1,
-                                indRandom = 2)),
-    hepatomegaly = list(model = hepatomegaly ~ ns(year, knots = c(1.0), Boundary.knots = c(0,4)) +
-                        (1 + ns(year, knots = c(1.0), Boundary.knots = c(0,4))||id),
-                        deriv = list(fixed = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-                                     indFixed = c(2,3),
-                                     random = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-                                     indRandom = c(2,3))),
-    spiders = list(model = spiders ~ ns(year, knots = c(1.0), Boundary.knots = c(0,4)) +
-                    (1 + ns(year, knots = c(1.0), Boundary.knots = c(0,4))||id),
-                    deriv = list(fixed = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-                                 indFixed = c(2,3),
-                                 random = ~ -1 + nsxD(year, knots = c(1.0), Boundary.knots = c(0,4)),
-                                 indRandom = c(2,3))),
-    edema2 = list(model = edema2 ~ year + (1 + year|id),
-                  deriv = list(fixed = ~ 1,
-                               indFixed = 2,
-                               random = ~ 1,
-                               indRandom = 2))
-)
+                                indRandom = 2))
+
+ascites = list(model = ascites ~ year + (1 + year|id),
+               deriv = list(fixed = ~ 1,
+                            indFixed = 2,
+                            random = ~ 1,
+                            indRandom = 2))
+
+hepatomegaly = list(model = hepatomegaly ~ year + (1 + year|id),
+                    deriv = list(fixed = ~ 1,
+                                 indFixed = 2,
+                                 random = ~ 1,
+                                 indRandom = 2))
+
+spiders = list(model = spiders ~ year + (1 + year|id),
+               deriv = list(fixed = ~ 1,
+                            indFixed = 2,
+                            random = ~ 1,
+                            indRandom = 2))
+
+edema2 = list(model = list(fixed = edema2 ~ year,
+                           random = ~ year,
+                           subject = "id"),
+              deriv = list(fixed = ~ 1,
+                           indFixed = 2,
+                           random = ~ 1,
+                           indRandom = 2))
+
+marker <- list(serBilir = serBilir, serChol = serChol, albumin = albumin,
+               alkaline = alkaline, SGOT = SGOT, platelets = platelets,
+               prothrombin = prothrombin, ascites = ascites,
+               hepatomegaly = hepatomegaly, spiders = spiders,
+               edema2 = edema2)
 
 # compute hdlandmark methodology
 hdlandmark.res <- hdlandmark(data = pbc2, data.pred = pbc2, markers = marker,
@@ -177,7 +190,7 @@ hdlandmark.res <- hdlandmark(data = pbc2, data.pred = pbc2, markers = marker,
 
 # get individual predictions for each method
 hdlandmark.res$models[[`4`]]$pred.surv$`3`
-
+}
 
 }
 \references{

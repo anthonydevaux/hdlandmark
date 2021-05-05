@@ -27,6 +27,7 @@
 #' @param rsf.submodels a character vector containing random survival forests sub-methods \insertCite{ishwaran_random_2008}{hdlandmark}.
 #' @param rsf.split a character vector containing the split criterion for random survival forests sub-methods. \code{logrank} for log-rank splitting or \code{bs.gradient} for gradient-based brier score splitting.
 #' @param cause
+#' @param HW
 #' @param kfolds number of fold in cross-validation
 #' @param seed (optional) seed number
 #' @param scaling boolean to scale summaries (default is \code{FALSE})
@@ -174,7 +175,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
                        rsf.split = c("logrank", "bs.gradient"),
-                       cause = 1,
+                       cause = 1, HW = NULL,
                        kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL){
 
   ####### Check #######
@@ -295,6 +296,14 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     }
   }
 
+  if (!is.null(HW)){
+    if (HW<=0){
+      stop("HW value cant be negative or null !")
+    }
+  }else{
+    HW <- abs(min(c(data[,time], data.pred[,time]), na.rm = T))
+  }
+
   surv.methods <- NULL
 
   if (length(cox.submodels)>0){
@@ -368,7 +377,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
       res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                                subject = subject, time = time, time.event = time.event, event = event,
                                long.method = long.method, lmm.package = lmm.package,
-                               surv.covar = surv.covar, scaling = scaling)
+                               surv.covar = surv.covar, scaling = scaling, HW = HW)
 
       for (tHor in tHors){ # tHor loop
 

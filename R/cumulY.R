@@ -11,7 +11,7 @@
 #'
 #' @examples
 #'
-cumulY <- function(predRE, data, time, marker_name, tLM, HW){
+cumulY <- function(predRE, data, time, tLM, HW){
 
   subject <- predRE$group
 

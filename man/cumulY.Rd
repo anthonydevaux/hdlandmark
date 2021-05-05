@@ -4,7 +4,7 @@
 \alias{cumulY}
 \title{Function to compute the cumulative prediction value of longitudinal outcome using an history window}
 \usage{
-cumulY(predRE, data, time, marker_name, tLM, HW)
+cumulY(predRE, data, time, tLM, HW)
 }
 \arguments{
 \item{HW}{}

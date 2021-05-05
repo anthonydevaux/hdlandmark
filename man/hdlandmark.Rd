@@ -10,7 +10,7 @@ hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
   cox.submodels = c("autoVar", "allVar"), coxnet.submodels = c("opt",
   "lasso", "ridge"), spls.submodels = c("opt", "nosparse", "maxsparse"),
   rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
-  "bs.gradient"), cause = 1, kfolds = 10, seed = 1234,
+  "bs.gradient"), cause = 1, HW = NULL, kfolds = 10, seed = 1234,
   scaling = FALSE, SL.weights = NULL)
 }
 \arguments{

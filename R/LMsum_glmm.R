@@ -8,6 +8,7 @@
 #' @param time
 #' @param HW
 #' @param threshold
+#' @param lmm.package
 #'
 #' @return
 #' @export
@@ -15,7 +16,7 @@
 #' @import lme4
 #'
 #' @examples
-LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold = NULL, lmm.package){
+LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, HW, threshold = NULL, lmm.package){
 
   markers.names <- names(markers)
 
@@ -103,7 +104,7 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, threshold =
 
     cat("cumulative...", "\n")
 
-    cumul_Y <- cumulY(pred.RE, data.surv, time, marker, tLM, HW = tLM)
+    cumul_Y <- cumulY(predRE = pred.RE, data = data.surv, time = time, tLM = tLM, HW = HW)
     data.surv[which(data.surv[,subject]%in%rownames(cumul_Y)),ncol(data.surv) + 1] <- cumul_Y
     colnames(data.surv)[ncol(data.surv)] <- paste(marker, "cumul", sep = "_")
 

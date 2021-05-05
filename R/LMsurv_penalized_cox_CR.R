@@ -80,17 +80,16 @@ LMsurv.coxnet.CR <- function(data.surv, coxnet.submodels, cause = 1){
 
   }
 
-
   if (any(coxnet.submodels %in% c("ridge"))){
 
-    CSC.lasso.fit <- riskRegression::CSC(newformula,
+    CSC.ridge.fit <- riskRegression::CSC(newformula,
                                          data = data.surv.omit,
                                          cause = cause, fitter = "glmnet",
                                          lambda = lambda.min.ridge,
                                          alpha = 0)
 
 
-    model.coxnet[["ridge-CR"]] <- CSC.lasso.fit
+    model.coxnet[["ridge-CR"]] <- CSC.ridge.fit
 
   }
 

@@ -21,7 +21,8 @@ LMsurv.coxnet.CR <- function(data.surv, coxnet.submodels, cause = 1){
 
   data.surv.omit <- na.omit(data.surv[,!(names(data.surv) %in% "subject")])
 
-  nb.cause <- sort(unique(data.surv$event))[-1] # unique cause without censoring indicator
+  nb.cause <- sort(unique(data.surv.omit$event))[-1] # unique cause without censoring indicator
+  nb.cause <- c(nb.cause[cause],nb.cause[-cause]) # order with interest cause in first
 
   lambda.min.lasso <- lambda.min.ridge <- lambda.min.EN <- list()
 

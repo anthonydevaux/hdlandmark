@@ -6,6 +6,7 @@
 #' @param tLM
 #' @param subject
 #' @param time
+#' @param summaries
 #' @param HW
 #' @param threshold
 #' @param lmm.package
@@ -16,7 +17,7 @@
 #' @import lme4
 #'
 #' @examples
-LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, HW, threshold = NULL, lmm.package){
+LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, HW, threshold = NULL, lmm.package){
 
   markers.names <- names(markers)
 
@@ -66,47 +67,53 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, HW, thresho
 
     }
 
-    data.surv[which(data.surv[,subject]%in%rownames(pred.RE$b_i)),
-              (ncol(data.surv) + 1):(ncol(data.surv) + ncol(pred.RE$b_i))] <- pred.RE$b_i
+    if (any(summaries=="RE")){
 
-    # b_i_var <- colnames(pred.RE$b_i)
-    # b_i_var_issue <- stringr::str_detect(b_i_var, regex("(?=\\().*?(?<=\\))")) # colnames contain parenthesis ?
-    #
-    # if (any(b_i_var_issue)){
-    #   b_i_var[b_i_var_issue] <-
-    #     regmatches(b_i_var[b_i_var_issue], gregexpr("(?<=\\().*?(?=\\))", b_i_var[b_i_var_issue], perl=T))[[1]]
-    # }
-    #
-    # colnames(data.surv)[(ncol(data.surv)-ncol(pred.RE$b_i)+1):(ncol(data.surv))] <-
-    #   paste(marker, "RE", b_i_var, sep = "_")
+      data.surv[which(data.surv[,subject]%in%rownames(pred.RE$b_i)),
+                (ncol(data.surv) + 1):(ncol(data.surv) + ncol(pred.RE$b_i))] <- pred.RE$b_i
 
-    colnames(data.surv)[(ncol(data.surv)-ncol(pred.RE$b_i)+1):(ncol(data.surv))] <-
-      paste(marker, "RE", seq(ncol(pred.RE$b_i))-1, sep = "_")
+      colnames(data.surv)[(ncol(data.surv)-ncol(pred.RE$b_i)+1):(ncol(data.surv))] <-
+        paste(marker, "RE", seq(ncol(pred.RE$b_i))-1, sep = "_")
+
+    }
 
     ####### Current value at landmark time #######
 
-    cat("prediction...")
+    if (any(summaries=="pred")){
 
-    pred_Y <- predY(pred.RE, data.surv, time, tLM)
-    data.surv[which(data.surv[,subject]%in%rownames(pred_Y)),ncol(data.surv) + 1] <- pred_Y
-    colnames(data.surv)[ncol(data.surv)] <- paste(marker, "pred", sep = "_")
+      cat("prediction...")
 
+      pred_Y <- predY(pred.RE, data.surv, time, tLM)
+      data.surv[which(data.surv[,subject]%in%rownames(pred_Y)),ncol(data.surv) + 1] <- pred_Y
+      colnames(data.surv)[ncol(data.surv)] <- paste(marker, "pred", sep = "_")
+
+    }
 
     ####### Current slope at landmark time #######
 
-    cat("slope...")
+    if (any(summaries=="slope")){
 
-    deriv_Y <- derivY(pred.RE, data.surv, markers[[marker]]$deriv, time, tLM)
-    data.surv[which(data.surv[,subject]%in%rownames(deriv_Y)),ncol(data.surv) + 1] <- deriv_Y
-    colnames(data.surv)[ncol(data.surv)] <- paste(marker, "slope", sep = "_")
+      cat("slope...")
+
+      deriv_Y <- derivY(pred.RE, data.surv, markers[[marker]]$deriv, time, tLM)
+      data.surv[which(data.surv[,subject]%in%rownames(deriv_Y)),ncol(data.surv) + 1] <- deriv_Y
+      colnames(data.surv)[ncol(data.surv)] <- paste(marker, "slope", sep = "_")
+
+    }
 
     # Cumulative value at landmark time
 
-    cat("cumulative...", "\n")
+    if (any(summaries=="cumulative")){
 
-    cumul_Y <- cumulY(predRE = pred.RE, data = data.surv, time = time, tLM = tLM, HW = HW)
-    data.surv[which(data.surv[,subject]%in%rownames(cumul_Y)),ncol(data.surv) + 1] <- cumul_Y
-    colnames(data.surv)[ncol(data.surv)] <- paste(marker, "cumul", sep = "_")
+      cat("cumulative...")
+
+      cumul_Y <- cumulY(predRE = pred.RE, data = data.surv, time = time, tLM = tLM, HW = HW)
+      data.surv[which(data.surv[,subject]%in%rownames(cumul_Y)),ncol(data.surv) + 1] <- cumul_Y
+      colnames(data.surv)[ncol(data.surv)] <- paste(marker, "cumul", sep = "_")
+
+    }
+
+    cat("\n")
 
   }
 

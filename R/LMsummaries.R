@@ -13,6 +13,7 @@
 #' @param surv.covar
 #' @param scaling
 #' @param HW
+#' @param summaries
 #'
 #' @return
 #' @export
@@ -20,7 +21,7 @@
 #' @examples
 LMsummaries <- function(data, data.pred, markers, tLM,
                         subject, time, time.event, event,
-                        long.method, lmm.package, surv.covar, scaling, HW){
+                        long.method, lmm.package, surv.covar, scaling, HW, summaries){
 
   ########### Survival data at landmark time ###########
 
@@ -124,7 +125,8 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     # estimation
 
     res.glmm <- LMsum.glmm(data = data, data.surv = data.surv, markers = markers,
-                           tLM = tLM, subject = subject, time = time, HW = HW,
+                           tLM = tLM, subject = subject, time = time,
+                           summaries = summaries, HW = HW,
                            lmm.package = lmm.package)
     data.surv.long <- res.glmm$data.surv[,!(names(res.glmm$data.surv) %in%
                                               c(time, names(markers)))]
@@ -136,7 +138,8 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     # prediction
 
     res.glmm.pred <- LMsum.glmm(data = data.pred, data.surv = data.surv.pred, markers = res.glmm$markers.model,
-                                tLM = tLM, subject = subject, time = time, HW = HW,
+                                tLM = tLM, subject = subject, time = time,
+                                summaries = summaries, HW = HW,
                                 lmm.package = lmm.package)
     data.surv.long.pred <- res.glmm.pred$data.surv[,!(names(res.glmm.pred$data.surv) %in%
                                                         c(time, names(markers)))]
@@ -178,7 +181,8 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     # estimation
 
     res.glmm <- LMsum.glmm(data = data, data.surv = data.surv, markers = markers,
-                           tLM = tLM, subject = subject, time = time, HW = HW,
+                           tLM = tLM, subject = subject, time = time,
+                           summaries = summaries, HW = HW,
                            lmm.package = lmm.package)
     data.surv.glmm <- res.glmm$data.surv
 
@@ -197,7 +201,8 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     # prediction
 
     res.glmm.pred <- LMsum.glmm(data = data.pred, data.surv = data.surv.pred, markers = res.glmm$markers.model,
-                                tLM = tLM, subject = subject, time = time, HW = HW,
+                                tLM = tLM, subject = subject, time = time,
+                                summaries = summaries, HW = HW,
                                 lmm.package = lmm.package)
     data.surv.pred.glmm <- res.glmm.pred$data.surv
     data.surv.pred.mfpc <- res.mfpc$data.surv.pred

@@ -80,9 +80,12 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
                                                                  newdata = data.surv.coxnet,
                                                                  times = tHor,
                                                                  cause = cause,
-                                                                 type = "survival")
+                                                                 product.limit = FALSE,
+                                                                 #type = "survival")
+                                                                 type = "absRisk")
 
-          pred.surv[rownames(na.omit(data.surv)), models.ind] <- res.survfit$survival[,1]
+          #pred.surv[rownames(na.omit(data.surv)), models.ind] <- res.survfit$survival[,1]
+          pred.surv[rownames(na.omit(data.surv)), models.ind] <- res.survfit$absRisk[,1]
           colnames(pred.surv)[models.ind] <- method.name
 
         }

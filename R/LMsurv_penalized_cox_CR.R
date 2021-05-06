@@ -44,6 +44,10 @@ LMsurv.coxnet.CR <- function(data.surv, coxnet.submodels, cause = 1){
                                             family = "cox", alpha = 1,
                                             nfolds = 10)
 
+      # min 2 variables
+      lambda.seq <- coxnet.fit.lasso$lambda[which(coxnet.fit.lasso$nzero>1)]
+      cvm.seq <- coxnet.fit.lasso$cvm[which(coxnet.fit.lasso$nzero>1)]
+
       lambda.min.lasso[[ind.cause]] <- coxnet.fit.lasso$lambda.min
 
     }

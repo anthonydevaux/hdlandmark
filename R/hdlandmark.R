@@ -28,6 +28,7 @@
 #' @param rsf.split a character vector containing the split criterion for random survival forests sub-methods. \code{logrank} for log-rank splitting or \code{bs.gradient} for gradient-based brier score splitting.
 #' @param cause
 #' @param HW
+#' @param summaries
 #' @param kfolds number of fold in cross-validation
 #' @param seed (optional) seed number
 #' @param scaling boolean to scale summaries (default is \code{FALSE})
@@ -175,7 +176,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
                        rsf.split = c("logrank", "bs.gradient"),
-                       cause = 1, HW = NULL,
+                       cause = 1, HW = NULL, summaries = c("RE","score","pred","slope","cumulative"),
                        kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL){
 
   ####### Check #######
@@ -304,6 +305,10 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     HW <- abs(min(c(data[,time], data.pred[,time]), na.rm = T))
   }
 
+  if (!all(summaries%in%c("RE","score","pred","slope","cumulative"))){
+    stop("Wrong summary chosen ! Actually, only the following summaries are available : RE, score, pred, slope and cumulative !")
+  }
+
   surv.methods <- NULL
 
   if (length(cox.submodels)>0){
@@ -377,7 +382,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
       res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                                subject = subject, time = time, time.event = time.event, event = event,
                                long.method = long.method, lmm.package = lmm.package,
-                               surv.covar = surv.covar, scaling = scaling, HW = HW)
+                               surv.covar = surv.covar, scaling = scaling, HW = HW, summaries = summaries)
 
       for (tHor in tHors){ # tHor loop
 

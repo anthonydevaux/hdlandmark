@@ -19,7 +19,6 @@
 #' @param event variable name in data (and \code{data.pred}) which contains time-to-event
 #' @param long.method character that specifies how to model the longitudinal data. Choices are \code{GLMM} for generalized mixed model \insertCite{laird_random-effects_1982}{hdlandmark},
 #' \code{MFPC} for multivariate functional principal components \insertCite{yao_functional_2005}{hdlandmark} (works only on continuous markers) or \code{combine} for both.
-#' @param lmm.package package to model longitudinal data, either \code{lme4} or \code{lcmm}
 #' @param surv.covar covariates measure at \code{baseline} or last observation before landmark time \code{LOtLM}
 #' @param cox.submodels a character vector containing Cox submodels \insertCite{cox_regression_1972}{hdlandmark}. \code{autoVar} for Cox with backward variable selection. \code{allVar} for Cox with all variables
 #' @param coxnet.submodels a character vector containing penalized Cox submodels \insertCite{simon_regularization_2011}{hdlandmark}. \code{opt} for tuning the elastic net parameter penalty, \code{lasso} for lasso penalty and \code{ridge} for ridge penalty.
@@ -156,7 +155,7 @@
 #' hdlandmark.res <- hdlandmark(data = pbc2, data.pred = pbc2, markers = marker,
 #'                              tLMs = 4, tHors = 3,
 #'                              subject = "id", time = "year", time.event = "years", event = "status2",
-#'                              long.method = "GLMM", lmm.package = "lcmm", surv.covar = "baseline",
+#'                              long.method = "GLMM", surv.covar = "baseline",
 #'                              cox.submodels = "allVar",
 #'                              coxnet.submodels = "lasso",
 #'                              spls.submodels = "nosparse",
@@ -171,7 +170,7 @@
 #' @export
 hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        subject, time, time.event, event,
-                       long.method = c("combine", "GLMM", "MFPC"), lmm.package = c("lme4", "lcmm"),
+                       long.method = c("combine", "GLMM", "MFPC"),
                        surv.covar = c("baseline","LOtLM"),
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
                        spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
@@ -234,12 +233,6 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   }else{
     if (!all(long.method%in%c("combine","GLMM","MFPC"))){
       stop("Only combine, GLMM or MFPC are allowed for long.method")
-    }
-  }
-  if (length(lmm.package)>1){
-    lmm.package <- lmm.package[1]
-    if (!all(lmm.package%in%c("lme4","lcmm"))){
-      stop("Only lme4 or lcmm packages are allowed for estimation of linear mixed models")
     }
   }
   if (length(surv.covar)>1){
@@ -381,7 +374,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
       res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                                subject = subject, time = time, time.event = time.event, event = event,
-                               long.method = long.method, lmm.package = lmm.package,
+                               long.method = long.method,
                                surv.covar = surv.covar, scaling = scaling, HW = HW, summaries = summaries)
 
       for (tHor in tHors){ # tHor loop

@@ -5,10 +5,10 @@
 \title{Title}
 \usage{
 LMsummaries(data, data.pred, markers, tLM, subject, time, time.event,
-  event, long.method, lmm.package, surv.covar, scaling, HW)
+  event, long.method, surv.covar, scaling, HW, summaries)
 }
 \arguments{
-\item{HW}{}
+\item{summaries}{}
 }
 \description{
 Title

@@ -6,11 +6,12 @@
 \usage{
 hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
   time.event, event, long.method = c("combine", "GLMM", "MFPC"),
-  lmm.package = c("lme4", "lcmm"), surv.covar = c("baseline", "LOtLM"),
-  cox.submodels = c("autoVar", "allVar"), coxnet.submodels = c("opt",
-  "lasso", "ridge"), spls.submodels = c("opt", "nosparse", "maxsparse"),
+  surv.covar = c("baseline", "LOtLM"), cox.submodels = c("autoVar",
+  "allVar"), coxnet.submodels = c("opt", "lasso", "ridge"),
+  spls.submodels = c("opt", "nosparse", "maxsparse"),
   rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
-  "bs.gradient"), cause = 1, HW = NULL, kfolds = 10, seed = 1234,
+  "bs.gradient"), cause = 1, HW = NULL, summaries = c("RE", "score",
+  "pred", "slope", "cumulative"), kfolds = 10, seed = 1234,
   scaling = FALSE, SL.weights = NULL)
 }
 \arguments{
@@ -34,8 +35,6 @@ hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
 
 \item{long.method}{character that specifies how to model the longitudinal data. Choices are \code{GLMM} for generalized mixed model \insertCite{laird_random-effects_1982}{hdlandmark},
 \code{MFPC} for multivariate functional principal components \insertCite{yao_functional_2005}{hdlandmark} (works only on continuous markers) or \code{combine} for both.}
-
-\item{lmm.package}{package to model longitudinal data, either \code{lme4} or \code{lcmm}}
 
 \item{surv.covar}{covariates measure at \code{baseline} or last observation before landmark time \code{LOtLM}}
 
@@ -180,7 +179,7 @@ marker <- list(serBilir = serBilir, serChol = serChol, albumin = albumin,
 hdlandmark.res <- hdlandmark(data = pbc2, data.pred = pbc2, markers = marker,
                              tLMs = 4, tHors = 3,
                              subject = "id", time = "year", time.event = "years", event = "status2",
-                             long.method = "GLMM", lmm.package = "lcmm", surv.covar = "baseline",
+                             long.method = "GLMM", surv.covar = "baseline",
                              cox.submodels = "allVar",
                              coxnet.submodels = "lasso",
                              spls.submodels = "nosparse",

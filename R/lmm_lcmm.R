@@ -1,20 +1,22 @@
 #' Title
 #'
 #' @param model
+#' @param formul
 #' @param data
 #'
 #' @return
 #' @export
 #'
-#' @importFrom lcmm hlme
+#' @importFrom lcmm lcmm
 #'
 #' @examples
 lmm.lcmm <- function(model, formul, data){
 
-  if (class(model)!="hlme"){
+  if (class(model)!="lcmm"){
 
-    model.output <- hlme(fixed = model$fixed, random = model$random, subject = model$subject,
-                  data = data)
+    model.output <- lcmm(fixed = model$fixed, random = model$random,
+                         subject = model$subject, data = data,
+                         link = ifelse(!is.null(model$link), model$link, "linear"))
 
     pred.RE <- predRE.lcmm(model = model.output, formul = model, data = data)
 

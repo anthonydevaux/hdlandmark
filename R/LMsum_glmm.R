@@ -9,7 +9,6 @@
 #' @param summaries
 #' @param HW
 #' @param threshold
-#' @param lmm.package
 #'
 #' @return
 #' @export
@@ -17,7 +16,7 @@
 #' @import lme4
 #'
 #' @examples
-LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, HW, threshold = NULL, lmm.package){
+LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, HW, threshold = NULL){
 
   markers.names <- names(markers)
 
@@ -32,22 +31,9 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, 
     # numeric marker
     if (class(data[,marker])%in%c("numeric","integer")){
 
-      if (lmm.package=="lme4"){
-
-        res.lmm <- lmm.lme4(markers[[marker]]$model, data)
-        markers[[marker]]$formul <- markers[[marker]]$model
-        markers[[marker]]$model <- res.lmm$model.output
-
-      }
-
-      if (lmm.package=="lcmm"){
-
-        res.lmm <- lmm.lcmm(markers[[marker]]$model, markers[[marker]]$formul, data)
-        markers[[marker]]$formul <- markers[[marker]]$model
-        markers[[marker]]$model <- res.lmm$model.output
-
-      }
-
+      res.lmm <- lmm.lcmm(markers[[marker]]$model, markers[[marker]]$formul, data)
+      markers[[marker]]$formul <- markers[[marker]]$model
+      markers[[marker]]$model <- res.lmm$model.output
       pred.RE <- res.lmm$pred.RE
 
     }

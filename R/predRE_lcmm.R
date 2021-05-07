@@ -19,7 +19,7 @@ predRE.lcmm <- function(model, formul, data){
 
   row_subject <- rownames(data)
 
-  beta <- lcmm::fixef(model)[[2]] # fixed effect
+  beta <- c(0, lcmm::fixef(model)[[2]]) # 0 (intercept not estimated) + fixed effect
 
   # Variance-covariance matrix of the random-effects
 
@@ -30,7 +30,7 @@ predRE.lcmm <- function(model, formul, data){
   B <- t(B)
   B[upper.tri(B,diag=TRUE)] <- model$best[(model$N[1]+model$N[2]+1):(model$N[1]+model$N[2]+model$N[3])]
 
-  se <- tail(model$best, n = 1)^2 # residual variance error
+  se <- 1 # residual variance error (not estimated)
 
   # random design matrix
 
@@ -47,7 +47,9 @@ predRE.lcmm <- function(model, formul, data){
   row_subject <- intersect(row_subject, rownames(X))
 
   # outcome
-  Y <- na.omit(data[,as.character(formul$fixed)[2], drop = FALSE])
+  Yraw <- na.omit(data[,as.character(formul$fixed)[2], drop = FALSE])
+  Y <- lcmm::predictlink(model, Yvalues = Yraw[,1], ndraws = 0)$pred[order(order(Yraw)), 2, drop = FALSE]
+  rownames(Y) <- rownames(Yraw)
 
   row_subject <- intersect(row_subject, rownames(Y))
 

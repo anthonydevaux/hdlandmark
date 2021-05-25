@@ -58,7 +58,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
 
       if (any(rsf.submodels %in% c("noVS"))){
 
-        model.rsf[[paste(splitrule, "noVS", ifelse(CR, "CR", ""), sep = "-")]] <- res.rsf
+        model.rsf[[paste0(splitrule, "-noVS", ifelse(CR, "-CR", ""))]] <- res.rsf
 
       }
 
@@ -78,7 +78,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
                           cause = cause,
                           bootstrap = "by.root", samptype = "swr")
 
-      model.rsf[[paste(splitrule, "opt", ifelse(CR, "CR", ""), sep = "-")]] <- best.rf.VI
+      model.rsf[[paste0(splitrule, "-opt", ifelse(CR, "-CR", ""))]] <- best.rf.VI
 
     }
 
@@ -91,7 +91,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
                        cause = cause,
                        bootstrap = "by.root", samptype = "swr")
 
-      model.rsf[[paste(splitrule, "default", ifelse(CR, "CR", ""), sep = "-")]] <- res.rsf
+      model.rsf[[paste0(splitrule, "-default", ifelse(CR, "-CR", ""))]] <- res.rsf
 
     }
 

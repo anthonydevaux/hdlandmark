@@ -13,7 +13,7 @@
 #' @return
 #' @export
 #'
-#' @import lme4
+#' @importFrom lme4 glmer
 #'
 #' @examples
 LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, HW, threshold = NULL){
@@ -25,8 +25,6 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, 
     cat(paste0("Marker : ",marker), "\n")
 
     ####### Random effects #######
-
-    cat("random effect...")
 
     # numeric marker
     if (class(data[,marker])%in%c("numeric","integer")){
@@ -43,6 +41,8 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, 
 
       if (class(markers[[marker]]$model)!="glmerMod"){
 
+        cat("glmer modelling...")
+
         markers[[marker]]$model <- glmer(markers[[marker]]$model,
                                          data = data, family = "binomial",
                                          glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000)))
@@ -54,6 +54,8 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, 
     }
 
     if (any(summaries=="RE")){
+
+      cat("random effects...")
 
       data.surv[which(data.surv[,subject]%in%rownames(pred.RE$b_i)),
                 (ncol(data.surv) + 1):(ncol(data.surv) + ncol(pred.RE$b_i))] <- pred.RE$b_i
@@ -99,7 +101,7 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, 
 
     }
 
-    cat("\n")
+    cat("--", "\n")
 
   }
 

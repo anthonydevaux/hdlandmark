@@ -17,11 +17,16 @@
 LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels,
                    spls.submodels, rsf.submodels, rsf.split, cause = 1, CR = FALSE){
 
+  cat("Survival estimation on data train","\n")
+  cat("----------------------------------","\n")
+
   model.surv <- list()
 
   for (surv.method in surv.methods){
 
     if (surv.method=="cox"){
+
+      cat("cox...")
 
       model.surv[[surv.method]] <- LMsurv.cox(data.surv = data.surv, cox.submodels = cox.submodels)
 
@@ -29,11 +34,13 @@ LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels,
 
     if (surv.method=="FG"){
 
-
+      cat("Fine&Gray...")
 
     }
 
     if (surv.method=="penalized-cox"){
+
+      cat("Penalized-Cox...")
 
       if (!CR){
 
@@ -50,18 +57,24 @@ LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels,
 
     if (surv.method=="spls"){
 
+      cat("sPLS...")
+
       model.surv[[surv.method]] <- LMsurv.spls(data.surv = data.surv, spls.submodels = spls.submodels)
 
     }
 
     if (surv.method=="rsf"){
 
-        model.surv[[surv.method]] <- LMsurv.rsf(data.surv = data.surv, rsf.split = rsf.split,
-                                                rsf.submodels = rsf.submodels, cause = cause, CR = CR)
+      cat("RSF...")
+
+      model.surv[[surv.method]] <- LMsurv.rsf(data.surv = data.surv, rsf.split = rsf.split,
+                                              rsf.submodels = rsf.submodels, cause = cause, CR = CR)
 
     }
 
   }
+
+  cat("--", "\n")
 
   return(list(model.surv = model.surv))
 

@@ -123,6 +123,9 @@ LMsummaries <- function(data, data.pred, markers, tLM,
 
     # estimation
 
+    cat("Summaries estimation on data train","\n")
+    cat("----------------------------------","\n")
+
     res.glmm <- LMsum.glmm(data = data, data.surv = data.surv, markers = markers,
                            tLM = tLM, subject = subject, time = time,
                            summaries = summaries, HW = HW)
@@ -134,6 +137,9 @@ LMsummaries <- function(data, data.pred, markers, tLM,
     rownames(data.surv.long) <- data.surv.long$subject
 
     # prediction
+
+    cat("Summaries prediction on data test","\n")
+    cat("----------------------------------","\n")
 
     res.glmm.pred <- LMsum.glmm(data = data.pred, data.surv = data.surv.pred, markers = res.glmm$markers.model,
                                 tLM = tLM, subject = subject, time = time,

@@ -3,6 +3,8 @@
 #' @param model
 #' @param formul
 #' @param data
+#' @param link
+#' @param range
 #'
 #' @return
 #' @export
@@ -10,13 +12,23 @@
 #' @importFrom lcmm lcmm
 #'
 #' @examples
-lmm.lcmm <- function(model, formul, data){
+lmm.lcmm <- function(model, formul, data, link = "linear", range = NULL){
 
   if (class(model)!="lcmm"){
 
+    if (!is.null(model$range)){
+      range <- model$range
+    }
+
+    if (!is.null(model$link)){
+      link <- model$link
+    }
+
+    cat("lcmm modelling...")
+
     model.output <- lcmm(fixed = model$fixed, random = model$random,
                          subject = model$subject, data = data,
-                         link = ifelse(!is.null(model$link), model$link, "linear"))
+                         link = link, range = range, verbose = FALSE)
 
     pred.RE <- predRE.lcmm(model = model.output, formul = model, data = data)
 

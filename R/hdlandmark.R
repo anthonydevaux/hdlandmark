@@ -224,6 +224,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   }
   if (length(unique(data[,event]))>2){ # competitive risks
     CR <- TRUE
+  }else{
+    CR <- FALSE
   }
   if (!event%in%colnames(data)){
     stop("event variable is missing in data")
@@ -291,11 +293,11 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   }
 
   if (!is.null(HW)){
-    if (HW<=0){
-      stop("HW value cant be negative or null !")
+    if (HW>=tLM){
+      stop("HW value should be smaller than the landmark time !")
     }
   }else{
-    HW <- abs(min(c(data[,time], data.pred[,time]), na.rm = T))
+    HW <- min(c(data[,time], data.pred[,time]), na.rm = T)
   }
 
   if (!all(summaries%in%c("RE","score","pred","slope","cumulative"))){

@@ -49,7 +49,7 @@ cumulY <- function(predRE, data, time, tLM, HW){
 
     ##########################################
 
-    Y_cumul[Y_cumul_row,] <- integrate(predY.fct, lower = tLM - HW, upper = tLM)$value
+    Y_cumul[Y_cumul_row,] <- integrate(predY.fct, lower = HW, upper = tLM)$value
 
     Y_cumul_row <- Y_cumul_row + 1
 

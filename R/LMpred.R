@@ -19,6 +19,9 @@
 #' @examples
 LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause = 1, CR = FALSE){
 
+  cat("Survival prediction on data test","\n")
+  cat("----------------------------------","\n")
+
   models <- unlist(lapply(model.surv, FUN = function(x) length(x$model)))
   models.nb <- sum(models)
 
@@ -33,6 +36,8 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
     # Cox, Penalized-cox
 
     if (surv.method == "cox"){
+
+      cat("Cox...")
 
       sub.methods <- names(model.surv[[surv.method]]$model)
 
@@ -53,6 +58,8 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
     # penalized-cox
 
     if (surv.method == "penalized-cox"){
+
+      cat("Penalized-Cox...")
 
       sub.methods <- names(model.surv[[surv.method]]$model)
 
@@ -98,6 +105,8 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
     # sPLS
 
     if (surv.method == "spls"){
+
+      cat("sPLS...")
 
       sub.methods <- names(model.surv[[surv.method]]$model)
 
@@ -162,6 +171,8 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
 
     if (surv.method == "rsf"){
 
+      cat("RSF...")
+
       sub.methods <- names(model.surv[[surv.method]]$model)
 
       for (sub.method in sub.methods){
@@ -210,6 +221,8 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
     }
 
   }
+
+  cat("--", "\n")
 
   return(list(pred.surv = pred.surv, models.name = names(models)))
 

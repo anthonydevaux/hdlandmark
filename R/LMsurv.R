@@ -4,6 +4,7 @@
 #' @param surv.methods
 #' @param cox.submodels
 #' @param coxnet.submodels
+#' @param penaFG.submodels
 #' @param spls.submodels
 #' @param rsf.submodels
 #' @param rsf.split
@@ -14,7 +15,7 @@
 #' @export
 #'
 #' @examples
-LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels,
+LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels, penaFG.submodels,
                    spls.submodels, rsf.submodels, rsf.split, cause = 1, CR = FALSE){
 
   cat("Survival estimation on data train","\n")
@@ -32,9 +33,12 @@ LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels,
 
     }
 
-    if (surv.method=="FG"){
+    if (surv.method=="penalized-FG"){
 
-      cat("Fine&Gray...")
+      cat("Penalized-Fine&Gray...")
+
+      model.surv[[surv.method]] <- LMsurv.penaFG(data.surv = data.surv, penaFG.submodels = penaFG.submodels,
+                                                 cause = cause)
 
     }
 

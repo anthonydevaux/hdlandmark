@@ -3,6 +3,7 @@
 #' @param model A \code{lcmm} object
 #' @param formul
 #' @param data A dataframe containing longitudinal data
+#' @param subject
 #'
 #' @return A list containing the random effect for each subject, the fixed coefficients
 #' from \code{lcmm} and the formula used to compute the \code{lcmm} mixed model
@@ -13,9 +14,7 @@
 #'
 #' @examples
 #'
-predRE.lcmm <- function(model, formul, data){
-
-  subject <- formul$subject
+predRE.lcmm <- function(model, formul, data, subject){
 
   row_subject <- rownames(data)
 
@@ -79,7 +78,7 @@ predRE.lcmm <- function(model, formul, data){
   return(list(b_i = predRE,
               beta = beta,
               call = as.formula(paste(formul$fixed[2], formul$fixed[1], formul$fixed[3],
-                                      "+ (", formul$random[2], "|", formul$subject, ")")),
+                                      "+ (", formul$random[2], "|", subject, ")")),
               group = subject))
 
 }

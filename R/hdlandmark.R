@@ -22,6 +22,7 @@
 #' @param surv.covar covariates measure at \code{baseline} or last observation before landmark time \code{LOtLM}
 #' @param cox.submodels a character vector containing Cox submodels \insertCite{cox_regression_1972}{hdlandmark}. \code{autoVar} for Cox with backward variable selection. \code{allVar} for Cox with all variables
 #' @param coxnet.submodels a character vector containing penalized Cox submodels \insertCite{simon_regularization_2011}{hdlandmark}. \code{opt} for tuning the elastic net parameter penalty, \code{lasso} for lasso penalty and \code{ridge} for ridge penalty.
+#' @param penaFG.submodels
 #' @param spls.submodels a character vector containing Deviance residuals sparse-Partial Least Square sub-methods \insertCite{bastien_deviance_2015}{hdlandmark}. \code{opt} for tuning sparcity parameter \eqn{\eta}, \code{nosparse} for \eqn{\eta = 0} and \code{maxsparse} for \eqn{\eta = 0.9} \insertCite{@see also @chun_sparse_2010}{hdlandmark}
 #' @param rsf.submodels a character vector containing random survival forests sub-methods \insertCite{ishwaran_random_2008}{hdlandmark}.
 #' @param rsf.split a character vector containing the split criterion for random survival forests sub-methods. \code{logrank} for log-rank splitting or \code{bs.gradient} for gradient-based brier score splitting.
@@ -173,8 +174,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        long.method = c("combine", "GLMM", "MFPC"),
                        surv.covar = c("baseline","LOtLM"),
                        cox.submodels = c("autoVar","allVar"), coxnet.submodels = c("opt","lasso","ridge"),
-                       spls.submodels = c("opt","nosparse","maxsparse"), rsf.submodels = c("opt","noVS","default"),
-                       rsf.split = c("logrank", "bs.gradient"),
+                       penaFG.submodels = c("GCV","BIC"), spls.submodels = c("opt","nosparse","maxsparse"),
+                       rsf.submodels = c("opt","noVS","default"), rsf.split = c("logrank", "bs.gradient"),
                        cause = 1, HW = NULL, summaries = c("RE","score","pred","slope","cumulative"),
                        kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL){
 
@@ -254,6 +255,11 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
       warning("opt coxnet.submodels is not available for competitive risks !")
       coxnet.submodels <- coxnet.submodels[-which(coxnet.submodels=="opt")]
     }
+  }else{
+    if (!is.null(penaFG.submodels)){
+      warning("penaFG.submodels is only available for competitive risks !")
+      penaFG.submodels <- NULL
+    }
   }
   if (!all(spls.submodels%in%c("opt","nosparse","maxsparse"))){
     stop("Only opt, nosparse or maxsparse are allowed for spls.submodels")
@@ -311,6 +317,9 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   }
   if (length(coxnet.submodels)>0){
     surv.methods <- c(surv.methods, "penalized-cox")
+  }
+  if (length(penaFG.submodels)>0){
+    surv.methods <- c(surv.methods, "penalized-FG")
   }
   if (length(spls.submodels)>0){
     surv.methods <- c(surv.methods, "spls")
@@ -376,8 +385,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
       res.LMsum <- LMsummaries(data = data.k, data.pred = data.pred.k, markers = markers, tLM = tLM,
                                subject = subject, time = time, time.event = time.event, event = event,
-                               long.method = long.method,
-                               surv.covar = surv.covar, scaling = scaling, HW = HW, summaries = summaries)
+                               long.method = long.method, surv.covar = surv.covar,
+                               scaling = scaling, HW = HW, summaries = summaries)
 
       for (tHor in tHors){ # tHor loop
 
@@ -393,6 +402,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
         # survival model on training data
         res.LMsurv <- LMsurv(data.surv = data.surv, surv.methods = surv.methods,
                              cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
+                             penaFG.submodels = penaFG.submodels,
                              spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
                              rsf.split = rsf.split, cause = cause, CR = CR)
 

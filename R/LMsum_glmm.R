@@ -29,7 +29,8 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, 
     # numeric marker
     if (class(data[,marker])%in%c("numeric","integer")){
 
-      res.lmm <- lmm.lcmm(markers[[marker]]$model, markers[[marker]]$formul, data)
+      res.lmm <- lmm.lcmm(markers[[marker]]$model, markers[[marker]]$formul, data,
+                          subject = subject)
       markers[[marker]]$formul <- markers[[marker]]$model
       markers[[marker]]$model <- res.lmm$model.output
       pred.RE <- res.lmm$pred.RE
@@ -101,7 +102,7 @@ LMsum.glmm <- function(data, data.surv, markers, tLM, subject, time, summaries, 
 
     }
 
-    cat("--", "\n")
+    cat("\n--", "\n")
 
   }
 

@@ -102,6 +102,33 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
       }
     }
 
+    # Penalized-FG
+
+    if (surv.method == "penalized-FG"){
+
+      cat("penalized-FG...")
+
+      sub.methods <- names(model.surv[[surv.method]]$model)
+
+      for (sub.method in sub.methods){
+
+        model.current <- model.surv[[surv.method]]$model[[sub.method]]
+        method.name <- paste(long.method, surv.method, sub.method, sep = "-")
+
+        data.surv.penaFG <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
+
+        pred.penaFG.fit <- predict(object = model.current,
+                                   newdata = data.surv.penaFG,
+                                   times = tHor)
+
+        pred.surv[rownames(na.omit(data.surv)), models.ind] <- pred.penaFG.fit[,1]
+        colnames(pred.surv)[models.ind] <- method.name
+        models.ind <- models.ind + 1
+
+      }
+
+    }
+
     # sPLS
 
     if (surv.method == "spls"){

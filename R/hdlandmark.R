@@ -339,11 +339,11 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
 
   for (tLM in tLMs){ # landmark time loop
 
-    data.tLM <- data[which(data[,time]<tLM&data[,time.event]>tLM),]
+    data.tLM <- data[which(data[,time]<=tLM&data[,time.event]>tLM),]
 
     if (!is.null(data.pred)){ # different data training and test
 
-      data.pred.tLM <- data.pred[which(data.pred[,time]<tLM&data.pred[,time.event]>tLM),]
+      data.pred.tLM <- data.pred[which(data.pred[,time]<=tLM&data.pred[,time.event]>tLM),]
       kfolds <- 1
 
     }else{ # same data estimation/prediction

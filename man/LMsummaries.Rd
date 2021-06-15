@@ -4,11 +4,27 @@
 \alias{LMsummaries}
 \title{Title}
 \usage{
-LMsummaries(data, data.pred, markers, tLM, subject, time, time.event,
-  event, long.method, surv.covar, scaling, HW, summaries)
+LMsummaries(
+  data,
+  data.pred,
+  markers,
+  tLM,
+  subject,
+  time,
+  time.event,
+  event,
+  long.method,
+  surv.covar,
+  scaling,
+  HW,
+  summaries
+)
 }
 \arguments{
 \item{summaries}{}
+}
+\value{
+
 }
 \description{
 Title

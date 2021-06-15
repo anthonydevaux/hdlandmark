@@ -9,6 +9,9 @@ lmm.lme4(model, data)
 \arguments{
 \item{data}{}
 }
+\value{
+
+}
 \description{
 Title
 }

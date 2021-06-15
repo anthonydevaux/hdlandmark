@@ -78,7 +78,7 @@ LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels, pen
 
   }
 
-  cat("--", "\n")
+  cat("\n--", "\n")
 
   return(list(model.surv = model.surv))
 

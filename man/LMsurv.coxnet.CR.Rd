@@ -9,6 +9,9 @@ LMsurv.coxnet.CR(data.surv, coxnet.submodels, cause = 1)
 \arguments{
 \item{cause}{}
 }
+\value{
+
+}
 \description{
 Title
 }

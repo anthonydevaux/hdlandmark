@@ -4,12 +4,14 @@
 \alias{predRE.lcmm}
 \title{Function to predict the random effects on data using lcmm output}
 \usage{
-predRE.lcmm(model, formul, data)
+predRE.lcmm(model, formul, data, subject)
 }
 \arguments{
 \item{model}{A \code{lcmm} object}
 
 \item{data}{A dataframe containing longitudinal data}
+
+\item{subject}{}
 }
 \value{
 A list containing the random effect for each subject, the fixed coefficients

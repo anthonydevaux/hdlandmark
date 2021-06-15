@@ -4,15 +4,32 @@
 \alias{hdlandmark}
 \title{Compute individual dynamic prediction of clinical endpoint using large dimensional longitudinal biomarker history}
 \usage{
-hdlandmark(data, data.pred = NULL, markers, tLMs, tHors, subject, time,
-  time.event, event, long.method = c("combine", "GLMM", "MFPC"),
-  surv.covar = c("baseline", "LOtLM"), cox.submodels = c("autoVar",
-  "allVar"), coxnet.submodels = c("opt", "lasso", "ridge"),
+hdlandmark(
+  data,
+  data.pred = NULL,
+  markers,
+  tLMs,
+  tHors,
+  subject,
+  time,
+  time.event,
+  event,
+  long.method = c("combine", "GLMM", "MFPC"),
+  surv.covar = c("baseline", "LOtLM"),
+  cox.submodels = c("autoVar", "allVar"),
+  coxnet.submodels = c("opt", "lasso", "ridge"),
+  penaFG.submodels = c("GCV", "BIC"),
   spls.submodels = c("opt", "nosparse", "maxsparse"),
-  rsf.submodels = c("opt", "noVS", "default"), rsf.split = c("logrank",
-  "bs.gradient"), cause = 1, HW = NULL, summaries = c("RE", "score",
-  "pred", "slope", "cumulative"), kfolds = 10, seed = 1234,
-  scaling = FALSE, SL.weights = NULL)
+  rsf.submodels = c("opt", "noVS", "default"),
+  rsf.split = c("logrank", "bs.gradient"),
+  cause = 1,
+  HW = NULL,
+  summaries = c("RE", "score", "pred", "slope", "cumulative"),
+  kfolds = 10,
+  seed = 1234,
+  scaling = FALSE,
+  SL.weights = NULL
+)
 }
 \arguments{
 \item{data}{data.frame object containing longitudinal and survival data}

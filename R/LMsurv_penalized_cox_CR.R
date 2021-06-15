@@ -9,7 +9,6 @@
 #'
 #' @import glmnet
 #' @importFrom survival Surv coxph
-#' @import riskRegression
 #'
 #' @examples
 LMsurv.coxnet.CR <- function(data.surv, coxnet.submodels, cause = 1){
@@ -22,9 +21,9 @@ LMsurv.coxnet.CR <- function(data.surv, coxnet.submodels, cause = 1){
   data.surv.omit <- na.omit(data.surv[,!(names(data.surv) %in% "subject")])
 
   nb.cause <- sort(unique(data.surv.omit$event))[-1] # unique cause without censoring indicator
-  nb.cause <- c(nb.cause[cause],nb.cause[-cause]) # order with interest cause in first
 
-  lambda.min.lasso <- lambda.min.ridge <- lambda.min.EN <- list()
+  lambda.min.lasso <- lambda.min.ridge <- list()
+  lasso.coef <- ridge.coef <- c()
 
   ########################
   # tune lambda parameter for each cause for each penalty
@@ -39,16 +38,28 @@ LMsurv.coxnet.CR <- function(data.surv, coxnet.submodels, cause = 1){
 
     if (any(coxnet.submodels %in% c("lasso"))){
 
-      coxnet.fit.lasso <- glmnet::cv.glmnet(data.surv.X,
-                                            Surv(data.surv.Y$time.event, data.surv.Y$event),
-                                            family = "cox", alpha = 1,
-                                            nfolds = 10)
+      nzero <- 0
 
-      # min 2 variables
-      lambda.seq <- coxnet.fit.lasso$lambda[which(coxnet.fit.lasso$nzero>1)]
-      cvm.seq <- coxnet.fit.lasso$cvm[which(coxnet.fit.lasso$nzero>1)]
+      while (nzero==0){
+
+        coxnet.fit.lasso <- glmnet::cv.glmnet(data.surv.X,
+                                              Surv(data.surv.Y$time.event, data.surv.Y$event),
+                                              family = "cox", alpha = 1,
+                                              nfolds = 10)
+
+        # no var issue
+        best.cvm <- coxnet.fit.lasso$cvm[which(coxnet.fit.lasso$lambda==coxnet.fit.lasso$lambda.min)]
+        nzero <- coxnet.fit.lasso$nzero[which(coxnet.fit.lasso$cvm==best.cvm)]
+
+      }
 
       lambda.min.lasso[[ind.cause]] <- coxnet.fit.lasso$lambda.min
+
+      coxnet.fit.lasso <- glmnet::glmnet(data.surv.X,
+                                         Surv(data.surv.Y$time.event, data.surv.Y$event),
+                                         family = "cox", lambda = lambda.min.lasso[[ind.cause]], alpha = 1)
+
+      lasso.coef <- c(lasso.coef, as.numeric(coef(coxnet.fit.lasso)))
 
     }
 
@@ -61,40 +72,44 @@ LMsurv.coxnet.CR <- function(data.surv, coxnet.submodels, cause = 1){
 
       lambda.min.ridge[[ind.cause]] <- coxnet.fit.ridge$lambda.min
 
+      coxnet.fit.ridge <- glmnet::glmnet(data.surv.X,
+                                         Surv(data.surv.Y$time.event, data.surv.Y$event),
+                                         family = "cox", lambda = lambda.min.ridge[[ind.cause]], alpha = 0)
+
+      ridge.coef <- c(ridge.coef, as.numeric(coef(coxnet.fit.ridge)))
+
     }
 
   }
 
-  ###### CSC fit #####
+  ######Cause Specific coxph fit #####
 
-  allVar <- colnames(data.surv.X)
+  time.event <- data.surv$time.event
+  event <- factor(data.surv$event, 0:max(nb.cause))
+  data.surv.X <- subset(data.surv, select = -c(time.event, event))
+
+  allVar <- colnames(data.surv.X)[-which(colnames(data.surv.X)=="subject")]
 
   newformula <- reformulate(termlabels = allVar,
-                            response = "Hist(time.event,event)")
+                            response = "Surv(time.event,event)")
 
   if (any(coxnet.submodels %in% c("lasso"))){
 
-    CSC.lasso.fit <- riskRegression::CSC(newformula,
-                                         data = data.surv.omit,
-                                         cause = cause, fitter = "glmnet",
-                                         lambda = lambda.min.lasso,
-                                         alpha = 1)
+    coxph.lasso.fit <- survival::coxph(formula = newformula, data = data.surv.X, id = subject,
+                                       init = lasso.coef, iter = 0, x = TRUE)
 
 
-    model.coxnet[["lasso-CR"]] <- CSC.lasso.fit
+    model.coxnet[["lasso-CR"]] <- coxph.lasso.fit
 
   }
 
   if (any(coxnet.submodels %in% c("ridge"))){
 
-    CSC.ridge.fit <- riskRegression::CSC(newformula,
-                                         data = data.surv.omit,
-                                         cause = cause, fitter = "glmnet",
-                                         lambda = lambda.min.ridge,
-                                         alpha = 0)
+    coxph.ridge.fit <- survival::coxph(formula = newformula, data = data.surv.X, id = subject,
+                                       init = ridge.coef, iter = 0, x = TRUE)
 
 
-    model.coxnet[["ridge-CR"]] <- CSC.ridge.fit
+    model.coxnet[["ridge-CR"]] <- coxph.ridge.fit
 
   }
 

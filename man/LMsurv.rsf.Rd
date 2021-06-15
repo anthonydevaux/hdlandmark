@@ -9,6 +9,9 @@ LMsurv.rsf(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALSE)
 \arguments{
 \item{CR}{}
 }
+\value{
+
+}
 \description{
 Title
 }

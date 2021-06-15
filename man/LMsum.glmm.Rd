@@ -4,11 +4,23 @@
 \alias{LMsum.glmm}
 \title{Title}
 \usage{
-LMsum.glmm(data, data.surv, markers, tLM, subject, time, summaries, HW,
-  threshold = NULL)
+LMsum.glmm(
+  data,
+  data.surv,
+  markers,
+  tLM,
+  subject,
+  time,
+  summaries,
+  HW,
+  threshold = NULL
+)
 }
 \arguments{
 \item{threshold}{}
+}
+\value{
+
 }
 \description{
 Title

@@ -19,9 +19,9 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
 
   data.surv <- data.surv[,!(names(data.surv) %in% "subject")]
 
-  for (splitrule in rsf.split){
+  best.param <- NULL
 
-    best.param <- NULL
+  for (splitrule in rsf.split){
 
     if (any(rsf.submodels %in% c("opt"))){ # rsf tuning
 
@@ -110,7 +110,14 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
 
   }
 
-  return(list(model = model.rsf, mtry.opt = best.param[2], nodesize.opt = best.param[1],
-              surv.name = "rsf"))
+  if (!is.null(best.param)){
+    return(list(model = model.rsf, mtry.opt = best.param[2], nodesize.opt = best.param[1],
+                surv.name = "rsf"))
+  }else{
+    return(list(model = model.rsf, mtry.opt = NULL, nodesize.opt = NULL,
+                surv.name = "rsf"))
+  }
+
+
 
 }

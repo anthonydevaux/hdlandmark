@@ -4,11 +4,24 @@
 \alias{LMsurv}
 \title{Title}
 \usage{
-LMsurv(data.surv, surv.methods, cox.submodels, coxnet.submodels,
-  spls.submodels, rsf.submodels, rsf.split, cause = 1, CR = FALSE)
+LMsurv(
+  data.surv,
+  surv.methods,
+  cox.submodels,
+  coxnet.submodels,
+  penaFG.submodels,
+  spls.submodels,
+  rsf.submodels,
+  rsf.split,
+  cause = 1,
+  CR = FALSE
+)
 }
 \arguments{
 \item{CR}{}
+}
+\value{
+
 }
 \description{
 Title

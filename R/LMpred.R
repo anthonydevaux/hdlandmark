@@ -14,7 +14,6 @@
 #' @importFrom survival survfit
 #' @importFrom randomForestSRC predict.rfsrc
 #' @import ranger
-#' @import riskRegression
 #'
 #' @examples
 LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause = 1, CR = FALSE){
@@ -74,7 +73,7 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
           data.surv.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
           res.survfit <- tryCatch(survfit(model.current, data.surv.coxnet), error = function(e){return(NULL)})
           id.time <- sum(res.survfit$time <= tHor)
-          pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+          pred.surv[rownames(pred.surv)%in%data.surv.coxnet$subject, models.ind] <- res.survfit$surv[id.time,]
           colnames(pred.surv)[models.ind] <- method.name
 
 
@@ -83,16 +82,9 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
         if (any(sub.method %in% c("opt-CR","lasso-CR","ridge-CR"))){
 
           data.surv.coxnet <- as.data.frame(model.matrix( ~ ., na.omit(data.surv))[,-1])
-          res.survfit <- riskRegression::predictCauseSpecificCox(model.current,
-                                                                 newdata = data.surv.coxnet,
-                                                                 times = tHor,
-                                                                 cause = cause,
-                                                                 product.limit = FALSE,
-                                                                 #type = "survival")
-                                                                 type = "absRisk")
-
-          #pred.surv[rownames(na.omit(data.surv)), models.ind] <- res.survfit$survival[,1]
-          pred.surv[rownames(na.omit(data.surv)), models.ind] <- res.survfit$absRisk[,1]
+          res.survfit <- tryCatch(survfit(model.current, data.surv.coxnet), error = function(e){return(NULL)})
+          id.time <- sum(res.survfit$time <= tHor)
+          pred.surv[rownames(pred.surv)%in%data.surv.coxnet$subject, models.ind] <- res.survfit$pstate[id.time, , cause+1]
           colnames(pred.surv)[models.ind] <- method.name
 
         }
@@ -121,7 +113,7 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
                                    newdata = data.surv.penaFG,
                                    times = tHor)
 
-        pred.surv[rownames(na.omit(data.surv)), models.ind] <- pred.penaFG.fit[,1]
+        pred.surv[rownames(pred.surv)%in%data.surv.penaFG$subject, models.ind] <- pred.penaFG.fit[,1]
         colnames(pred.surv)[models.ind] <- method.name
         models.ind <- models.ind + 1
 
@@ -249,7 +241,7 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
 
   }
 
-  cat("--", "\n")
+  cat("\n--", "\n")
 
   return(list(pred.surv = pred.surv, models.name = names(models)))
 

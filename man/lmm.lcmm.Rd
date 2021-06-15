@@ -4,10 +4,13 @@
 \alias{lmm.lcmm}
 \title{Title}
 \usage{
-lmm.lcmm(model, formul, data)
+lmm.lcmm(model, formul, data, link = "linear", range = NULL, subject)
 }
 \arguments{
-\item{data}{}
+\item{subject}{}
+}
+\value{
+
 }
 \description{
 Title

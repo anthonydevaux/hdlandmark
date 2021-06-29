@@ -23,7 +23,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
 
   for (splitrule in rsf.split){
 
-    if (any(rsf.submodels %in% c("opt"))){ # rsf tuning
+    if (any(rsf.submodels %in% c("opt","noVS"))){ # rsf tuning
 
       best.err <- 1
 
@@ -58,27 +58,31 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
 
       if (any(rsf.submodels %in% c("noVS"))){
 
-        model.rsf[[paste0(splitrule, "-noVS", ifelse(CR, "-CR", ""))]] <- res.rsf
+        model.rsf[[paste0(splitrule, "-noVS", ifelse(CR, "-CR", ""))]] <- best.rsf
 
       }
 
-      VI.obj <- vimp.rfsrc(res.rsf, importance = "permute")
+      if (any(rsf.submodels %in% c("opt"))){
 
-      # VIMP > 0.005
-      VI.var.selected <- names(VI.obj$importance[VI.obj$importance>0.005])
+        VI.obj <- vimp.rfsrc(res.rsf, importance = "permute")
 
-      # Top 10% variables
-      # topten <- round(length(VI.obj$importance)/10)
-      # VI.var.selected <- names(sort(VI.obj$importance, decreasing = T)[1:topten])
+        # VIMP > 0.005
+        VI.var.selected <- names(VI.obj$importance[VI.obj$importance>0.005])
 
-      best.rf.VI <- rfsrc(Surv(time.event, event) ~ ., data.surv[,c(VI.var.selected,"time.event","event")],
-                          ntree = 1000,
-                          nsplit = 0,
-                          splitrule = splitrule,
-                          cause = cause,
-                          bootstrap = "by.root", samptype = "swr")
+        # Top 10% variables
+        # topten <- round(length(VI.obj$importance)/10)
+        # VI.var.selected <- names(sort(VI.obj$importance, decreasing = T)[1:topten])
 
-      model.rsf[[paste0(splitrule, "-opt", ifelse(CR, "-CR", ""))]] <- best.rf.VI
+        best.rf.VI <- rfsrc(Surv(time.event, event) ~ ., data.surv[,c(VI.var.selected,"time.event","event")],
+                            ntree = 1000,
+                            nsplit = 0,
+                            splitrule = splitrule,
+                            cause = cause,
+                            bootstrap = "by.root", samptype = "swr")
+
+        model.rsf[[paste0(splitrule, "-opt", ifelse(CR, "-CR", ""))]] <- best.rf.VI
+
+      }
 
     }
 

@@ -177,7 +177,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        penaFG.submodels = c("GCV","BIC"), spls.submodels = c("opt","nosparse","maxsparse"),
                        rsf.submodels = c("opt","noVS","default"), rsf.split = c("logrank", "bs.gradient"),
                        cause = 1, HW = NULL, summaries = c("RE","score","pred","slope","cumulative"),
-                       kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL){
+                       kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL,
+                       nodesize.grid = NULL, mtry.grid = NULL){
 
   ####### Check #######
 
@@ -404,7 +405,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                              cox.submodels = cox.submodels, coxnet.submodels = coxnet.submodels,
                              penaFG.submodels = penaFG.submodels,
                              spls.submodels = spls.submodels, rsf.submodels = rsf.submodels,
-                             rsf.split = rsf.split, cause = cause, CR = CR)
+                             rsf.split = rsf.split, cause = cause, CR = CR,
+                             nodesize.grid = nodesize.grid, mtry.grid = mtry.grid)
 
         # survival model on test data
         res.LMpred <- LMpred(data.surv = data.surv.pred, model.surv = res.LMsurv$model.surv,

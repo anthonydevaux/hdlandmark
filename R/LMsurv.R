@@ -16,7 +16,8 @@
 #'
 #' @examples
 LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels, penaFG.submodels,
-                   spls.submodels, rsf.submodels, rsf.split, cause = 1, CR = FALSE){
+                   spls.submodels, rsf.submodels, rsf.split, cause = 1, CR = FALSE,
+                   nodesize.grid = NULL, mtry.grid = NULL){
 
   cat("Survival estimation on data train","\n")
   cat("----------------------------------","\n")
@@ -72,7 +73,8 @@ LMsurv <- function(data.surv, surv.methods, cox.submodels, coxnet.submodels, pen
       cat("RSF...")
 
       model.surv[[surv.method]] <- LMsurv.rsf(data.surv = data.surv, rsf.split = rsf.split,
-                                              rsf.submodels = rsf.submodels, cause = cause, CR = CR)
+                                              rsf.submodels = rsf.submodels, cause = cause, CR = CR,
+                                              nodesize.grid = nodesize.grid, mtry.grid = mtry.grid)
 
     }
 

@@ -13,7 +13,8 @@
 #' @importFrom survival Surv
 #'
 #' @examples
-LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALSE){
+LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALSE,
+                       nodesize.grid = NULL, mtry.grid = NULL){
 
   model.rsf <- list()
 
@@ -28,10 +29,16 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
       best.err <- 1
 
       mtry.max <- ncol(data.surv) - 2 # (no count time.event and event variables)
-      nodesize.max <- 20
 
-      for (nodesize in seq(1,nodesize.max,5)){
-        for (mtry in seq(1,mtry.max,5)){
+      if (is.null(nodesize.grid)){
+        nodesize.grid <- 15
+      }
+      if (is.null(mtry.grid)){
+        mtry.grid <- seq(5, mtry.max, by = 5)
+      }
+
+      for (nodesize in nodesize.grid){
+        for (mtry in mtry.grid){
 
           cat(paste0("Nodesize : ", nodesize, " and mtry : ", mtry), "\n")
 
@@ -44,7 +51,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
                            cause = cause,
                            bootstrap = "by.root", samptype = "swr")
 
-          rf.err <- tail(res.rsf$err.rate, 1)
+          rf.err <- tail(res.rsf$err.rate, 1)[cause]
 
           if (rf.err < best.err){
             best.err <- rf.err
@@ -53,6 +60,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
           }
           cat(paste0("Best error : ", round(best.err,4), " with nodesize = ",
                      best.param[1], " and mtry = ", best.param[2]), "\n")
+          cat("--\n")
         }
       }
 
@@ -67,7 +75,11 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
         VI.obj <- vimp.rfsrc(res.rsf, importance = "permute")
 
         # VIMP > 0.005
-        VI.var.selected <- names(VI.obj$importance[VI.obj$importance>0.005])
+        if (CR){
+          VI.var.selected <- names(VI.obj$importance[which(VI.obj$importance[,cause] > 0.005), cause])
+        }else{
+          VI.var.selected <- names(VI.obj$importance[which(VI.obj$importance>0.005)])
+        }
 
         # Top 10% variables
         # topten <- round(length(VI.obj$importance)/10)

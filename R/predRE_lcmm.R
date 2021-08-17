@@ -18,7 +18,8 @@ predRE.lcmm <- function(model, formul, data, subject){
 
   row_subject <- rownames(data)
 
-  beta <- c(0, lcmm::fixef(model)[[2]]) # 0 (intercept not estimated) + fixed effect
+  #beta <- c(0, lcmm::fixef(model)[[2]]) # 0 (intercept not estimated) + fixed effect
+  beta <- c(0, coef(model)[1:(length(model$Xnames)-1)]) # 0 (intercept not estimated) + fixed effect
 
   # Variance-covariance matrix of the random-effects
 

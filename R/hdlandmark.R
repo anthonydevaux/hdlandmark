@@ -300,8 +300,8 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   }
 
   if (!is.null(HW)){
-    if (HW>=tLM){
-      stop("HW value should be smaller than the landmark time !")
+    if (any(HW>=tLMs)){
+      stop("HW value should be smaller than the landmark times !")
     }
   }else{
     HW <- min(c(data[,time], data.pred[,time]), na.rm = T)

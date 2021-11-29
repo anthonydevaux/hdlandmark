@@ -21,7 +21,7 @@ LMsurv.cox <- function(data.surv, cox.submodels){
 
     data.surv.omit <- na.omit(data.surv) # omit values to compute step function
 
-    best.coxFit <- tryCatch(step(coxph(Surv(time.event, event) ~ ., data = data.surv.omit)),
+    best.coxFit <- tryCatch(step(coxph(Surv(time.event, event) ~ ., data = data.surv.omit), trace = 0),
                             error = function(e) {return(NULL)})
 
     if (!is.null(best.coxFit)){

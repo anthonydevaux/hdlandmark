@@ -29,7 +29,8 @@ lmm.lcmm <- function(model, formul, data, link = "linear", range = NULL, subject
 
     model.output <- lcmm(fixed = model$fixed, random = model$random,
                          subject = subject, data = data,
-                         link = link, range = range, verbose = FALSE)
+                         link = link, range = range, verbose = FALSE,
+                         B = c(rep(0,14),1), posfix = c(14,15))
 
     pred.RE <- predRE.lcmm(model = model.output, formul = model, data = data, subject = subject)
 

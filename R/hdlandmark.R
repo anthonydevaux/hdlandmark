@@ -185,12 +185,17 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
   if (!class(data)%in%c("data.frame","matrix")){
     stop("data should be class of data.frame or matrix")
   }
-  if (!class(markers)=="list"){
-    stop("markers should be class of list")
+  if (!is.null(markers)){
+    if (!class(markers)=="list"){
+      stop("markers should be class of list")
+    }
+    if (!all(names(markers)%in%colnames(data))){
+      stop("At least one marker variable is missing in data")
+    }
+  }else{
+    warning("markers object is null! No longitudinal data will be modeled!")
   }
-  if (!all(names(markers)%in%colnames(data))){
-    stop("At least one marker variable is missing in data")
-  }
+
   if (!class(tLMs)=="numeric"){
     stop("tLM should be class of numeric")
   }
@@ -258,7 +263,6 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     }
   }else{
     if (!is.null(penaFG.submodels)){
-      warning("penaFG.submodels is only available for competitive risks !")
       penaFG.submodels <- NULL
     }
   }

@@ -20,7 +20,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
 
   data.surv <- data.surv[,!(names(data.surv) %in% "subject")]
 
-  best.param <- NULL
+  best.param <- param.grid <- NULL
 
   for (splitrule in rsf.split){
 
@@ -37,6 +37,8 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
         mtry.grid <- seq(5, mtry.max, by = 5)
       }
 
+      param.grid <- matrix(NA, nrow = length(mtry.grid), ncol = length(nodesize.grid))
+
       for (nodesize in nodesize.grid){
         for (mtry in mtry.grid){
 
@@ -52,6 +54,7 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
                            bootstrap = "by.root", samptype = "swr")
 
           rf.err <- tail(res.rsf$err.rate, 1)[cause]
+          param.grid[which(mtry.grid==mtry),which(nodesize.grid==nodesize)] <- rf.err
 
           if (rf.err < best.err){
             best.err <- rf.err
@@ -127,10 +130,10 @@ LMsurv.rsf <- function(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALS
   }
 
   if (!is.null(best.param)){
-    return(list(model = model.rsf, mtry.opt = best.param[2], nodesize.opt = best.param[1],
+    return(list(model = model.rsf, param.grid = param.grid, mtry.opt = best.param[2], nodesize.opt = best.param[1],
                 surv.name = "rsf"))
   }else{
-    return(list(model = model.rsf, mtry.opt = NULL, nodesize.opt = NULL,
+    return(list(model = model.rsf, param.grid = NULL, mtry.opt = NULL, nodesize.opt = NULL,
                 surv.name = "rsf"))
   }
 

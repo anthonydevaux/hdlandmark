@@ -46,7 +46,7 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
         method.name <- paste(long.method, surv.method, sub.method, sep = "-")
         res.survfit <- tryCatch(survfit(model.current, data.surv), error = function(e){return(NULL)})
         id.time <- sum(res.survfit$time <= tHor)
-        pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+        pred.surv[rownames(data.surv)%in%colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
         colnames(pred.surv)[models.ind] <- method.name
         models.ind <- models.ind + 1
 
@@ -207,7 +207,7 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
           formula.xvar <- as.formula(as.character(model.current$call$formula)[c(1,3)])
           id.noNA <- rownames(model.frame(formula.xvar,
                                           data.surv[,model.current$xvar.names, drop = FALSE])) # id without NA
-          pred.surv[id.noNA, models.ind] <- res.survfit$survival[,id.time]
+          pred.surv[rownames(data.surv)%in%id.noNA, models.ind] <- res.survfit$survival[,id.time]
 
         }
 

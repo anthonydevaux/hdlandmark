@@ -7,11 +7,18 @@
 #' @export
 #'
 #' @importFrom plsRcox cv.coxsplsDR coxsplsDR
+#' @importFrom mixOmics nearZeroVar
 #'
 #' @examples
 LMsurv.spls <- function(data.surv, spls.submodels){
 
   model.spls <- list()
+
+  ind_var_issues <- which(colnames(data.surv)%in%c("DIPNIV","AUDI","DEM","LOGEM","ADL")) # paquid variables issues
+
+  if (length(ind_var_issues)>0){
+    data.surv <- data.surv[,-ind_var_issues]
+  }
 
   data.surv.omit <- na.omit(data.surv[,!(names(data.surv) %in% "subject")])
   data.surv.X <- model.matrix( ~ ., data.surv.omit[,!(names(data.surv.omit) %in% c("time.event","event"))])[,-1]
@@ -27,6 +34,16 @@ LMsurv.spls <- function(data.surv, spls.submodels){
   if (length(var.nullsd)>0){
 
     data.surv.X <- data.surv.X[,-var.nullsd]
+
+  }
+
+  # drop variables with near zero variance
+
+  nzv <- mixOmics::nearZeroVar(data.surv.X)
+
+  if (length(nzv$Position)>0){
+
+    data.surv.X <- data.surv.X[,-nzv$Position]
 
   }
 
@@ -55,14 +72,16 @@ LMsurv.spls <- function(data.surv, spls.submodels){
 
       }
 
-      cv.splsdrFit <- error.flag
+      if (error.flag!="error"){
+        cv.splsdrFit <- error.flag
 
-      temp.auc <- cv.splsdrFit$cv.error10[cv.splsdrFit$lambda.min10+1]
+        temp.auc <- cv.splsdrFit$cv.error10[cv.splsdrFit$lambda.min10+1]
 
-      if (temp.auc > best.auc){
-        best.auc <- temp.auc
-        best.eta <- eta
-        best.ncomp <- cv.splsdrFit$lambda.min10
+        if (temp.auc > best.auc){
+          best.auc <- temp.auc
+          best.eta <- eta
+          best.ncomp <- cv.splsdrFit$lambda.min10
+        }
       }
     }
 

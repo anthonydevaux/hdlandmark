@@ -176,7 +176,7 @@ LMpred <- function(data.surv, model.surv, long.method, surv.methods, tHor, cause
 
         id.time <- sum(res.survfit$time <= tHor)
 
-        pred.surv[colnames(res.survfit$surv), models.ind] <- res.survfit$surv[id.time,]
+        pred.surv[rownames(pred.surv) %in% data.surv.spls$subject, models.ind] <- res.survfit$surv[id.time,]
 
         colnames(pred.surv)[models.ind] <- method.name
 

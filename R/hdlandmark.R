@@ -75,9 +75,9 @@
 #' serChol = list(model = list(fixed = serChol ~ year + I(year^2),
 #'                             random = ~ year + I(year^2),
 #'                             subject = "id"),
-#'                deriv = list(fixed = ~ 2*year,
+#'                deriv = list(fixed = ~ I(2*year),
 #'                             indFixed = c(2,3),
-#'                             random = ~ 2*year,
+#'                             random = ~ I(2*year),
 #'                             indRandom = c(2,3)))
 #'
 #' albumin = list(model = list(fixed = albumin ~ year,
@@ -107,9 +107,9 @@
 #' platelets = list(model = list(fixed = platelets ~ year + I(year^2),
 #'                               random = ~ year + I(year^2),
 #'                               subject = "id"),
-#'                  deriv = list(fixed = ~ 2*year,
+#'                  deriv = list(fixed = ~ I(2*year),
 #'                               indFixed = c(2,3),
-#'                               random = ~ 2*year,
+#'                               random = ~ I(2*year),
 #'                               indRandom = c(2,3)))
 #'
 #' prothrombin = list(model = list(fixed = prothrombin ~ year,
@@ -138,19 +138,17 @@
 #'                             random = ~ 1,
 #'                             indRandom = 2))
 #'
-#' edema2 = list(model = list(fixed = edema2 ~ year,
-#'                            random = ~ year,
-#'                            subject = "id"),
-#'               deriv = list(fixed = ~ 1,
-#'                            indFixed = 2,
-#'                            random = ~ 1,
-#'                            indRandom = 2))
+#' edema = list(model = edema ~ year + (1 + year|id),
+#'              deriv = list(fixed = ~ 1,
+#'                           indFixed = 2,
+#'                           random = ~ 1,
+#'                           indRandom = 2))
 #'
 #' marker <- list(serBilir = serBilir, serChol = serChol, albumin = albumin,
 #'                alkaline = alkaline, SGOT = SGOT, platelets = platelets,
 #'                prothrombin = prothrombin, ascites = ascites,
 #'                hepatomegaly = hepatomegaly, spiders = spiders,
-#'                edema2 = edema2)
+#'                edema = edema)
 #'
 #' # compute hdlandmark methodology
 #' hdlandmark.res <- hdlandmark(data = pbc2, data.pred = pbc2, markers = marker,
@@ -161,8 +159,7 @@
 #'                              coxnet.submodels = "lasso",
 #'                              spls.submodels = "nosparse",
 #'                              rsf.submodels = "default",
-#'                              rsf.split = c("logrank"),
-#'                              kfolds = 10)
+#'                              rsf.split = c("logrank"))
 #'
 #' # get individual predictions for each method
 #' hdlandmark.res$models[[`4`]]$pred.surv$`3`
@@ -177,7 +174,7 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
                        penaFG.submodels = c("GCV","BIC"), spls.submodels = c("opt","nosparse","maxsparse"),
                        rsf.submodels = c("opt","noVS","default"), rsf.split = c("logrank", "bs.gradient"),
                        cause = 1, HW = NULL, summaries = c("RE","score","pred","slope","cumulative"),
-                       kfolds = 10, seed = 1234, scaling = FALSE, SL.weights = NULL,
+                       kfolds = 1, seed = 1234, scaling = FALSE, SL.weights = NULL,
                        nodesize.grid = NULL, mtry.grid = NULL){
 
   ####### Check #######
@@ -349,7 +346,6 @@ hdlandmark <- function(data, data.pred = NULL, markers, tLMs, tHors,
     if (!is.null(data.pred)){ # different data training and test
 
       data.pred.tLM <- data.pred[which(data.pred[,time]<=tLM&data.pred[,time.event]>tLM),]
-      kfolds <- 1
 
     }else{ # same data estimation/prediction
 

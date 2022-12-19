@@ -4,7 +4,15 @@
 \alias{LMsurv.rsf}
 \title{Title}
 \usage{
-LMsurv.rsf(data.surv, rsf.split, rsf.submodels, cause = 1, CR = FALSE)
+LMsurv.rsf(
+  data.surv,
+  rsf.split,
+  rsf.submodels,
+  cause = 1,
+  CR = FALSE,
+  nodesize.grid = NULL,
+  mtry.grid = NULL
+)
 }
 \arguments{
 \item{CR}{}

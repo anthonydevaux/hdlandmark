@@ -14,7 +14,9 @@ LMsurv(
   rsf.submodels,
   rsf.split,
   cause = 1,
-  CR = FALSE
+  CR = FALSE,
+  nodesize.grid = NULL,
+  mtry.grid = NULL
 )
 }
 \arguments{
